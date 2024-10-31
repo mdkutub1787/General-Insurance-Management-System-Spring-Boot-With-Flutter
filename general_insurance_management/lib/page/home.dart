@@ -1,16 +1,6 @@
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
-  final List<String> cardImages = [
-    'https://cdn-icons-png.flaticon.com/128/10571/10571154.png',
-    'https://cdn-icons-png.flaticon.com/128/10571/10571154.png',
-    'https://cdn-icons-png.flaticon.com/128/10571/10571154.png',
-    'https://cdn-icons-png.flaticon.com/128/10571/10571154.png',
-    'https://cdn-icons-png.flaticon.com/128/10571/10571367.png',
-    'https://cdn-icons-png.flaticon.com/128/10571/10571367.png',
-
-  ];
-
   final List<String> cardNames = [
     'Fire Policy',
     'Fire Bill',
@@ -18,9 +8,7 @@ class Home extends StatelessWidget {
     'Marine Policy',
     'Marine Bill',
     'Marine Money Receipt',
-
   ];
-
 
   final List<String> cardRoutes = [
     '/viewfirepolicy',
@@ -29,7 +17,6 @@ class Home extends StatelessWidget {
     '/viewmarinepolicy',
     '/viewmarinebill',
     '/viewmarinemoneyreceipt',
-
   ];
 
   final List<Color> cardColors = [
@@ -39,13 +26,26 @@ class Home extends StatelessWidget {
     Colors.orange,
     Colors.purple,
     Colors.teal,
-    Colors.amber,
-    Colors.cyan,
-    Colors.indigo,
-    Colors.brown,
-    Colors.grey,
-    Colors.lime,
   ];
+
+  IconData _getIconForCard(String name) {
+    switch (name) {
+      case 'Fire Policy':
+        return Icons.fire_extinguisher;
+      case 'Fire Bill':
+        return Icons.receipt_long;
+      case 'Fire Money Receipt':
+        return Icons.money;
+      case 'Marine Policy':
+        return Icons.sailing;
+      case 'Marine Bill':
+        return Icons.document_scanner;
+      case 'Marine Money Receipt':
+        return Icons.attach_money;
+      default:
+        return Icons.help_outline;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,81 +83,78 @@ class Home extends StatelessWidget {
           ),
         ),
       ),
-      drawer: Container(
-        width: 220,
-        child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.blueAccent,
-                      Colors.greenAccent,
-                      Colors.orangeAccent,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(
-                          'https://cdn.pixabay.com/photo/2015/10/30/20/13/sunset-1014712_960_720.jpg'),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Welcome, User!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Text(
-                      'mdkutub150@example.com',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.blueAccent,
+                    Colors.greenAccent,
+                    Colors.orangeAccent,
                   ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
-                onTap: () {
-                  Navigator.pushNamed(context, '/home');
-                },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(
+                        'https://cdn.pixabay.com/photo/2015/10/30/20/13/sunset-1014712_960_720.jpg'),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Welcome, User!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text(
+                    'mdkutub150@example.com',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Profile'),
-                onTap: () {
-                  Navigator.pushNamed(context, '/profile');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.contact_mail),
-                title: const Text('Contact Us'),
-                onTap: () {
-                  Navigator.pushNamed(context, '/contact');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () {
-                  Navigator.pushNamed(context, '/login');
-                },
-              ),
-            ],
-          ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pushNamed(context, '/home');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Profile'),
+              onTap: () {
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.contact_mail),
+              title: const Text('Contact Us'),
+              onTap: () {
+                Navigator.pushNamed(context, '/contact');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.pushNamed(context, '/login');
+              },
+            ),
+          ],
         ),
       ),
       body: SingleChildScrollView(
@@ -171,11 +168,11 @@ class Home extends StatelessWidget {
               crossAxisSpacing: 10.0,
               mainAxisSpacing: 10.0,
             ),
-            itemCount: cardImages.length,
+            itemCount: cardNames.length,
             itemBuilder: (context, index) {
               return Card(
                 elevation: 3.0,
-                color: cardColors[index],
+                color: cardColors[index % cardColors.length],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -190,24 +187,10 @@ class Home extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.network(
-                            cardImages[index],
-                            width: 40,
-                            height: 30,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                                      : null,
-                                ),
-                              );
-                            },
-                            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                              return const Icon(Icons.error, color: Colors.red);
-                            },
+                          Icon(
+                            _getIconForCard(cardNames[index]),
+                            size: 40,
+                            color: Colors.white,
                           ),
                           const SizedBox(height: 10),
                           Text(
@@ -215,6 +198,7 @@ class Home extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -270,14 +254,14 @@ class Home extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blueAccent,
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.pushNamed(context, '/new');
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: Colors.blueAccent,
+      //   child: const Icon(Icons.add),
+      //   onPressed: () {
+      //     Navigator.pushNamed(context, '/new');
+      //   },
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 }

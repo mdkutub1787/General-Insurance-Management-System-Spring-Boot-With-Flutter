@@ -41,6 +41,7 @@ dependencies:
   printing: ^5.3.0
   permission_handler: ^10.2.0
   carousel_slider: ^4.2.1
+  shared_preferences: ^2.3.2
 
 
 

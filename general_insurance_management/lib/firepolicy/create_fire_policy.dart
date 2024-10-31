@@ -33,8 +33,6 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
   DateTime? selectedDate;
   bool _isLoading = false;
 
-  final CreateFirePolicyService policyService = CreateFirePolicyService();
-
   @override
   void initState() {
     super.initState();
@@ -72,15 +70,13 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
       });
 
       try {
-        // Replace with actual token retrieval logic
-        String? token = await _retrieveToken();
+        String? token = await _retrieveToken(); // Implement token retrieval
 
-        final response = await policyService.createFirePolicy(policy, headers: {
+        final response = await PolicyService().createFirePolicy(policy, headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Use the retrieved token
+          'Authorization': 'Bearer $token',
         });
 
-        // Handle responses
         if (response.statusCode == 201 || response.statusCode == 200) {
           _showSnackBar('Policy created successfully!', Colors.green);
           _clearFormFields();
@@ -88,12 +84,8 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
             context,
             MaterialPageRoute(builder: (context) => const AllFirePolicyView()),
           );
-        } else if (response.statusCode == 403) {
-          _showSnackBar('Access denied: You do not have permission to perform this action.', Colors.red);
-        } else if (response.statusCode == 409) {
-          _showSnackBar('Policy already exists!', Colors.red);
         } else {
-          _showSnackBar('Policy creation failed with status: ${response.statusCode}', Colors.red);
+          _handleResponseError(response.statusCode);
         }
       } catch (e) {
         _showSnackBar('An error occurred: ${e.toString()}', Colors.red);
@@ -106,10 +98,9 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
   }
 
   Future<String?> _retrieveToken() async {
-    // Implement your logic to retrieve the stored token
-    return 'your_actual_token_here'; // Example token retrieval logic
+    // Implement your logic to retrieve the stored token securely
+    return 'your_actual_token_here';
   }
-
 
   void _clearFormFields() {
     bankNameTEC.clear();
@@ -150,6 +141,21 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: color, duration: const Duration(seconds: 3)),
     );
+  }
+
+  void _handleResponseError(int statusCode) {
+    String message;
+    switch (statusCode) {
+      case 403:
+        message = 'Access denied: You do not have permission to perform this action.';
+        break;
+      case 409:
+        message = 'Policy already exists!';
+        break;
+      default:
+        message = 'Policy creation failed with status: $statusCode';
+    }
+    _showSnackBar(message, Colors.red);
   }
 
   @override
@@ -245,7 +251,7 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : createFirePolicy,
                   icon: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Icon(Icons.save),
-                  label: const Text('Submit'),
+                  label: const Text('Save'),
                 ),
               ),
             ],
@@ -274,18 +280,26 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+    return GestureDetector(
+      onTap: () {
+        if (onTap != null) {
+          onTap!(context);
+        }
+      },
       child: TextFormField(
         controller: controller,
         readOnly: readOnly,
-        onTap: onTap != null ? () => onTap!(context) : null,
-        validator: (value) => value!.isEmpty ? 'Please enter $label' : null,
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon),
           border: const OutlineInputBorder(),
         ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/firepolicy/fire_policy_details.dart';
-import 'package:general_insurance_management/firepolicy/create_fire_policy.dart'; // Import your CreateFirePolicy page
+import 'package:general_insurance_management/firepolicy/create_fire_policy.dart';
 import 'package:general_insurance_management/model/policy_model.dart';
 import '../service/policy_service.dart';
 
@@ -13,15 +13,36 @@ class AllFirePolicyView extends StatefulWidget {
 
 class _AllFirePolicyViewState extends State<AllFirePolicyView> {
   late Future<List<PolicyModel>> futurePolicies;
-
-  final TextStyle commonStyle =
-      TextStyle(fontSize: 14, color: Colors.grey[700]);
+  final PolicyService policyService = PolicyService();
+  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.grey[700]);
 
   @override
   void initState() {
     super.initState();
-    final service = PolicyService();
-    futurePolicies = service.fetchFirePolicies();
+    loadPolicies();
+  }
+
+  void loadPolicies() {
+    setState(() {
+      futurePolicies = policyService.fetchFirePolicies();
+    });
+  }
+
+  Future<void> _deletePolicy(int policyId) async {
+    try {
+      await policyService.deletePolicy(policyId);
+      loadPolicies(); // Refresh the policy list after deletion
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Policy deleted successfully'),
+          duration: Duration(seconds: 2), // Snackbar auto-dismiss after 2 seconds
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting policy: $e')),
+      );
+    }
   }
 
   @override
@@ -48,16 +69,11 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
       body: FutureBuilder<List<PolicyModel>>(
         future: futurePolicies,
         builder: (context, snapshot) {
-          // Loading indicator while fetching data
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          }
-          // Error handling
-          else if (snapshot.hasError) {
+          } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          // No data available
-          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No policy available'));
           } else {
             return ListView.builder(
@@ -122,37 +138,65 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          SizedBox(
-                            width: 125,
-                            height: 30,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        AllFirePolicyDetails(policy: policy),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 125,
+                                height: 30,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AllFirePolicyDetails(policy: policy),
+                                      ),
+                                    );
+                                    loadPolicies(); // Refresh after returning from details
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.visibility),
+                                      SizedBox(width: 8),
+                                      Text('Details'),
+                                    ],
                                   ),
-                                );
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.visibility),
-                                  SizedBox(width: 8),
-                                  Text('Details'),
-                                ],
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 24),
+                                  ),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 24),
                               ),
-                            ),
+                              const SizedBox(width: 16),
+                              SizedBox(
+                                width: 80,
+                                height: 30,
+                                child: ElevatedButton(
+                                  onPressed: () => _deletePolicy(policy.id!),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.delete),
+                                    ],
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 24),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -165,12 +209,12 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) => CreateFirePolicy()), // Navigate to CreateFirePolicy page
+            MaterialPageRoute(builder: (context) => const CreateFirePolicy()),
           );
+          loadPolicies(); // Refresh after returning from create page
         },
         tooltip: 'Create Fire Policy',
         child: const Icon(Icons.add, color: Colors.blue),

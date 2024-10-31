@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           body: const Center(child: Text("The page you're looking for doesn't exist.")),
         ),
       ),
-      home: Home(),
+      home: Login(),
     );
   }
 }

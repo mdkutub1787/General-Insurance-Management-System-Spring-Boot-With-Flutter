@@ -3,11 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class PolicyService {
-  final String apiUrl = 'http://localhost:8080/api/policy/';
+  final String baseUrl = 'http://localhost:8080/api/policy/';
 
+  // Fetch all Fire Policies
   Future<List<PolicyModel>> fetchFirePolicies() async {
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.get(Uri.parse(baseUrl));
 
       if (response.statusCode == 200) {
         final List<dynamic> policyJson = json.decode(response.body);
@@ -25,21 +26,28 @@ class PolicyService {
       throw Exception('Network error: $e');
     }
   }
-}
 
-class CreateFirePolicyService {
-  Future<http.Response> createFirePolicy(PolicyModel policy,
-      {Map<String, String>? headers}) async {
-    final Uri url = Uri.parse(
-        'http://localhost:8080/api/policy/save'); // Replace with your API URL
+  // Create a new Fire Policy
+  Future<http.Response> createFirePolicy(PolicyModel policy, {Map<String, String>? headers}) async {
+    final Uri url = Uri.parse('${baseUrl}save'); // Adjust this endpoint as per your API
 
     final response = await http.post(
       url,
       headers: headers ?? {'Content-Type': 'application/json'},
-      body: json
-          .encode(policy.toJson()), // Ensure PolicyModel has a toJson method
+      body: json.encode(policy.toJson()),
     );
 
     return response;
+  }
+
+  // Delete a Fire Policy by ID
+  Future<void> deletePolicy(int policyId) async {
+    final Uri deleteUrl = Uri.parse('${baseUrl}delete/$policyId');
+
+    final response = await http.delete(deleteUrl);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete the policy');
+    }
   }
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/page/home.dart';
+import 'package:general_insurance_management/page/Head_Office.dart';
+import 'package:general_insurance_management/page/Local_Office.dart';
+import 'package:general_insurance_management/page/User.dart';
 import 'package:general_insurance_management/page/registration.dart';
-import 'dart:convert';
+import 'package:general_insurance_management/service/Auth_Service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:jwt_decode/jwt_decode.dart';
+
 
 class Login extends StatefulWidget {
   @override
@@ -15,51 +17,51 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
+  final _formKey = GlobalKey<FormState>(); // Form key for validation
   final storage = FlutterSecureStorage();
-  bool isLoading = false;
-  final _formKey = GlobalKey<FormState>();
+  final AuthService authService = AuthService();
+  bool isLoading = false; // Loading state
 
-  Future<void> loginUser(BuildContext context) async {
+  Future<void> login(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true); // Set loading to true
 
-    final url = Uri.parse('http://localhost:8080/login');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email.text, 'password': password.text}),
-    );
+    try {
+      final response = await authService.login(email.text, password.text);
 
-    setState(() {
-      isLoading = false;
-    });
+      // Successful login, role-based navigation
+      final role = await authService.getUserRole(); // Get role from AuthService
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      final token = responseData['token'];
-
-      Map<String, dynamic> payload = Jwt.parseJwt(token);
-      String sub = payload['sub'];
-      String role = payload['role'];
-
-      await storage.write(key: 'token', value: token);
-      await storage.write(key: 'sub', value: sub);
-      await storage.write(key: 'role', value: role);
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Login failed: ${response.body}'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      if (role == 'ADMIN') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HeadOffice()),
+        );
+      } else if (role == 'LocalOffice') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LocalOffice(
+              officeName: 'Grand Plaza',
+              address: '123 Main St, Cityville',
+              contactNumber: '01763001787',
+              workingHours: 'Mon-Fri, 9 AM - 5 PM',
+            ),
+          ),
+        );
+      } else if (role == 'USER') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => User()),
+        );
+      } else {
+        print('Unknown role: $role');
+      }
+    } catch (error) {
+      print('Login failed: $error');
+    } finally {
+      setState(() => isLoading = false); // Reset loading
     }
   }
 
@@ -129,7 +131,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool obscureText = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0), // Adds side padding for text fields
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: TextFormField(
         controller: controller,
         decoration: InputDecoration(
@@ -165,7 +167,7 @@ class _LoginState extends State<Login> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: ElevatedButton(
-        onPressed: isLoading ? null : () => loginUser(context),
+        onPressed: isLoading ? null : () => login(context),
         child: Text(
           isLoading ? "Loading..." : "Login",
           style: GoogleFonts.lato(
@@ -187,7 +189,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildRegistrationButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0), // Adds padding above and below the text button
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: TextButton(
         onPressed: () {
           Navigator.push(

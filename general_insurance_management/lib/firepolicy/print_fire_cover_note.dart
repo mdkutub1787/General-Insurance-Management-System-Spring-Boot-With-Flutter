@@ -67,9 +67,8 @@ class PrintFireCoverNote extends StatelessWidget {
 
   pw.Widget _buildFireBillInfo() {
     return pw.Table.fromTextArray(
-      headers: ['Fire Bill No', 'Issue Date'],
       data: [
-        ['${moneyreceipt.bill?.policy?.id ?? "N/A"}', '${formatDate(moneyreceipt.bill?.policy?.date)}'],
+        ['Fire Bill No','${moneyreceipt.bill?.policy?.id ?? "N/A"}','Issue Date', '${formatDate(moneyreceipt.bill?.policy?.date)}'],
       ],
     );
   }
@@ -78,7 +77,6 @@ class PrintFireCoverNote extends StatelessWidget {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Insured Details", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
             ['Bank Name', '${moneyreceipt.bill?.policy?.bankName ?? "N/A"}'],
@@ -94,7 +92,6 @@ class PrintFireCoverNote extends StatelessWidget {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Segregation of The Sum Insured", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
             ['Stock Insured', '${moneyreceipt.bill?.policy?.stockInsured ?? "N/A"}'],
@@ -109,7 +106,6 @@ class PrintFireCoverNote extends StatelessWidget {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Situation", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
             ['Interest Insured', '${moneyreceipt.bill?.policy?.interestInsured ?? "N/A"}'],
@@ -130,9 +126,8 @@ class PrintFireCoverNote extends StatelessWidget {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Premium and Tax", style: _headerTextStyle()),
         pw.Table.fromTextArray(
-          headers: ['Description', 'Rate', 'Currency', 'Amount'],
+          headers: ['Description', 'Rate', 'BDT', 'Amount'],
           data: [
             ['Fire Rate', '${moneyreceipt.bill?.fire ?? 0}% on ${moneyreceipt.bill?.policy?.sumInsured ?? "N/A"}', 'TK', '${getTotalFire().toStringAsFixed(2)}'],
             ['Rsd Rate', '${moneyreceipt.bill?.rsd ?? 0}% on ${moneyreceipt.bill?.policy?.sumInsured ?? "N/A"}', 'TK', '${getTotalRsd().toStringAsFixed(2)}'],

@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+
 class AllFireBillDetails extends StatelessWidget {
   final BillModel bill;
 
@@ -66,9 +67,8 @@ class AllFireBillDetails extends StatelessWidget {
 
   pw.Widget _buildFireBillInfo() {
     return pw.Table.fromTextArray(
-      headers: ['Fire Bill No', 'Issue Date'],
       data: [
-        ['${bill.policy?.id ?? "N/A"}', '${formatDate(bill.policy?.date)}'],
+        ['Fire Bill No','${bill.policy?.id ?? "N/A"}','Issue Date', '${formatDate(bill.policy?.date)}'],
       ],
     );
   }
@@ -131,7 +131,7 @@ class AllFireBillDetails extends StatelessWidget {
       children: [
         pw.Text("Premium and Tax", style: _headerTextStyle()),
         pw.Table.fromTextArray(
-          headers: ['Description', 'Rate', 'Currency', 'Amount'],
+          headers: ['Description', 'Rate', 'BDT', 'Amount'],
           data: [
             ['Fire Rate', '${bill.fire ?? 0}% on ${bill.policy?.sumInsured ?? "N/A"}', 'TK', '${getTotalFire().toStringAsFixed(2)}'],
             ['Rsd Rate', '${bill.rsd ?? 0}% on ${bill.policy?.sumInsured ?? "N/A"}', 'TK', '${getTotalRsd().toStringAsFixed(2)}'],

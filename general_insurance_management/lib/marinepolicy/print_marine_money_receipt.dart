@@ -60,15 +60,13 @@ class PrintMarineMoneyReceipt extends StatelessWidget {
 
   pw.Widget _buildFireBillInfo() {
     return pw.Table.fromTextArray(
-      headers: ['Fire Bill No', 'Issue Date'],
       data: [
         [
-          moneyreceipt.marinebill?.marineDetails?.id ?? "N/A",
-          formatDate(moneyreceipt.marinebill?.marineDetails?.date as DateTime?) ?? "N/A"
+          'Fire Bill No', moneyreceipt.marinebill?.marineDetails?.id ?? "N/A",
+          'Issue Date', formatDate(moneyreceipt.marinebill?.marineDetails?.date as DateTime?) ?? "N/A"
         ],
       ],
-      headerStyle: _headerTextStyle(),
-      cellStyle: _textStyle(),
+
     );
   }
 

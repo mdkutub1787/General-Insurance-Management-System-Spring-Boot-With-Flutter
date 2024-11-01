@@ -65,14 +65,11 @@ class PrintMarineCoverNote extends StatelessWidget {
     );
   }
 
+
   pw.Widget _buildFireBillInfo() {
     return pw.Table.fromTextArray(
-      headers: ['Marine Bill No', 'Issue Date'],
       data: [
-        [
-          '${moneyreceipt.marinebill?.marineDetails?.id ?? "N/A"}',
-          '${formatDate(moneyreceipt.marinebill?.marineDetails?.date)}'
-        ],
+        ['Marine Bill No','${moneyreceipt.marinebill?.marineDetails?.id ?? "N/A"}','Issue Date', '${formatDate(moneyreceipt.marinebill?.marineDetails?.date)}'],
       ],
     );
   }
@@ -81,7 +78,6 @@ class PrintMarineCoverNote extends StatelessWidget {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Insured Details", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
             ['Bank Name', '${moneyreceipt.marinebill?.marineDetails?.bankName ?? "N/A"}'],
@@ -97,7 +93,6 @@ class PrintMarineCoverNote extends StatelessWidget {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Segregation of The Sum Insured", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
             ['Sum Insured Usd', '${moneyreceipt.marinebill?.marineDetails?.sumInsuredUsd ?? "N/A"} Usd'],
@@ -113,7 +108,6 @@ class PrintMarineCoverNote extends StatelessWidget {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Situation", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
             ['Voyage From', '${moneyreceipt.marinebill?.marineDetails?.voyageFrom ?? "N/A"}'],
@@ -130,9 +124,8 @@ class PrintMarineCoverNote extends StatelessWidget {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text("Premium and Tax", style: _headerTextStyle()),
         pw.Table.fromTextArray(
-          headers: ['Description', 'Rate', 'Currency', 'Amount'],
+          headers: ['Description', 'Rate', 'BDT', 'Amount'],
           data: [
             [
               'Marine Rate',

@@ -37,7 +37,7 @@ class PrintFireMoneyReceipt extends StatelessWidget {
 
     await Printing.sharePdf(
       bytes: await pdf.save(),
-      filename: 'fire_bill_moneyreceipt.pdf',
+      filename: 'fire_bill_money_receipt.pdf',
     );
   }
 
@@ -60,15 +60,12 @@ class PrintFireMoneyReceipt extends StatelessWidget {
 
   pw.Widget _buildFireBillInfo() {
     return pw.Table.fromTextArray(
-      headers: ['Fire Bill No', 'Issue Date'],
       data: [
         [
-          moneyreceipt.bill?.policy?.id ?? "N/A",
-          formatDate(moneyreceipt.bill?.policy?.date) ?? "N/A" // Format the date
+          'Fire Bill No', moneyreceipt.bill?.policy?.id ?? "N/A",
+          'Issue Date', formatDate(moneyreceipt.bill?.policy?.date) ?? "N/A" // Format the date
         ],
       ],
-      headerStyle: _headerTextStyle(),
-      cellStyle: _textStyle(),
     );
   }
 

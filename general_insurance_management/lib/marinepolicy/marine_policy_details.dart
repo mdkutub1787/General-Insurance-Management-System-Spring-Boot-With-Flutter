@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import intl package for date formatting
 import 'package:general_insurance_management/model/marine_policy_model.dart';
 
 class AllMarinePolicyDetails extends StatelessWidget {
@@ -49,7 +50,7 @@ class AllMarinePolicyDetails extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView( // Add SingleChildScrollView here
+          child: SingleChildScrollView(
             child: Card(
               elevation: 5,
               shape: RoundedRectangleBorder(
@@ -60,7 +61,7 @@ class AllMarinePolicyDetails extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Row for ID and Date
+                    // Row for ID and formatted Date
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -69,7 +70,7 @@ class AllMarinePolicyDetails extends StatelessWidget {
                           style: TextStyle(fontSize: _fontSize, color: Colors.black),
                         ),
                         Text(
-                          'Date: ${policy.date ?? 'No date'}',
+                          'Date: ${policy.date != null ? DateFormat('dd/MM/yyyy').format(policy.date!) : 'No date'}', // Format the date
                           style: TextStyle(fontSize: _fontSize, color: Colors.black),
                         ),
                       ],

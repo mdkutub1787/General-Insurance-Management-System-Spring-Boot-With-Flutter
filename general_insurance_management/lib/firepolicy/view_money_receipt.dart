@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/firepolicy/print_fire_money_receipt.dart';
+import 'package:general_insurance_management/firepolicy/print_fire_cover_note.dart';
 import 'package:general_insurance_management/model/money_reciept_model.dart';
 import 'package:general_insurance_management/service/money_receipt_service.dart';
 
@@ -92,8 +93,7 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            receipt.bill?.policy?.policyholder ??
-                                'No policyholder available',
+                            receipt.bill?.policy?.policyholder ?? 'No policyholder available',
                             style: commonStyle,
                           ),
                           const SizedBox(height: 8),
@@ -120,50 +120,82 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                  'Net: ${receipt.bill?.netPremium?.toString() ?? 'No data'}',
-                                  style: commonStyle),
-                              Text(
-                                  'Tax: ${receipt.bill?.tax?.toString() ?? 'No data'}%',
-                                  style: commonStyle),
-                              Text(
-                                  'Gross: ${receipt.bill?.grossPremium?.toString() ?? 'No data'}',
-                                  style: commonStyle),
+                              Text('Net: ${receipt.bill?.netPremium?.toString() ?? 'No data'}', style: commonStyle),
+                              Text('Tax: ${receipt.bill?.tax?.toString() ?? 'No data'}%', style: commonStyle),
+                              Text('Gross: ${receipt.bill?.grossPremium?.toString() ?? 'No data'}', style: commonStyle),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          SizedBox(
-                            width: 125,
-                            height: 30,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PrintFireMoneyReceipt(moneyreceipt: receipt),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 125,
+                                height: 30,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PrintFireMoneyReceipt(moneyreceipt: receipt),
+                                      ),
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.visibility),
+                                      SizedBox(width: 8),
+                                      Text('Print'),
+                                    ],
                                   ),
-                                );
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.visibility),
-                                  SizedBox(width: 8),
-                                  Text('Print'),
-                                ],
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 24,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 24,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(width: 10),
+                              SizedBox(
+                                width: 160,
+                                height: 30,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PrintFireCoverNote(moneyreceipt: receipt),
+                                      ),
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.note),
+                                      SizedBox(width: 8),
+                                      Text('Cover Note'),
+                                    ],
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 24,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

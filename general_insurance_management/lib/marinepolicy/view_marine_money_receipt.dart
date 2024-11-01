@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/marinepolicy/print_marine_cover_note.dart';
+import 'package:general_insurance_management/marinepolicy/print_marine_money_receipt.dart';
 import 'package:general_insurance_management/model/marine_money_receipt_model.dart';
 import 'package:general_insurance_management/service/marine_money_receipt_service.dart';
+
 
 class AllMarineMoneyReceiptView extends StatefulWidget {
   const AllMarineMoneyReceiptView({super.key});
@@ -123,33 +126,76 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          SizedBox(
-                            width: 125,
-                            height: 30,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                print('Bill details clicked for: ${marinemoneyreceipt.marinebill?.marineDetails?.policyholder}');
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.visibility),
-                                  SizedBox(width: 8),
-                                  Text('Details'),
-                                ],
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 125,
+                                height: 30,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PrintMarineMoneyReceipt(moneyreceipt: marinemoneyreceipt),
+                                      ),
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.visibility),
+                                      SizedBox(width: 8),
+                                      Text('Print'),
+                                    ],
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 24,
+                                    ),
+                                  ),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 24,
+                              ),
+                              const SizedBox(width: 10),
+                              SizedBox(
+                                width: 160,
+                                height: 30,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PrintMarineCoverNote(moneyreceipt: marinemoneyreceipt),
+                                      ),
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.note),
+                                      SizedBox(width: 8),
+                                      Text('Cover Note'),
+                                    ],
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 24,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ],
                       ),

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/model/marine_bill_model.dart';
+import 'package:general_insurance_management/model/marine_money_receipt_model.dart';
+import 'package:intl/intl.dart'; // Ensure you have this package for date formatting
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-class AllMarineBillDetails extends StatelessWidget {
-  final MarineBillModel marineBill;
+class PrintMarineCoverNote extends StatelessWidget {
+  final MarineMoneyReceiptModel moneyreceipt;
 
-  const AllMarineBillDetails({super.key, required this.marineBill});
+  const PrintMarineCoverNote({super.key, required this.moneyreceipt});
 
   static const double _fontSize = 14;
 
@@ -68,8 +70,8 @@ class AllMarineBillDetails extends StatelessWidget {
       headers: ['Marine Bill No', 'Issue Date'],
       data: [
         [
-          '${marineBill.marineDetails?.id ?? "N/A"}',
-          '${marineBill.marineDetails?.date?.toLocal().toString().split(' ')[0] ?? "N/A"}' // Format date to show only the date
+          '${moneyreceipt.marinebill?.marineDetails?.id ?? "N/A"}',
+          '${formatDate(moneyreceipt.marinebill?.marineDetails?.date)}'
         ],
       ],
     );
@@ -82,9 +84,9 @@ class AllMarineBillDetails extends StatelessWidget {
         pw.Text("Insured Details", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
-            ['Bank Name', '${marineBill.marineDetails?.bankName ?? "N/A"}'],
-            ['Policyholder', '${marineBill.marineDetails?.policyholder ?? "N/A"}'],
-            ['Address', '${marineBill.marineDetails?.address ?? "N/A"}'],
+            ['Bank Name', '${moneyreceipt.marinebill?.marineDetails?.bankName ?? "N/A"}'],
+            ['Policyholder', '${moneyreceipt.marinebill?.marineDetails?.policyholder ?? "N/A"}'],
+            ['Address', '${moneyreceipt.marinebill?.marineDetails?.address ?? "N/A"}'],
           ],
         ),
       ],
@@ -98,9 +100,9 @@ class AllMarineBillDetails extends StatelessWidget {
         pw.Text("Segregation of The Sum Insured", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
-            ['Sum Insured Usd', '${marineBill.marineDetails?.sumInsuredUsd ?? "N/A"} Usd'],
-            ['Usd Rate', '${marineBill.marineDetails?.usdRate ?? "N/A"} '],
-            ['Sum Insured', '${marineBill.marineDetails?.sumInsured ?? "N/A"} TK'],
+            ['Sum Insured Usd', '${moneyreceipt.marinebill?.marineDetails?.sumInsuredUsd ?? "N/A"} Usd'],
+            ['Usd Rate', '${moneyreceipt.marinebill?.marineDetails?.usdRate ?? "N/A"} '],
+            ['Sum Insured', '${moneyreceipt.marinebill?.marineDetails?.sumInsured ?? "N/A"} TK'],
           ],
         ),
       ],
@@ -114,10 +116,10 @@ class AllMarineBillDetails extends StatelessWidget {
         pw.Text("Situation", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
-            ['Voyage From', '${marineBill.marineDetails?.voyageFrom ?? "N/A"}'],
-            ['Voyage To', '${marineBill.marineDetails?.voyageTo ?? "N/A"}'],
-            ['Interest Insured', '${marineBill.marineDetails?.via ?? "N/A"}'],
-            ['Coverage', '${marineBill.marineDetails?.coverage ?? "N/A"}'],
+            ['Voyage From', '${moneyreceipt.marinebill?.marineDetails?.voyageFrom ?? "N/A"}'],
+            ['Voyage To', '${moneyreceipt.marinebill?.marineDetails?.voyageTo ?? "N/A"}'],
+            ['Interest Insured', '${moneyreceipt.marinebill?.marineDetails?.via ?? "N/A"}'],
+            ['Coverage', '${moneyreceipt.marinebill?.marineDetails?.coverage ?? "N/A"}'],
           ],
         ),
       ],
@@ -132,10 +134,20 @@ class AllMarineBillDetails extends StatelessWidget {
         pw.Table.fromTextArray(
           headers: ['Description', 'Rate', 'Currency', 'Amount'],
           data: [
-            ['Marine Rate', '${marineBill.marineRate ?? 0}% on ${marineBill.marineDetails?.sumInsured ?? "N/A"}', 'TK', '${getTotalMarine().toStringAsFixed(2)}'],
-            ['War/SRCC Rate', '${marineBill.warSrccRate ?? 0}% on ${marineBill.marineDetails?.sumInsured ?? "N/A"}', 'TK', '${getTotalwarSrcc().toStringAsFixed(2)}'],
+            [
+              'Marine Rate',
+              '${moneyreceipt.marinebill?.marineRate ?? 0}% on ${moneyreceipt.marinebill?.marineDetails?.sumInsured ?? "N/A"}',
+              'TK',
+              '${getTotalMarine().toStringAsFixed(2)}'
+            ],
+            [
+              'War/SRCC Rate',
+              '${moneyreceipt.marinebill?.warSrccRate ?? 0}% on ${moneyreceipt.marinebill?.marineDetails?.sumInsured ?? "N/A"}',
+              'TK',
+              '${getTotalwarSrcc().toStringAsFixed(2)}'
+            ],
             ['Net Premium', '', 'TK', '${getTotalPremium().toStringAsFixed(2)}'],
-            ['Tax on Net Premium', '${marineBill.tax ?? 0}% on ${getTotalPremium().toStringAsFixed(2)}', 'TK', '${getTotalTax().toStringAsFixed(2)}'],
+            ['Tax on Net Premium', '${moneyreceipt.marinebill?.tax ?? 0}% on ${getTotalPremium().toStringAsFixed(2)}', 'TK', '${getTotalTax().toStringAsFixed(2)}'],
             ['Stamp Duty', '', 'TK', '${getTotalstampDuty().toStringAsFixed(2)}'],
             ['Gross Premium', '', 'TK', '${getTotalPremiumWithTax().toStringAsFixed(2)}'],
           ],
@@ -168,18 +180,18 @@ class AllMarineBillDetails extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildRow('Marine Bill No:', '${marineBill.marineDetails?.id ?? "N/A"}'),
-            _buildRow('Issue Date:', '${marineBill.marineDetails?.date?.toLocal().toString().split(' ')[0] ?? "N/A"}'), // Format date to show only the date
-            _buildRow('Bank Name:', '${marineBill.marineDetails?.bankName ?? "N/A"}'),
-            _buildRow('Policyholder:', '${marineBill.marineDetails?.policyholder ?? "N/A"}'),
-            _buildRow('Address:', '${marineBill.marineDetails?.address ?? "N/A"}'),
-            _buildRow('Sum Insured Usd:', '${marineBill.marineDetails?.sumInsuredUsd ?? "N/A"} Usd'),
-            _buildRow('Usd Rate:', '${marineBill.marineDetails?.usdRate ?? "N/A"}'),
-            _buildRow('Sum Insured:', '${marineBill.marineDetails?.sumInsured ?? "N/A"} TK'),
-            _buildRow('Voyage From:', '${marineBill.marineDetails?.voyageFrom ?? "N/A"}'),
-            _buildRow('Voyage To:', '${marineBill.marineDetails?.voyageTo ?? "N/A"}'),
-            _buildRow('Interest Insured:', '${marineBill.marineDetails?.via ?? "N/A"}'),
-            _buildRow('Coverage:', '${marineBill.marineDetails?.coverage ?? "N/A"}'),
+            _buildRow('Marine Bill No:', '${moneyreceipt.marinebill?.marineDetails?.id ?? "N/A"}'),
+            _buildRow('Issue Date:', '${formatDate(moneyreceipt.marinebill?.marineDetails?.date)}'),
+            _buildRow('Bank Name:', '${moneyreceipt.marinebill?.marineDetails?.bankName ?? "N/A"}'),
+            _buildRow('Policyholder:', '${moneyreceipt.marinebill?.marineDetails?.policyholder ?? "N/A"}'),
+            _buildRow('Address:', '${moneyreceipt.marinebill?.marineDetails?.address ?? "N/A"}'),
+            _buildRow('Sum Insured Usd:', '${moneyreceipt.marinebill?.marineDetails?.sumInsuredUsd ?? "N/A"} Usd'),
+            _buildRow('Usd Rate:', '${moneyreceipt.marinebill?.marineDetails?.usdRate ?? "N/A"}'),
+            _buildRow('Sum Insured:', '${moneyreceipt.marinebill?.marineDetails?.sumInsured ?? "N/A"} TK'),
+            _buildRow('Voyage From:', '${moneyreceipt.marinebill?.marineDetails?.voyageFrom ?? "N/A"}'),
+            _buildRow('Voyage To:', '${moneyreceipt.marinebill?.marineDetails?.voyageTo ?? "N/A"}'),
+            _buildRow('Via:', '${moneyreceipt.marinebill?.marineDetails?.via ?? "N/A"}'),
+            _buildRow('Coverage:', '${moneyreceipt.marinebill?.marineDetails?.coverage ?? "N/A"}'),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _generatePdf(context),
@@ -202,15 +214,16 @@ class AllMarineBillDetails extends StatelessWidget {
   }
 
   // Calculation Methods
+  // Calculation Methods
   double getTotalMarine() {
-    double marineRateValue = (marineBill.marineRate ?? 0).toDouble();
-    double sumInsuredValue = (marineBill.marineDetails?.sumInsured ?? 0).toDouble();
+    double marineRateValue = (moneyreceipt.marinebill?.marineRate ?? 0).toDouble();
+    double sumInsuredValue = (moneyreceipt.marinebill?.marineDetails?.sumInsured ?? 0).toDouble();
     return (sumInsuredValue * (marineRateValue / 100)).roundToDouble();
   }
 
   double getTotalwarSrcc() {
-    double warSrccRateValue = (marineBill.warSrccRate ?? 0).toDouble();
-    double sumInsuredValue = (marineBill.marineDetails?.sumInsured ?? 0).toDouble();
+    double warSrccRateValue = (moneyreceipt.marinebill?.warSrccRate ?? 0).toDouble();
+    double sumInsuredValue = (moneyreceipt.marinebill?.marineDetails?.sumInsured ?? 0).toDouble();
     return (sumInsuredValue * (warSrccRateValue / 100)).roundToDouble();
   }
 
@@ -220,7 +233,7 @@ class AllMarineBillDetails extends StatelessWidget {
 
   double getTotalTax() {
     double netPremium = getTotalPremium();
-    double taxRate = (marineBill.tax ?? 0).toDouble();
+    double taxRate = (moneyreceipt.marinebill?.tax ?? 0).toDouble();
     return (netPremium * (taxRate / 100)).roundToDouble();
   }
 
@@ -230,5 +243,11 @@ class AllMarineBillDetails extends StatelessWidget {
 
   double getTotalPremiumWithTax() {
     return getTotalPremium() + getTotalTax() + getTotalstampDuty();
+  }
+  String formatDate(DateTime? date) {
+    if (date == null) {
+      return "N/A";
+    }
+    return DateFormat('dd-MM-yyyy').format(date);
   }
 }

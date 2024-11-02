@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:general_insurance_management/model/policy_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -27,19 +29,6 @@ class PolicyService {
     }
   }
 
-  // Create a new Fire Policy
-  Future<http.Response> createFirePolicy(PolicyModel policy, {Map<String, String>? headers}) async {
-    final Uri url = Uri.parse('${baseUrl}save'); // Adjust this endpoint as per your API
-
-    final response = await http.post(
-      url,
-      headers: headers ?? {'Content-Type': 'application/json'},
-      body: json.encode(policy.toJson()),
-    );
-
-    return response;
-  }
-
   // Delete a Fire Policy by ID
   Future<void> deletePolicy(int policyId) async {
     final Uri deleteUrl = Uri.parse('${baseUrl}delete/$policyId');
@@ -51,3 +40,4 @@ class PolicyService {
     }
   }
 }
+

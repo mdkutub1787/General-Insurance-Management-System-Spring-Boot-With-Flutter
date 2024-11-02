@@ -8,9 +8,9 @@ class MarinePolicyModel {
   String? voyageTo;
   String? via;
   String? stockItem;
-  int? sumInsuredUsd;
+  double? sumInsuredUsd;
   double? usdRate;
-  int? sumInsured;
+  double? sumInsured;
   String? coverage;
 
   MarinePolicyModel({
@@ -31,7 +31,7 @@ class MarinePolicyModel {
 
   MarinePolicyModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    date = json['date'] != null ? DateTime.tryParse(json['date']) : null; // Parse date from string
+    date = json['date'] != null ? DateTime.tryParse(json['date']) : null;
     bankName = json['bankName'];
     policyholder = json['policyholder'];
     address = json['address'];
@@ -39,16 +39,16 @@ class MarinePolicyModel {
     voyageTo = json['voyageTo'];
     via = json['via'];
     stockItem = json['stockItem'];
-    sumInsuredUsd = json['sumInsuredUsd'];
+    sumInsuredUsd = json['sumInsuredUsd']?.toDouble(); // Ensure it's a double
     usdRate = json['usdRate']?.toDouble(); // Ensure it's a double
-    sumInsured = json['sumInsured'];
+    sumInsured = json['sumInsured']?.toDouble(); // Ensure it's a double
     coverage = json['coverage'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['date'] = date?.toIso8601String(); // Convert DateTime to string
+    data['date'] = date?.toIso8601String();
     data['bankName'] = bankName;
     data['policyholder'] = policyholder;
     data['address'] = address;
@@ -58,7 +58,7 @@ class MarinePolicyModel {
     data['stockItem'] = stockItem;
     data['sumInsuredUsd'] = sumInsuredUsd;
     data['usdRate'] = usdRate;
-    data['sumInsured'] = sumInsured;
+    data['sumInsured'] = sumInsured; // Output as double
     data['coverage'] = coverage;
     return data;
   }

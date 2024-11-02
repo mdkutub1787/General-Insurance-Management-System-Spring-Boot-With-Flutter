@@ -8,25 +8,27 @@ class AllMarineMoneyReceiptView extends StatefulWidget {
   const AllMarineMoneyReceiptView({super.key});
 
   @override
-  State<AllMarineMoneyReceiptView> createState() => _AllMarineMoneyReceiptViewState();
+  State<AllMarineMoneyReceiptView> createState() =>
+      _AllMarineMoneyReceiptViewState();
 }
 
 class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
   late Future<List<MarineMoneyReceiptModel>> fetchMarineMoneyReceipts;
   List<MarineMoneyReceiptModel> allMarineMoneyReceipts = [];
   List<MarineMoneyReceiptModel> filteredMarineMoneyReceipts = [];
-  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.grey[700]);
+  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
   final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     final service = MarineMoneyReceiptService();
-    fetchMarineMoneyReceipts = service.fetchMarineMoneyReceipts().then((receipts) {
-      allMarineMoneyReceipts = receipts;
-      filteredMarineMoneyReceipts = receipts; // Initialize with all receipts
-      return receipts;
-    });
+    fetchMarineMoneyReceipts =
+        service.fetchMarineMoneyReceipts().then((receipts) {
+          allMarineMoneyReceipts = receipts;
+          filteredMarineMoneyReceipts = receipts; // Initialize with all receipts
+          return receipts;
+        });
   }
 
   void filterReceipts(String query) {
@@ -39,8 +41,10 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
 
     setState(() {
       filteredMarineMoneyReceipts = allMarineMoneyReceipts.where((receipt) {
-        final bankName = receipt.marinebill?.marineDetails?.bankName?.toLowerCase() ?? '';
-        final policyholder = receipt.marinebill?.marineDetails?.policyholder?.toLowerCase() ?? '';
+        final bankName =
+            receipt.marinebill?.marineDetails?.bankName?.toLowerCase() ?? '';
+        final policyholder =
+            receipt.marinebill?.marineDetails?.policyholder?.toLowerCase() ?? '';
         final id = receipt.id.toString(); // Assuming receipt has an 'id' property
 
         return bankName.contains(query.toLowerCase()) ||
@@ -79,7 +83,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
               controller: searchController,
               onChanged: filterReceipts, // Correctly call the filter function
               decoration: InputDecoration(
-                hintText: 'Search by ID, Policyholder, or Bank Name',
+                hintText: 'Search by Bill No, Policyholder, or Bank Name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -104,132 +108,184 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                   return ListView.builder(
                     itemCount: filteredMarineMoneyReceipts.length,
                     itemBuilder: (context, index) {
-                      final marinemoneyreceipt = filteredMarineMoneyReceipts[index];
-                      return Card(
+                      final marinemoneyreceipt =
+                      filteredMarineMoneyReceipts[index];
+                      return Container(
                         margin: const EdgeInsets.all(10),
-                        shape: RoundedRectangleBorder(
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                marinemoneyreceipt.marinebill?.marineDetails?.bankName ?? 'Unnamed Policy',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                marinemoneyreceipt.marinebill?.marineDetails?.policyholder ?? 'No policyholder available',
-                                style: commonStyle,
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      marinemoneyreceipt.marinebill?.marineDetails?.address ?? 'No address',
-                                      style: commonStyle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Tk ${marinemoneyreceipt.marinebill?.marineDetails?.sumInsured?.round() ?? 'No sum'}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Net: Tk ${marinemoneyreceipt.marinebill?.netPremium?.round() ?? 'No data'}', style: commonStyle),
-                                  Text('Tax: ${marinemoneyreceipt.marinebill?.tax?.round() ?? 'No data'}%', style: commonStyle),
-                                  Text('Stamp: Tk ${marinemoneyreceipt.marinebill?.stampDuty?.round() ?? 'No data'}', style: commonStyle),
-                                  Text('Gross: Tk ${marinemoneyreceipt.marinebill?.grossPremium?.round() ?? 'No data'}', style: commonStyle),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 125,
-                                    height: 30,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => PrintMarineMoneyReceipt(moneyreceipt: marinemoneyreceipt),
-                                          ),
-                                        );
-                                      },
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: const [
-                                          Icon(Icons.visibility),
-                                          SizedBox(width: 8),
-                                          Text('Print'),
-                                        ],
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue,
-                                        foregroundColor: Colors.black,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(30),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                          horizontal: 24,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  SizedBox(
-                                    width: 160,
-                                    height: 30,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => PrintMarineCoverNote(moneyreceipt: marinemoneyreceipt),
-                                          ),
-                                        );
-                                      },
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: const [
-                                          Icon(Icons.note),
-                                          SizedBox(width: 8),
-                                          Text('Cover Note'),
-                                        ],
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue,
-                                        foregroundColor: Colors.black,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(30),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                          horizontal: 24,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.red,
+                              Colors.orange,
+                              Colors.yellow,
+                              Colors.green,
                             ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 4,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Bill No : ${marinemoneyreceipt.marinebill?.marineDetails?.id ?? 'N/A'}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  marinemoneyreceipt
+                                      .marinebill?.marineDetails?.bankName ??
+                                      'Unnamed Policy',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  marinemoneyreceipt.marinebill?.marineDetails
+                                      ?.policyholder ??
+                                      'No policyholder available',
+                                  style: commonStyle,
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        marinemoneyreceipt.marinebill
+                                            ?.marineDetails?.address ??
+                                            'No address',
+                                        style: commonStyle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Tk ${marinemoneyreceipt.marinebill?.marineDetails?.sumInsured?.round() ?? 'No sum'}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                        'Net: Tk ${marinemoneyreceipt.marinebill?.netPremium?.round() ?? 'No data'}',
+                                        style: commonStyle),
+                                    Text(
+                                        'Tax: ${marinemoneyreceipt.marinebill?.tax?.round() ?? 'No data'}%',
+                                        style: commonStyle),
+                                    Text(
+                                        'Stamp: Tk ${marinemoneyreceipt.marinebill?.stampDuty?.round() ?? 'No data'}',
+                                        style: commonStyle),
+                                    Text(
+                                        'Gross: Tk ${marinemoneyreceipt.marinebill?.grossPremium?.round() ?? 'No data'}',
+                                        style: commonStyle),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 125,
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PrintMarineMoneyReceipt(
+                                                      moneyreceipt:
+                                                      marinemoneyreceipt),
+                                            ),
+                                          );
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: const [
+                                            Icon(Icons.visibility),
+                                            SizedBox(width: 8),
+                                            Text('Print'),
+                                          ],
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(30),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                            horizontal: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 160,
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PrintMarineCoverNote(
+                                                      moneyreceipt:
+                                                      marinemoneyreceipt),
+                                            ),
+                                          );
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: const [
+                                            Icon(Icons.note),
+                                            SizedBox(width: 8),
+                                            Text('Cover Note'),
+                                          ],
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(30),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                            horizontal: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );

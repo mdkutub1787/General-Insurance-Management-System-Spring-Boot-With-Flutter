@@ -14,14 +14,14 @@ class AllFirePolicyView extends StatefulWidget {
 class _AllFirePolicyViewState extends State<AllFirePolicyView> {
   late Future<List<PolicyModel>> futurePolicies;
   final PolicyService policyService = PolicyService();
-  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.grey[700]);
+  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
   String searchTerm = '';
   List<PolicyModel> allPolicies = [];
 
   @override
   void initState() {
     super.initState();
-    futurePolicies = policyService.fetchFirePolicies();
+    loadPolicies(); // Load policies on initialization
   }
 
   Future<void> loadPolicies() async {
@@ -91,7 +91,7 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
             child: TextField(
               onChanged: _filterPolicies, // Call the filter function on text change
               decoration: InputDecoration(
-                hintText: 'Search by ID, Policyholder, or Bank Name',
+                hintText: 'Search by Bill No, Policyholder, or Bank Name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -165,8 +165,16 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
+                'Bill No : ${policy.id ?? 'N/A'}', // Displaying the Policy ID
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+              ),
+              const SizedBox(height: 8),
+              Text(
                 policy.bankName ?? 'Unnamed Policy',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(policy.policyholder ?? 'No policyholder available', style: commonStyle),
@@ -219,19 +227,12 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
           ),
         ),
         const SizedBox(width: 16),
-        SizedBox(
-          width: 80,
-          height: 30,
-          child: ElevatedButton(
-            onPressed: () => _deletePolicy(policy.id!),
-            child: const Icon(Icons.delete),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-            ),
-          ),
+        IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: () {
+            _deletePolicy(policy.id!);
+          },
+          tooltip: 'Delete Policy',
         ),
       ],
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/marinepolicy/create_marine_policy.dart';
 import 'package:general_insurance_management/marinepolicy/marine_policy_details.dart';
 import 'package:general_insurance_management/model/marine_policy_model.dart';
 import 'package:general_insurance_management/service/marine_policy_service.dart';
@@ -15,13 +16,13 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
   List<MarinePolicyModel> filteredPolicies = [];
   final TextEditingController searchController = TextEditingController();
 
-  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.grey[700]);
+  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
+  final MarinePolicyService marinePolicyService = MarinePolicyService();
 
   @override
   void initState() {
     super.initState();
-    final service = MarinePolicyService();
-    futurePolicies = service.fetchMarinePolicies();
+    futurePolicies = marinePolicyService.fetchMarinePolicies();
     futurePolicies.then((policies) {
       setState(() {
         filteredPolicies = policies;
@@ -30,7 +31,6 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
   }
 
   void _filterPolicies(String query) {
-    final service = MarinePolicyService();
     futurePolicies.then((policies) {
       setState(() {
         filteredPolicies = policies.where((policy) {
@@ -40,6 +40,22 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
         }).toList();
       });
     });
+  }
+
+  Future<void> _deletePolicy(int id) async {
+    try {
+      await marinePolicyService.deleteMarinePolicy(id);
+      setState(() {
+        filteredPolicies.removeWhere((policy) => policy.id == id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Marine Policy deleted successfully.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting Marine Policy: $e')),
+      );
+    }
   }
 
   @override
@@ -69,9 +85,9 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextField(
               controller: searchController,
-              onChanged: _filterPolicies, // Call the filter function on text change
+              onChanged: _filterPolicies,
               decoration: InputDecoration(
-                hintText: 'Search by ID, Policyholder, or Bank Name',
+                hintText: 'Search by Bill No, Policyholder, or Bank Name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -93,7 +109,6 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No marine policy available'));
                 } else {
-                  // Update the filtered policies based on the search input
                   final policies = filteredPolicies.isNotEmpty ? filteredPolicies : snapshot.data!;
                   return ListView.builder(
                     itemCount: policies.length,
@@ -125,9 +140,18 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
+                                  'Bill No : ${policy.id}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
                                   policy.bankName ?? 'Unnamed Policy',
                                   style: const TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -157,35 +181,47 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
                                   ],
                                 ),
                                 const SizedBox(height: 16),
-                                SizedBox(
-                                  width: 125,
-                                  height: 30,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AllMarinePolicyDetails(policy: policy),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: 125,
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => AllMarinePolicyDetails(policy: policy),
+                                            ),
+                                          );
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: const [
+                                            Icon(Icons.visibility),
+                                            SizedBox(width: 8),
+                                            Text('Details'),
+                                          ],
                                         ),
-                                      );
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: const [
-                                        Icon(Icons.visibility),
-                                        SizedBox(width: 8),
-                                        Text('Details'),
-                                      ],
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
-                                      foregroundColor: Colors.black,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                                        ),
                                       ),
-                                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                                     ),
-                                  ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () {
+                                        _deletePolicy(policy.id!);
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -199,6 +235,16 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateMarinePolicy()),
+          );
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }

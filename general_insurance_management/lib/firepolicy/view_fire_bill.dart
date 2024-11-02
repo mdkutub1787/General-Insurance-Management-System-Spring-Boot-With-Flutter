@@ -4,7 +4,7 @@ import 'package:general_insurance_management/model/bill_model.dart';
 import '../service/bill_service.dart';
 
 class AllFireBillView extends StatefulWidget {
-  const AllFireBillView({super.key});
+  const AllFireBillView({Key? key}) : super(key: key);
 
   @override
   State<AllFireBillView> createState() => _AllFireBillViewState();
@@ -15,7 +15,7 @@ class _AllFireBillViewState extends State<AllFireBillView> {
   List<BillModel> allBills = []; // Store all bills
   List<BillModel> filteredBills = []; // Store filtered bills
   String searchQuery = ''; // Store the search query
-  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.grey[700]);
+  final TextStyle commonStyle = const TextStyle(fontSize: 14, color: Colors.black);
 
   @override
   void initState() {
@@ -71,7 +71,7 @@ class _AllFireBillViewState extends State<AllFireBillView> {
             child: TextField(
               onChanged: _filterBills, // Call the filter function on text change
               decoration: InputDecoration(
-                hintText: 'Search by ID, Policyholder, or Bank Name',
+                hintText: 'Search by Bill No, Policyholder, or Bank Name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -125,9 +125,18 @@ class _AllFireBillViewState extends State<AllFireBillView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
+                                  'Bill No : ${bill.policy?.id ?? 'N/A'}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
                                   bill.policy?.bankName ?? 'Unnamed Policy',
                                   style: const TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

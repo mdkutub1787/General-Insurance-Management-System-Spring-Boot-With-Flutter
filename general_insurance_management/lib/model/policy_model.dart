@@ -7,7 +7,7 @@ class PolicyModel {
   String? policyholder;
   String? address;
   String? stockInsured;
-  int? sumInsured;
+  double? sumInsured;
   String? interestInsured;
   String? coverage;
   String? location;
@@ -39,20 +39,20 @@ class PolicyModel {
   factory PolicyModel.fromJson(Map<String, dynamic> json) {
     return PolicyModel(
       id: json['id'],
-      date: json['date'] != null ? DateTime.parse(json['date']) : null,
+      date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
       bankName: json['bankName'],
       policyholder: json['policyholder'],
       address: json['address'],
       stockInsured: json['stockInsured'],
-      sumInsured: json['sumInsured'],
+      sumInsured: json['sumInsured']?.toDouble(), // Ensure it's a double
       interestInsured: json['interestInsured'],
       coverage: json['coverage'],
       location: json['location'],
       construction: json['construction'],
       owner: json['owner'],
       usedAs: json['usedAs'],
-      periodFrom: json['periodFrom'] != null ? DateTime.parse(json['periodFrom']) : null,
-      periodTo: json['periodTo'] != null ? DateTime.parse(json['periodTo']) : null,
+      periodFrom: json['periodFrom'] != null ? DateTime.tryParse(json['periodFrom']) : null,
+      periodTo: json['periodTo'] != null ? DateTime.tryParse(json['periodTo']) : null,
     );
   }
 
@@ -60,7 +60,7 @@ class PolicyModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'date': date?.toIso8601String(), // Format DateTime as string
+      'date': date?.toIso8601String(),
       'bankName': bankName,
       'policyholder': policyholder,
       'address': address,
@@ -72,14 +72,14 @@ class PolicyModel {
       'construction': construction,
       'owner': owner,
       'usedAs': usedAs,
-      'periodFrom': periodFrom?.toIso8601String(), // Format DateTime as string
-      'periodTo': periodTo?.toIso8601String(), // Format DateTime as string
+      'periodFrom': periodFrom?.toIso8601String(),
+      'periodTo': periodTo?.toIso8601String(),
     };
   }
 
   @override
   String toString() {
-    return 'PolicyModel{id: $id, date: $date, policyholder: $policyholder}';
+    return 'PolicyModel{id: $id, date: $date, bankName: $bankName, policyholder: $policyholder, sumInsured: $sumInsured}';
   }
 
   @override

@@ -17,7 +17,7 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
   String searchQuery = '';
   final TextEditingController searchController = TextEditingController();
 
-  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.grey[700]);
+  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
   final TextStyle boldStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
 
   @override
@@ -77,7 +77,7 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
               controller: searchController,
               onChanged: filterBills, // Call the filter function on text change
               decoration: InputDecoration(
-                hintText: 'Search by ID, Policyholder, or Bank Name',
+                hintText: 'Search by Bill No, Policyholder, or Bank Name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -131,8 +131,20 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
+                                  'Bill No : ${marineBill.marineDetails?.id ?? 'N/A'}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
                                   marineBill.marineDetails?.bankName ?? 'Unnamed Policy',
-                                  style: boldStyle,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(

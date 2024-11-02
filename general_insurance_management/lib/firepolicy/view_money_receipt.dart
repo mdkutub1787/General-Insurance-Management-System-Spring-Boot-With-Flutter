@@ -13,7 +13,7 @@ class AllFireMoneyReceiptView extends StatefulWidget {
 
 class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
   late Future<List<MoneyReceiptModel>> futureReceipts;
-  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.grey[700]);
+  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
 
   // Variable to hold the original list of receipts
   List<MoneyReceiptModel> allReceipts = [];
@@ -38,7 +38,8 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
         filteredReceipts = allReceipts.where((receipt) {
           return (receipt.bill?.policy?.policyholder ?? '').toLowerCase().contains(query.toLowerCase()) ||
               (receipt.bill?.policy?.bankName ?? '').toLowerCase().contains(query.toLowerCase()) ||
-              (receipt.id.toString() ?? '').toLowerCase().contains(query.toLowerCase());
+              (receipt.id.toString() ?? '').toLowerCase().contains(query.toLowerCase()) ||
+              (receipt.bill?.policy?.id?.toString() ?? '').toLowerCase().contains(query.toLowerCase()); // Added policy ID filter
         }).toList();
       }
     });
@@ -72,7 +73,7 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
             child: TextField(
               onChanged: _filterReceipts, // Call the filter function on text change
               decoration: InputDecoration(
-                hintText: 'Search by ID, Policyholder, or Bank Name',
+                hintText: 'Search by Bill No, Policyholder, or  Bank Name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -125,9 +126,14 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
+                                  'Bill No : ${receipt.bill?.policy?.id ?? 'No ID'}',
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
                                   receipt.bill?.policy?.bankName ?? 'Unnamed Policy',
                                   style: const TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

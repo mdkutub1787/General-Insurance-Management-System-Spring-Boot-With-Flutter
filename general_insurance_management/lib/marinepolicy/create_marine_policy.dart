@@ -1,107 +1,129 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/firepolicy/view_fire_policy.dart';
-import 'package:general_insurance_management/model/policy_model.dart';
-import 'package:general_insurance_management/service/create_policy_sevice.dart';
-import 'package:general_insurance_management/service/policy_service.dart';
+import 'package:general_insurance_management/marinepolicy/view_marine_policy.dart';
+import 'package:general_insurance_management/model/marine_policy_model.dart';
+import 'package:general_insurance_management/service/marine_policy_service.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class CreateFirePolicy extends StatefulWidget {
-  const CreateFirePolicy({Key? key}) : super(key: key);
+class CreateMarinePolicy extends StatefulWidget {
+  const CreateMarinePolicy({super.key});
 
   @override
-  State<CreateFirePolicy> createState() => _CreateFirePolicyState();
+  State<CreateMarinePolicy> createState() => _CreateMarinePolicyState();
 }
 
-class _CreateFirePolicyState extends State<CreateFirePolicy> {
+class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController bankNameController = TextEditingController();
   final TextEditingController policyholderController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
-  final TextEditingController stockInsuredController = TextEditingController();
+  final TextEditingController voyageFromController = TextEditingController();
+  final TextEditingController voyageToController = TextEditingController();
+  final TextEditingController viaController = TextEditingController();
+  final TextEditingController stockItemController = TextEditingController();
+  final TextEditingController sumInsuredUsdController = TextEditingController();
+  final TextEditingController usdRateController = TextEditingController();
   final TextEditingController sumInsuredController = TextEditingController();
-  final TextEditingController interestInsuredController = TextEditingController();
   final TextEditingController coverageController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
-  final TextEditingController constructionController = TextEditingController();
-  final TextEditingController ownerController = TextEditingController();
-  final TextEditingController usedAsController = TextEditingController();
-  final TextEditingController periodFromController = TextEditingController();
-  final TextEditingController periodToController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final CreateFirePolicyService firePolicyService = CreateFirePolicyService();
+  final CreateMarinePolicyService marinePolicyService = CreateMarinePolicyService();
 
   @override
   void initState() {
     super.initState();
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    fetchUsdRate();
+    sumInsuredUsdController.addListener(_updateSumInsured);
+    usdRateController.addListener(_updateSumInsured);
+  }
+
+  Future<void> fetchUsdRate() async {
+    try {
+      final response = await http.get(Uri.parse('https://api.exchangerate-api.com/v4/latest/USD'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final rate = data['rates']['TK']; // Assuming you want the rate for TK
+        usdRateController.text = rate.toString();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to fetch exchange rate.'))
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching USD rate: $e'))
+      );
+    }
   }
 
   @override
   void dispose() {
+    sumInsuredUsdController.removeListener(_updateSumInsured);
+    usdRateController.removeListener(_updateSumInsured);
     dateController.dispose();
     bankNameController.dispose();
     policyholderController.dispose();
     addressController.dispose();
-    stockInsuredController.dispose();
+    voyageFromController.dispose();
+    voyageToController.dispose();
+    viaController.dispose();
+    stockItemController.dispose();
+    sumInsuredUsdController.dispose();
+    usdRateController.dispose();
     sumInsuredController.dispose();
-    interestInsuredController.dispose();
     coverageController.dispose();
-    locationController.dispose();
-    constructionController.dispose();
-    ownerController.dispose();
-    usedAsController.dispose();
-    periodFromController.dispose();
-    periodToController.dispose();
     super.dispose();
   }
 
-  void _createFirePolicy() async {
+  void _updateSumInsured() {
+    final usdValue = double.tryParse(sumInsuredUsdController.text) ?? 0;
+    final usdRate = double.tryParse(usdRateController.text) ?? 0.0;
+    final localCurrencyValue = (usdValue * usdRate).round();
+    sumInsuredController.text = localCurrencyValue.toString();
+  }
+
+  void _createMarinePolicy() async {
     if (_formKey.currentState!.validate()) {
-      PolicyModel policy = PolicyModel(
+      MarinePolicyModel marinePolicy = MarinePolicyModel(
         date: DateTime.parse(dateController.text),
         bankName: bankNameController.text,
         policyholder: policyholderController.text,
         address: addressController.text,
-        stockInsured: stockInsuredController.text,
+        voyageFrom: voyageFromController.text,
+        voyageTo: voyageToController.text,
+        via: viaController.text,
+        stockItem: stockItemController.text,
+        sumInsuredUsd: double.tryParse(sumInsuredUsdController.text) ?? 0,
+        usdRate: double.tryParse(usdRateController.text) ?? 0.0,
         sumInsured: double.tryParse(sumInsuredController.text) ?? 0,
-        interestInsured: interestInsuredController.text,
         coverage: coverageController.text,
-        location: locationController.text,
-        construction: constructionController.text,
-        owner: ownerController.text,
-        usedAs: usedAsController.text,
-        periodFrom: DateTime.parse(periodFromController.text),
-        periodTo: DateTime.parse(periodToController.text),
       );
 
-      try {
-        await firePolicyService.createFirePolicy(policy);
-        // If successful, navigate to the next page
+      final response = await marinePolicyService.createMarinePolicy(marinePolicy);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => AllFirePolicyView()),
+          MaterialPageRoute(builder: (context) => AllMarinePolicyView()),
         );
-      } catch (e) {
-        // Display the error message in a Snackbar
+      } else if (response.statusCode == 409) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+            const SnackBar(content: Text('Marine Policy already exists!'))
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed with status: ${response.statusCode}'))
         );
       }
     }
   }
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Fire Policy Form'),
+        title: const Text('Create Marine Policy Form'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -126,28 +148,24 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
                 const SizedBox(height: 20),
                 _buildTextField(addressController, 'Address', Icons.location_on, 'Please enter an address'),
                 const SizedBox(height: 20),
-                _buildNumberTextField(stockInsuredController, 'Stock Insured', Icons.monetization_on, 'Please enter the stock insured'),
+                _buildTextField(voyageFromController, 'Voyage From', Icons.navigation, 'Please enter the voyage start location'),
                 const SizedBox(height: 20),
-                _buildNumberTextField(sumInsuredController, 'Sum Insured', Icons.monetization_on, 'Please enter the sum insured'),
+                _buildTextField(voyageToController, 'Voyage To', Icons.navigation, 'Please enter the voyage end location'),
                 const SizedBox(height: 20),
-                _buildTextField(interestInsuredController, 'Interest Insured', Icons.info, 'Please enter interest insured details'),
+                _buildTextField(viaController, 'Via', Icons.airplanemode_active, 'Please enter the route of the voyage'),
+                const SizedBox(height: 20),
+                _buildTextField(stockItemController, 'Stock Item', Icons.business, 'Please enter the stock item'),
+                const SizedBox(height: 20),
+                _buildNumberTextField(sumInsuredUsdController, 'Sum Insured (USD)', Icons.monetization_on, 'Please enter a sum insured value'),
+                const SizedBox(height: 20),
+                _buildNumberTextField(usdRateController, 'USD Rate', Icons.money, 'Auto-updated rate', readOnly: true),
+                const SizedBox(height: 20),
+                _buildNumberTextField(sumInsuredController, 'Sum Insured (Local Currency)', Icons.monetization_on, 'Auto-calculated value', readOnly: true),
                 const SizedBox(height: 20),
                 _buildTextField(coverageController, 'Coverage', Icons.assignment, 'Please enter the coverage details'),
                 const SizedBox(height: 20),
-                _buildTextField(locationController, 'Location', Icons.location_city, 'Please enter the location'),
-                const SizedBox(height: 20),
-                _buildTextField(constructionController, 'Construction Type', Icons.build, 'Please enter the construction type'),
-                const SizedBox(height: 20),
-                _buildTextField(ownerController, 'Owner', Icons.person, 'Please enter the owner name'),
-                const SizedBox(height: 20),
-                _buildTextField(usedAsController, 'Used As', Icons.business, 'Please enter how it is used'),
-                const SizedBox(height: 20),
-                _buildDateTextField(periodFromController, 'Period From'),
-                const SizedBox(height: 20),
-                _buildDateTextField(periodToController, 'Period To'),
-                const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _createFirePolicy,
+                  onPressed: _createMarinePolicy,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -156,7 +174,7 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
                     ),
                   ),
                   child: const Text(
-                    "Create Fire Policy",
+                    "Create Marine Policy",
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -171,14 +189,13 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
     );
   }
 
-  Widget _buildDateTextField([TextEditingController? controller, String? labelText]) {
-    final TextEditingController effectiveController = controller ?? dateController;
-    final String effectiveLabel = labelText ?? 'Date (yyyy-mm-dd)';
 
+
+  Widget _buildDateTextField() {
     return TextFormField(
-      controller: effectiveController,
+      controller: dateController,
       decoration: InputDecoration(
-        labelText: effectiveLabel,
+        labelText: 'Date (yyyy-mm-dd)',
         border: OutlineInputBorder(),
         prefixIcon: const Icon(Icons.date_range),
       ),
@@ -197,7 +214,7 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
           lastDate: DateTime(2100),
         );
         if (pickedDate != null) {
-          effectiveController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+          dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
         }
       },
     );

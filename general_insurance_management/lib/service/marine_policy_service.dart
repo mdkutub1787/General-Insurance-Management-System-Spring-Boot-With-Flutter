@@ -60,8 +60,7 @@ class CreateMarinePolicyService {
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-      // Assuming 'rates' is a field in the API response containing the conversion rates
-      return jsonData['rates']['BDT'] ?? 0.0; // Adjust according to the actual response structure
+      return jsonData['rates']['BDT'] ?? 0.0;
     } else {
       throw Exception('Failed to fetch currency conversion rate: ${response.body}');
     }

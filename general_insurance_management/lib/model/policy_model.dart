@@ -16,6 +16,7 @@ class PolicyModel {
   String? usedAs;
   DateTime? periodFrom;
   DateTime? periodTo;
+  bool isHovered = false;
 
   PolicyModel({
     this.id,

@@ -174,7 +174,7 @@ class AllMarineBillDetails extends StatelessWidget {
               'Stamp Duty',
               '',
               'TK',
-              '${getTotalstampDuty().toStringAsFixed(2)}'
+              '${marineBill.stampDuty.toStringAsFixed(2)}'
             ],
             [
               'Gross Premium',
@@ -236,6 +236,18 @@ class AllMarineBillDetails extends StatelessWidget {
                 '${marineBill.marineDetails?.via ?? "N/A"}'),
             _buildRow(
                 'Coverage:', '${marineBill.marineDetails?.coverage ?? "N/A"}'),
+            _buildRow(
+                'Marine Rate:', '${marineBill.marineRate ?? "N/A"}'),
+            _buildRow(
+                'WarSrcc Rate:', '${marineBill.warSrccRate ?? "N/A"}'),
+            _buildRow(
+                'Net Premium:', '${marineBill.netPremium ?? "N/A"}'),
+            _buildRow(
+                'Tax:', '${marineBill.tax ?? "N/A"}'),
+            _buildRow(
+                'Stamp Duty:', '${marineBill.stampDuty ?? "N/A"}'),
+            _buildRow(
+                'Gross Premiumy:', '${marineBill.grossPremium ?? "N/A"}'),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _generatePdf(context),
@@ -282,11 +294,8 @@ class AllMarineBillDetails extends StatelessWidget {
     return (netPremium * (taxRate / 100)).roundToDouble();
   }
 
-  double getTotalstampDuty() {
-    return 25; // Set stamp duty as required
-  }
 
   double getTotalPremiumWithTax() {
-    return getTotalPremium() + getTotalTax() + getTotalstampDuty();
+    return getTotalPremium() + getTotalTax() + marineBill.stampDuty;
   }
 }

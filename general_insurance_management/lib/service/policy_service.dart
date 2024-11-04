@@ -30,8 +30,8 @@ class PolicyService {
   }
 
   // Delete a Fire Policy by ID
-  Future<void> deletePolicy(int policyId) async {
-    final Uri deleteUrl = Uri.parse('${baseUrl}delete/$policyId');
+  Future<void> deletePolicy(int id) async {
+    final Uri deleteUrl = Uri.parse('${baseUrl}delete/$id');
 
     final response = await http.delete(deleteUrl);
 

@@ -39,9 +39,9 @@ class MarinePolicyModel {
     voyageTo = json['voyageTo'];
     via = json['via'];
     stockItem = json['stockItem'];
-    sumInsuredUsd = json['sumInsuredUsd']?.toDouble(); // Ensure it's a double
-    usdRate = json['usdRate']?.toDouble(); // Ensure it's a double
-    sumInsured = json['sumInsured']?.toDouble(); // Ensure it's a double
+    sumInsuredUsd = json['sumInsuredUsd']?.toDouble();
+    usdRate = json['usdRate']?.toDouble();
+    sumInsured = json['sumInsured']?.toDouble();
     coverage = json['coverage'];
   }
 
@@ -58,7 +58,7 @@ class MarinePolicyModel {
     data['stockItem'] = stockItem;
     data['sumInsuredUsd'] = sumInsuredUsd;
     data['usdRate'] = usdRate;
-    data['sumInsured'] = sumInsured; // Output as double
+    data['sumInsured'] = sumInsured;
     data['coverage'] = coverage;
     return data;
   }

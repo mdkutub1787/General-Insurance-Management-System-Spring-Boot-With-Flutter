@@ -182,39 +182,23 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
                                 ),
                                 const SizedBox(height: 16),
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    SizedBox(
-                                      width: 125,
-                                      height: 30,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => AllMarinePolicyDetails(policy: policy),
-                                            ),
-                                          );
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: const [
-                                            Icon(Icons.visibility),
-                                            SizedBox(width: 8),
-                                            Text('Details'),
-                                          ],
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue,
-                                          foregroundColor: Colors.black,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
+                                    // View button with only an icon
+                                    IconButton(
+                                      icon: const Icon(Icons.visibility, color: Colors.blue),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AllMarinePolicyDetails(policy: policy),
                                           ),
-                                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: 8), // Space between icons
+                                    // Delete button with only an icon
                                     IconButton(
                                       icon: const Icon(Icons.delete, color: Colors.red),
                                       onPressed: () {

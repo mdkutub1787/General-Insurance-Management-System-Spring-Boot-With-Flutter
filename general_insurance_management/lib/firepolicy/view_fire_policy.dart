@@ -141,55 +141,82 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
   }
 
   Widget _buildPolicyCard(PolicyModel policy) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.red.withOpacity(0.5),
-            Colors.orange.withOpacity(0.5),
-            Colors.yellow.withOpacity(0.5),
-            Colors.green.withOpacity(0.5),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      margin: const EdgeInsets.all(10),
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Bill No : ${policy.id ?? 'N/A'}', // Displaying the Policy ID
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                policy.bankName ?? 'Unnamed Policy',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(policy.policyholder ?? 'No policyholder available', style: commonStyle),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(child: Text(policy.address ?? 'No address', style: commonStyle)),
-                  const SizedBox(width: 10),
-                  Text('Tk ${policy.sumInsured ?? 'No sum'}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildActionButtons(policy),
+    return MouseRegion(
+      onEnter: (_) => setState(() {
+        policy.isHovered = true;
+      }),
+      onExit: (_) => setState(() {
+        policy.isHovered = false;
+      }),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: policy.isHovered
+                ? [
+              Colors.blue.shade400,    // Start with red
+              Colors.pinkAccent.shade400, // Transition to orange
+              Colors.purpleAccent.shade400, // Then yellow
+              Colors.cyanAccent.shade400,// Finally green
+            ]
+                : [
+
+              Colors.red.shade400,    // Start with red
+              Colors.orange.shade400, // Transition to orange
+              Colors.yellow.shade400, // Then yellow
+              Colors.green.shade400,
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(color: Colors.blueAccent.withOpacity(0.5)),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: policy.isHovered
+              ? [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ]
+              : [],
+        ),
+        margin: const EdgeInsets.all(10),
+        child: Card(
+          elevation: policy.isHovered ? 8 : 0, // Increase elevation on hover
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Bill No : ${policy.id ?? 'N/A'}', // Displaying the Policy ID
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  policy.bankName ?? 'Unnamed Policy',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(policy.policyholder ?? 'No policyholder available', style: commonStyle),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: Text(policy.address ?? 'No address', style: commonStyle)),
+                    const SizedBox(width: 10),
+                    Text('Tk ${policy.sumInsured ?? 'No sum'}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildActionButtons(policy),
+              ],
+            ),
           ),
         ),
       ),
@@ -199,32 +226,16 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
   Widget _buildActionButtons(PolicyModel policy) {
     return Row(
       children: [
-        SizedBox(
-          width: 125,
-          height: 30,
-          child: ElevatedButton(
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AllFirePolicyDetails(policy: policy)),
-              );
-              loadPolicies(); // Refresh after returning from details
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.visibility),
-                SizedBox(width: 8),
-                Text('Details'),
-              ],
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-            ),
-          ),
+        IconButton(
+          icon: const Icon(Icons.visibility, color: Colors.blue),
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AllFirePolicyDetails(policy: policy)),
+            );
+            loadPolicies(); // Refresh after returning from details
+          },
+          tooltip: 'View Details',
         ),
         const SizedBox(width: 16),
         IconButton(
@@ -237,4 +248,5 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
       ],
     );
   }
+
 }

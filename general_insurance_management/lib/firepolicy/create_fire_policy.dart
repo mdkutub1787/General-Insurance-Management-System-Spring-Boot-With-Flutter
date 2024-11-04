@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/firepolicy/view_fire_policy.dart';
 import 'package:general_insurance_management/model/policy_model.dart';
-import 'package:general_insurance_management/service/create_policy_sevice.dart';
-import 'package:general_insurance_management/service/policy_service.dart';
+import 'package:general_insurance_management/service/create_policy_service.dart';
 import 'package:intl/intl.dart';
 
 class CreateFirePolicy extends StatefulWidget {

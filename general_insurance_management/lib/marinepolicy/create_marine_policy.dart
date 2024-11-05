@@ -28,7 +28,8 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
   final TextEditingController coverageController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final CreateMarinePolicyService marinePolicyService = CreateMarinePolicyService();
+  final MarinePolicyService marinePolicyService = MarinePolicyService();
+
 
   @override
   void initState() {
@@ -44,7 +45,7 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
       final response = await http.get(Uri.parse('https://api.exchangerate-api.com/v4/latest/USD'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final rate = data['rates']['TK']; // Assuming you want the rate for TK
+        final rate = data['rates']['BDT']; // Assuming you want the rate for BDT
         usdRateController.text = rate.toString();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -106,7 +107,7 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
       if (response.statusCode == 201 || response.statusCode == 200) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => AllMarinePolicyView()),
+          MaterialPageRoute(builder: (context) => const AllMarinePolicyView()),
         );
       } else if (response.statusCode == 409) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,6 +120,7 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -189,8 +191,6 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
     );
   }
 
-
-
   Widget _buildDateTextField() {
     return TextFormField(
       controller: dateController,
@@ -241,12 +241,12 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
     return TextFormField(
       controller: controller,
       readOnly: readOnly,
+      keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: labelText,
         border: OutlineInputBorder(),
         prefixIcon: Icon(icon),
       ),
-      keyboardType: TextInputType.number,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return validationMessage;

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/marinepolicy/view_marine_policy.dart';
 import 'package:general_insurance_management/model/marine_policy_model.dart';
@@ -8,10 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class UpdateMarinePolicy extends StatefulWidget {
-  const UpdateMarinePolicy(
-      {super.key, required this.policy}); // Fixed: add required field
+  const UpdateMarinePolicy({super.key, required this.policy});
 
-  final MarinePolicyModel policy; // Store the policy passed
+  final MarinePolicyModel policy;
 
   @override
   State<UpdateMarinePolicy> createState() => _UpdateMarinePolicyState();
@@ -37,8 +35,6 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
   @override
   void initState() {
     super.initState();
-    // Remove the current date assignment
-    // dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     fetchUsdRate();
     sumInsuredUsdController.addListener(_updateSumInsured);
     usdRateController.addListener(_updateSumInsured);
@@ -60,19 +56,20 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
 
   Future<void> fetchUsdRate() async {
     try {
-      final response = await http
-          .get(Uri.parse('https://api.exchangerate-api.com/v4/latest/USD'));
+      final response = await http.get(Uri.parse('https://api.exchangerate-api.com/v4/latest/USD'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final rate = data['rates']['TK']; // Assuming you want the rate for TK
+        final rate = data['rates']['BDT']; // Assuming you want the rate for BDT
         usdRateController.text = rate.toString();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to fetch exchange rate.')));
+            const SnackBar(content: Text('Failed to fetch exchange rate.'))
+        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error fetching USD rate: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching USD rate: $e'))
+      );
     }
   }
 
@@ -104,7 +101,7 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
 
   void _updateMarinePolicy() async {
     if (_formKey.currentState!.validate()) {
-      int? id = widget.policy.id; // Change to the actual policy ID
+      int? id = widget.policy.id;
       MarinePolicyModel marinePolicy = MarinePolicyModel(
         date: DateTime.parse(dateController.text),
         bankName: bankNameController.text,
@@ -253,7 +250,8 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
           lastDate: DateTime(2101),
         );
         if (pickedDate != null) {
-          dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+          dateController.text =
+              DateFormat('yyyy-MM-dd').format(pickedDate);
         }
       },
     );
@@ -264,12 +262,12 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
       {bool readOnly = false}) {
     return TextFormField(
       controller: controller,
-      readOnly: readOnly,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
+        border: OutlineInputBorder(),
         prefixIcon: Icon(icon),
       ),
+      readOnly: readOnly,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return validationMessage;
@@ -284,12 +282,12 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
       {bool readOnly = false}) {
     return TextFormField(
       controller: controller,
-      readOnly: readOnly,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
+        border: OutlineInputBorder(),
         prefixIcon: Icon(icon),
       ),
+      readOnly: readOnly,
       keyboardType: TextInputType.number,
       validator: (value) {
         if (value == null || value.isEmpty) {

@@ -30,7 +30,6 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
   final _formKey = GlobalKey<FormState>();
   final MarinePolicyService marinePolicyService = MarinePolicyService();
 
-
   @override
   void initState() {
     super.initState();
@@ -38,6 +37,7 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
     fetchUsdRate();
     sumInsuredUsdController.addListener(_updateSumInsured);
     usdRateController.addListener(_updateSumInsured);
+    coverageController.text = "Lorry Risk Only"; // Set default coverage
   }
 
   Future<void> fetchUsdRate() async {
@@ -164,7 +164,7 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
                 const SizedBox(height: 20),
                 _buildNumberTextField(sumInsuredController, 'Sum Insured (Local Currency)', Icons.monetization_on, 'Auto-calculated value', readOnly: true),
                 const SizedBox(height: 20),
-                _buildTextField(coverageController, 'Coverage', Icons.assignment, 'Please enter the coverage details'),
+                _buildTextField(coverageController, 'Coverage', Icons.assignment, 'Please enter the coverage details', readOnly: true),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _createMarinePolicy,
@@ -194,11 +194,7 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
   Widget _buildDateTextField() {
     return TextFormField(
       controller: dateController,
-      decoration: InputDecoration(
-        labelText: 'Date (yyyy-mm-dd)',
-        border: OutlineInputBorder(),
-        prefixIcon: const Icon(Icons.date_range),
-      ),
+      decoration: _buildInputDecoration('Date (yyyy-mm-dd)', Icons.date_range),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a date';
@@ -220,14 +216,11 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String labelText, IconData icon, String validationMessage) {
+  Widget _buildTextField(TextEditingController controller, String labelText, IconData icon, String validationMessage, {bool readOnly = false}) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
-      ),
+      readOnly: readOnly,
+      decoration: _buildInputDecoration(labelText, icon),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return validationMessage;
@@ -241,18 +234,39 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
     return TextFormField(
       controller: controller,
       readOnly: readOnly,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
-      ),
+      decoration: _buildInputDecoration(labelText, icon),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return validationMessage;
         }
+        if (double.tryParse(value) == null) {
+          return 'Please enter a valid number';
+        }
         return null;
       },
+      keyboardType: TextInputType.number,
     );
   }
+
+  InputDecoration _buildInputDecoration(String labelText, IconData icon) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+      enabledBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.grey, width: 1.0),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: Colors.white,
+    );
+  }
+
+
 }

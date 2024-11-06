@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/marinepolicy/view_maeine_bill.dart';
-import 'package:general_insurance_management/model/marine_bill_model.dart';
-import 'package:general_insurance_management/model/marine_policy_model.dart';
-import 'package:general_insurance_management/service/marine_bill_service.dart';
-import 'package:general_insurance_management/service/marine_policy_service.dart';
+import 'package:general_insurance_management/firepolicy/view_fire_bill.dart';
+import 'package:general_insurance_management/model/bill_model.dart';
+import 'package:general_insurance_management/model/policy_model.dart';
+import 'package:general_insurance_management/service/bill_service.dart';
+import 'package:general_insurance_management/service/policy_service.dart';
 
-class CreateMarineBill extends StatefulWidget {
-  const CreateMarineBill({super.key});
+class CreateFireBill extends StatefulWidget {
+  const CreateFireBill({super.key});
 
   @override
-  State<CreateMarineBill> createState() => _CreateMarineBillState();
+  State<CreateFireBill> createState() => _CreateFireBillState();
 }
 
-class _CreateMarineBillState extends State<CreateMarineBill> {
-  final TextEditingController marineRateController = TextEditingController();
-  final TextEditingController warSrccRateController = TextEditingController();
+class _CreateFireBillState extends State<CreateFireBill> {
+  final TextEditingController fireController = TextEditingController();
+  final TextEditingController rsdController = TextEditingController();
   final TextEditingController netPremiumController = TextEditingController();
   final TextEditingController taxController = TextEditingController();
-  final TextEditingController stampDutyController = TextEditingController();
   final TextEditingController grossPremiumController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final MarineBillService marineBillService = MarineBillService();
+  final BillService billService = BillService();
 
-  List<MarinePolicyModel> policies = [];
+  List<PolicyModel> policies = [];
   List<String> uniqueBankNames = [];
   List<double> uniqueSumInsured = [];
   String? selectedPolicyholder;
@@ -40,7 +39,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
 
   Future<void> _fetchData() async {
     try {
-      policies = await MarinePolicyService().fetchMarinePolicies();
+      policies = await PolicyService().fetchPolicies();
       uniqueBankNames = policies
           .map((policy) => policy.bankName)
           .where((bankName) => bankName != null)
@@ -70,17 +69,17 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
   }
 
   void _setupListeners() {
-    marineRateController.addListener(_updateCalculatedFields);
-    warSrccRateController.addListener(_updateCalculatedFields);
+    fireController.addListener(_updateCalculatedFields);
+    rsdController.addListener(_updateCalculatedFields);
     taxController.addListener(_updateCalculatedFields);
-    stampDutyController.addListener(_updateCalculatedFields);
+
   }
 
   void _updateCalculatedFields() {
     calculatePremiums();
   }
 
-  void _createMarineBill() async {
+  void _CreateFireBill() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         isLoading = true;
@@ -89,7 +88,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
       try {
         final selectedPolicy = policies.firstWhere(
               (policy) => policy.policyholder == selectedPolicyholder,
-          orElse: () => MarinePolicyModel(policyholder: '', id: null),
+          orElse: () => PolicyModel(policyholder: '', id: null),
         );
 
         if (selectedPolicy.id == null) {
@@ -97,26 +96,25 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           return;
         }
 
-        await marineBillService.createMarineBill(
-          MarineBillModel(
-            marineRate: double.parse(marineRateController.text),
-            warSrccRate: double.parse(warSrccRateController.text),
+        await billService.createFireBill(
+          BillModel(
+            fire: double.parse(fireController.text),
+            rsd: double.parse(rsdController.text),
             netPremium: _parseControllerValue(netPremiumController.text),
             tax: _parseControllerValue(taxController.text),
-            stampDuty: _parseControllerValue(stampDutyController.text),
             grossPremium: _parseControllerValue(grossPremiumController.text),
-            marineDetails: selectedPolicy,
+            policy: selectedPolicy,
           ),
           selectedPolicy.id.toString(),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Marine bill created successfully!')),
+          SnackBar(content: Text('fire bill created successfully!')),
         );
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AllMarineBillView()),
+          MaterialPageRoute(builder: (context) => AllFireBillView()),
         );
       } catch (error) {
         _showErrorSnackBar('Error: $error');
@@ -138,20 +136,19 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
   void calculatePremiums() {
     // Retrieve values from the form controllers
     double sumInsured = selectedSumInsured ?? 0.0;
-    double marineRate = _parseControllerValue(marineRateController.text);
-    double warSrccRate = _parseControllerValue(warSrccRateController.text);
-    double stampDuty = _parseControllerValue(stampDutyController.text);
-    const double taxRate = 15.0; // Fixed tax rate at 15%
+    double fire = _parseControllerValue(fireController.text);
+    double rsd = _parseControllerValue(rsdController.text);
+    const double taxRate = 15; // Fixed tax rate at 15%
 
-    if (marineRate > 100 || warSrccRate > 100 || taxRate > 100) {
+    if (fire > 100 || rsd > 100 || taxRate > 100) {
       _showErrorSnackBar('Rates must be less than or equal to 100%.');
       return;
     }
 
     // Calculate netPremium, tax, and grossPremium
-    double netPremium = (sumInsured * (marineRate + warSrccRate)) / 100;
-    double tax = taxRate / 100;
-    double grossPremium = netPremium+(netPremium * tax )+ stampDuty;
+    double netPremium = (sumInsured * (fire + rsd)) / 100;
+    double tax = taxRate ;
+    double grossPremium = netPremium+(netPremium * taxRate )/100;
 
     // Update form controllers with calculated values
     setState(() {
@@ -168,7 +165,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create Marine Bill")),
+      appBar: AppBar(title: Text("Create Fire Bill")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -182,23 +179,21 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
               SizedBox(height: 20),
               _buildDropdownSumInsuredField(),
               SizedBox(height: 20),
-              _buildTextField(marineRateController, 'Marine Rate', Icons.production_quantity_limits_outlined),
+              _buildTextField(fireController, 'Fire Rate', Icons.production_quantity_limits_outlined),
               SizedBox(height: 20),
-              _buildTextField(warSrccRateController, 'War SRCC Rate', Icons.storage),
+              _buildTextField(rsdController, ' Rsd Rate', Icons.storage),
               SizedBox(height: 20),
               _buildReadOnlyField(netPremiumController, 'Net Premium', Icons.monetization_on),
               SizedBox(height: 20),
-              _buildReadOnlyField(taxController, 'Tax', Icons.attach_money),
-              SizedBox(height: 20),
-              _buildTextField(stampDutyController, 'Stamp Duty', Icons.receipt),
+              _buildReadOnlyField(taxController, 'Tax  Rate', Icons.attach_money),
               SizedBox(height: 20),
               _buildReadOnlyField(grossPremiumController, 'Gross Premium', Icons.monetization_on),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: isLoading ? null : _createMarineBill,
+                onPressed: isLoading ? null : _CreateFireBill,
                 child: isLoading
                     ? CircularProgressIndicator(color: Colors.white)
-                    : Text("Create Marine Bill", style: TextStyle(fontWeight: FontWeight.w600)),
+                    : Text("Create Fire Bill", style: TextStyle(fontWeight: FontWeight.w600)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
                   foregroundColor: Colors.white,
@@ -219,7 +214,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           selectedPolicyholder = newValue;
           final selectedPolicy = policies.firstWhere(
                 (policy) => policy.policyholder == newValue,
-            orElse: () => MarinePolicyModel(policyholder: '', id: null, sumInsured: 0.0, bankName: ''),
+            orElse: () => PolicyModel(policyholder: '', id: null, sumInsured: 0.0, bankName: ''),
           );
           selectedSumInsured = selectedPolicy.sumInsured;
           selectedBankName = selectedPolicy.bankName;
@@ -237,7 +232,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           borderSide: BorderSide(color: Colors.grey), // Border color
         ),
       ),
-      items: policies.map<DropdownMenuItem<String>>((MarinePolicyModel policy) {
+      items: policies.map<DropdownMenuItem<String>>((PolicyModel policy) {
         return DropdownMenuItem<String>(
           value: policy.policyholder,
           child: Text(policy.policyholder!),
@@ -254,7 +249,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           selectedBankName = newValue;
           final selectedPolicy = policies.firstWhere(
                 (policy) => policy.bankName == newValue,
-            orElse: () => MarinePolicyModel(policyholder: '', id: null, sumInsured: 0.0, bankName: ''),
+            orElse: () => PolicyModel(policyholder: '', id: null, sumInsured: 0.0, bankName: ''),
           );
           selectedSumInsured = selectedPolicy.sumInsured;
         });

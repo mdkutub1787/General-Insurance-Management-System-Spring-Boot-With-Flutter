@@ -69,7 +69,7 @@ class PrintMarineCoverNote extends StatelessWidget {
   pw.Widget _buildFireBillInfo() {
     return pw.Table.fromTextArray(
       data: [
-        ['Marine Bill No','${moneyreceipt.marinebill?.marineDetails?.id ?? "N/A"}','Issue Date', '${formatDate(moneyreceipt.marinebill?.marineDetails?.date)}'],
+        ['Marine Bill No','${moneyreceipt.marinebill?.marineDetails.id ?? "N/A"}','Issue Date', '${formatDate(moneyreceipt.marinebill?.marineDetails.date)}'],
       ],
     );
   }

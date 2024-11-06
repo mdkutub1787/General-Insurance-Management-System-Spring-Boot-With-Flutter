@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/model/money_reciept_model.dart';
+import 'package:general_insurance_management/model/money_receipt_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:intl/intl.dart'; // Import the intl package
+import 'package:intl/intl.dart';
 
 class PrintFireMoneyReceipt extends StatelessWidget {
   final MoneyReceiptModel moneyreceipt;
@@ -62,8 +62,8 @@ class PrintFireMoneyReceipt extends StatelessWidget {
     return pw.Table.fromTextArray(
       data: [
         [
-          'Fire Bill No', moneyreceipt.bill?.policy?.id ?? "N/A",
-          'Issue Date', formatDate(moneyreceipt.bill?.policy?.date) ?? "N/A" // Format the date
+          'Fire Bill No', moneyreceipt.bill?.policy.id ?? "N/A",
+          'Issue Date', formatDate(moneyreceipt.bill?.policy.date as DateTime?) ?? "N/A"
         ],
       ],
     );
@@ -77,11 +77,11 @@ class PrintFireMoneyReceipt extends StatelessWidget {
         ['Class of Insurance', moneyreceipt.classOfInsurance ?? "N/A"],
         [
           'Received with thanks from',
-          '${moneyreceipt.bill?.policy?.bankName ?? "N/A"}\n'
-              '${moneyreceipt.bill?.policy?.policyholder ?? "N/A"}'
-              '${moneyreceipt.bill?.policy?.address ?? "N/A"}'
+          '${moneyreceipt.bill?.policy.bankName ?? "N/A"}\n'
+              '${moneyreceipt.bill?.policy.policyholder ?? "N/A"}'
+              '${moneyreceipt.bill?.policy.address ?? "N/A"}'
         ],
-        ['The sum of', '${moneyreceipt.bill?.policy?.sumInsured ?? "N/A"} TK'],
+        ['The sum of', '${moneyreceipt.bill?.policy.sumInsured ?? "N/A"} TK'],
         ['Mode Of Payment', moneyreceipt.modeOfPayment ?? "N/A"],
         ['Issued Against', moneyreceipt.issuedAgainst ?? "N/A"],
       ],
@@ -177,15 +177,15 @@ class PrintFireMoneyReceipt extends StatelessWidget {
 
   List<Widget> _buildInfoRows() {
     return [
-      _buildRow('Fire Bill No:', '${moneyreceipt.bill?.policy?.id ?? "N/A"}'),
-      _buildRow('Issue Date:', formatDate(moneyreceipt.bill?.policy?.date) ?? "N/A"), // Format the date
+      _buildRow('Fire Bill No:', '${moneyreceipt.bill?.policy.id ?? "N/A"}'),
+      _buildRow('Issue Date:', formatDate(moneyreceipt.bill?.policy.date as DateTime?) ?? "N/A"),
       _buildRow('Issuing Office:', '${moneyreceipt.issuingOffice ?? "N/A"}'),
       _buildRow('Money Receipt No:', '${moneyreceipt.id ?? "N/A"}'),
       _buildRow('Class of Insurance:', '${moneyreceipt.classOfInsurance ?? "N/A"}'),
-      _buildRow('Bank Name:', '${moneyreceipt.bill?.policy?.bankName ?? "N/A"}'),
-      _buildRow('Policyholder:', '${moneyreceipt.bill?.policy?.policyholder ?? "N/A"}'),
-      _buildRow('Address:', '${moneyreceipt.bill?.policy?.address ?? "N/A"}'),
-      _buildRow('Sum Insured:', '${moneyreceipt.bill?.policy?.sumInsured ?? "N/A"} TK'),
+      _buildRow('Bank Name:', '${moneyreceipt.bill?.policy.bankName ?? "N/A"}'),
+      _buildRow('Policyholder:', '${moneyreceipt.bill?.policy.policyholder ?? "N/A"}'),
+      _buildRow('Address:', '${moneyreceipt.bill?.policy.address ?? "N/A"}'),
+      _buildRow('Sum Insured:', '${moneyreceipt.bill?.policy.sumInsured ?? "N/A"} TK'),
       _buildRow('Mode Of Payment:', '${moneyreceipt.modeOfPayment ?? "N/A"}'),
       _buildRow('Issued Against:', '${moneyreceipt.issuedAgainst ?? "N/A"}'),
     ];
@@ -203,11 +203,11 @@ class PrintFireMoneyReceipt extends StatelessWidget {
 
   // Calculation Methods
   double getTotalFire() {
-    return double.parse(((moneyreceipt.bill?.policy?.sumInsured ?? 0) * (moneyreceipt.bill?.fire ?? 0) / 100).toStringAsFixed(2));
+    return double.parse(((moneyreceipt.bill?.policy.sumInsured ?? 0) * (moneyreceipt.bill?.fire ?? 0) / 100).toStringAsFixed(2));
   }
 
   double getTotalRsd() {
-    return double.parse(((moneyreceipt.bill?.policy?.sumInsured ?? 0) * (moneyreceipt.bill?.rsd ?? 0) / 100).toStringAsFixed(2));
+    return double.parse(((moneyreceipt.bill?.policy.sumInsured ?? 0) * (moneyreceipt.bill?.rsd ?? 0) / 100).toStringAsFixed(2));
   }
 
   double getTotalPremium() {

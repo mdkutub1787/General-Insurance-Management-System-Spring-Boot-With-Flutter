@@ -200,7 +200,7 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
                     readOnly: true),
                 const SizedBox(height: 20),
                 _buildTextField(coverageController, 'Coverage',
-                    Icons.assignment, 'Please enter the coverage details'),
+                    Icons.assignment, 'Please enter the coverage details',readOnly: true),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _updateMarinePolicy,
@@ -231,11 +231,7 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
   Widget _buildDateTextField() {
     return TextFormField(
       controller: dateController,
-      decoration: InputDecoration(
-        labelText: 'Date (yyyy-mm-dd)',
-        border: OutlineInputBorder(),
-        prefixIcon: const Icon(Icons.date_range),
-      ),
+      decoration: _inputDecoration('Date (yyyy-mm-dd)', Icons.date_range),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a date';
@@ -250,24 +246,18 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
           lastDate: DateTime(2101),
         );
         if (pickedDate != null) {
-          dateController.text =
-              DateFormat('yyyy-MM-dd').format(pickedDate);
+          dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
         }
       },
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label,
-      IconData icon, String validationMessage,
-      {bool readOnly = false}) {
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon, String? validationMessage, {bool readOnly = false}) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
-      ),
       readOnly: readOnly,
+      decoration: _inputDecoration(label, icon),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return validationMessage;
@@ -277,24 +267,44 @@ class _UpdateMarinePolicyState extends State<UpdateMarinePolicy> {
     );
   }
 
-  Widget _buildNumberTextField(TextEditingController controller, String label,
-      IconData icon, String validationMessage,
-      {bool readOnly = false}) {
+  Widget _buildNumberTextField(
+      TextEditingController controller, String label, IconData icon, String? validationMessage, {bool readOnly = false}) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
-      ),
       readOnly: readOnly,
       keyboardType: TextInputType.number,
+      decoration: _inputDecoration(label, icon),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return validationMessage;
         }
         return null;
       },
+    );
+  }
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+      ),
+      prefixIcon: Icon(icon, color: Colors.green),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: const BorderSide(color: Colors.green, width: 2.0),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      isDense: true,
     );
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/firepolicy/create_fire_money_receipt.dart';
 import 'package:general_insurance_management/firepolicy/print_fire_money_receipt.dart';
 import 'package:general_insurance_management/firepolicy/print_fire_cover_note.dart';
-import 'package:general_insurance_management/model/money_reciept_model.dart';
+import 'package:general_insurance_management/model/money_receipt_model.dart';
 import 'package:general_insurance_management/service/money_receipt_service.dart';
 
 class AllFireMoneyReceiptView extends StatefulWidget {
@@ -36,10 +37,10 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
         filteredReceipts = allReceipts; // Reset to original list if query is empty
       } else {
         filteredReceipts = allReceipts.where((receipt) {
-          return (receipt.bill?.policy?.policyholder ?? '').toLowerCase().contains(query.toLowerCase()) ||
-              (receipt.bill?.policy?.bankName ?? '').toLowerCase().contains(query.toLowerCase()) ||
+          return (receipt.bill?.policy.policyholder ?? '').toLowerCase().contains(query.toLowerCase()) ||
+              (receipt.bill?.policy.bankName ?? '').toLowerCase().contains(query.toLowerCase()) ||
               (receipt.id.toString() ?? '').toLowerCase().contains(query.toLowerCase()) ||
-              (receipt.bill?.policy?.id?.toString() ?? '').toLowerCase().contains(query.toLowerCase()); // Added policy ID filter
+              (receipt.bill?.policy.id?.toString() ?? '').toLowerCase().contains(query.toLowerCase()); // Added policy ID filter
         }).toList();
       }
     });
@@ -126,12 +127,12 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Bill No : ${receipt.bill?.policy?.id ?? 'No ID'}',
+                                  'Bill No : ${receipt.bill?.policy.id ?? 'No ID'}',
                                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  receipt.bill?.policy?.bankName ?? 'Unnamed Policy',
+                                  receipt.bill?.policy.bankName ?? 'Unnamed Policy',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -139,7 +140,7 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  receipt.bill?.policy?.policyholder ?? 'No policyholder available',
+                                  receipt.bill?.policy.policyholder ?? 'No policyholder available',
                                   style: commonStyle,
                                 ),
                                 const SizedBox(height: 8),
@@ -148,13 +149,13 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        receipt.bill?.policy?.address ?? 'No address',
+                                        receipt.bill?.policy.address ?? 'No address',
                                         style: commonStyle,
                                       ),
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      'Tk ${receipt.bill?.policy?.sumInsured?.toString() ?? 'No sum'}',
+                                      'Tk ${receipt.bill?.policy.sumInsured?.toString() ?? 'No sum'}',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
@@ -166,9 +167,9 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Net: ${receipt.bill?.netPremium?.toString() ?? 'No data'}', style: commonStyle),
-                                    Text('Tax: ${receipt.bill?.tax?.toString() ?? 'No data'}%', style: commonStyle),
-                                    Text('Gross: ${receipt.bill?.grossPremium?.toString() ?? 'No data'}', style: commonStyle),
+                                    Text('Net: ${receipt.bill?.netPremium.toString() ?? 'No data'}', style: commonStyle),
+                                    Text('Tax: ${receipt.bill?.tax.toString() ?? 'No data'}%', style: commonStyle),
+                                    Text('Gross: ${receipt.bill?.grossPremium.toString() ?? 'No data'}', style: commonStyle),
                                   ],
                                 ),
                                 const SizedBox(height: 16),
@@ -255,6 +256,17 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
             ),
           ),
         ],
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateFireMoneyReceipt()),
+          );
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }

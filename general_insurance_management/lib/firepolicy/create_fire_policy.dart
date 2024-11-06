@@ -1,12 +1,13 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/firepolicy/view_fire_policy.dart';
-import 'package:general_insurance_management/model/policy_model.dart';
-import 'package:general_insurance_management/service/create_policy_service.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:general_insurance_management/service/policy_service.dart';
+import 'package:general_insurance_management/model/policy_model.dart';
 
 class CreateFirePolicy extends StatefulWidget {
-  const CreateFirePolicy({Key? key}) : super(key: key);
+  const CreateFirePolicy({super.key});
 
   @override
   State<CreateFirePolicy> createState() => _CreateFirePolicyState();
@@ -29,12 +30,39 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
   final TextEditingController periodToController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final CreateFirePolicyService firePolicyService = CreateFirePolicyService();
+  final PolicyService policyService = PolicyService();
+
+  // Dropdown values
+  final List<String> constructionTypes = ['1st Class', '2nd Class', '3rd Class'];
+  final List<String> usageTypes = ['Shop Only', 'Godown Only', 'Shop-Cum-Godown only'];
+
+  String? selectedConstruction;
+  String? selectedUsage;
 
   @override
   void initState() {
     super.initState();
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    coverageController.text = "Fire &/or Lightning only";
+    ownerController.text = "The Insured";
+  }
+
+  Future<http.Response> createFirePolicy(PolicyModel policy) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:8080/api/policy/save'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(policy.toJson()), // Assuming `toJson` method exists in `PolicyModel`
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return response;
+      } else {
+        throw Exception('Failed to create fire policy with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
   }
 
   @override
@@ -58,43 +86,41 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
 
   void _createFirePolicy() async {
     if (_formKey.currentState!.validate()) {
-      PolicyModel policy = PolicyModel(
-        date: DateTime.parse(dateController.text),
-        bankName: bankNameController.text,
-        policyholder: policyholderController.text,
-        address: addressController.text,
-        stockInsured: stockInsuredController.text,
-        sumInsured: double.tryParse(sumInsuredController.text) ?? 0,
-        interestInsured: interestInsuredController.text,
-        coverage: coverageController.text,
-        location: locationController.text,
-        construction: constructionController.text,
-        owner: ownerController.text,
-        usedAs: usedAsController.text,
-        periodFrom: DateTime.parse(periodFromController.text),
-        periodTo: DateTime.parse(periodToController.text),
-      );
-
       try {
-        await firePolicyService.createFirePolicy(policy);
-        // If successful, navigate to the next page
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AllFirePolicyView()),
+        PolicyModel policy = PolicyModel(
+          date: DateTime.parse(dateController.text),
+          bankName: bankNameController.text,
+          policyholder: policyholderController.text,
+          address: addressController.text,
+          stockInsured: stockInsuredController.text,
+          sumInsured: double.tryParse(sumInsuredController.text) ?? 0,
+          interestInsured: interestInsuredController.text,
+          coverage: coverageController.text,
+          location: locationController.text,
+          construction: selectedConstruction ?? '',
+          owner: ownerController.text,
+          usedAs: selectedUsage ?? '',
+          periodFrom: DateTime.parse(periodFromController.text),
+          periodTo: DateTime.parse(periodToController.text),
         );
+
+        final response = await createFirePolicy(policy);
+
+        if (response.statusCode == 201 || response.statusCode == 200) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AllFirePolicyView()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed with status: ${response.statusCode}')));
+        }
       } catch (e) {
-        // Display the error message in a Snackbar
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+            SnackBar(content: Text('Error: ${e.toString()}')));
       }
     }
   }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -125,25 +151,67 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
                 const SizedBox(height: 20),
                 _buildTextField(addressController, 'Address', Icons.location_on, 'Please enter an address'),
                 const SizedBox(height: 20),
-                _buildNumberTextField(stockInsuredController, 'Stock Insured', Icons.monetization_on, 'Please enter the stock insured'),
+                _buildTextField(stockInsuredController, 'Stock Insured', Icons.monetization_on, 'Please enter the stock insured'),
                 const SizedBox(height: 20),
                 _buildNumberTextField(sumInsuredController, 'Sum Insured', Icons.monetization_on, 'Please enter the sum insured'),
                 const SizedBox(height: 20),
                 _buildTextField(interestInsuredController, 'Interest Insured', Icons.info, 'Please enter interest insured details'),
                 const SizedBox(height: 20),
-                _buildTextField(coverageController, 'Coverage', Icons.assignment, 'Please enter the coverage details'),
+                _buildTextField(coverageController, 'Coverage', Icons.assignment, 'Please enter the coverage details', readOnly: true),
                 const SizedBox(height: 20),
                 _buildTextField(locationController, 'Location', Icons.location_city, 'Please enter the location'),
                 const SizedBox(height: 20),
-                _buildTextField(constructionController, 'Construction Type', Icons.build, 'Please enter the construction type'),
+                // Construction Type Dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedConstruction,
+                  decoration: _buildInputDecoration('Construction Type', Icons.build),
+                  items: constructionTypes.map((type) {
+                    return DropdownMenuItem<String>(
+                      value: type,
+                      child: Text(type),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedConstruction = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a construction type';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 20),
-                _buildTextField(ownerController, 'Owner', Icons.person, 'Please enter the owner name'),
+                // Used As Dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedUsage,
+                  decoration: _buildInputDecoration('Used As', Icons.business),
+                  items: usageTypes.map((type) {
+                    return DropdownMenuItem<String>(
+                      value: type,
+                      child: Text(type),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedUsage = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select how it is used';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 20),
-                _buildTextField(usedAsController, 'Used As', Icons.business, 'Please enter how it is used'),
+                _buildTextField(ownerController, 'Owner', Icons.person, 'Please enter the owner name', readOnly: true),
                 const SizedBox(height: 20),
-                _buildDateTextField(periodFromController, 'Period From'),
+                _buildPeriodFromTextField(),
                 const SizedBox(height: 20),
-                _buildDateTextField(periodToController, 'Period To'),
+                _buildPeriodToTextField(),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _createFirePolicy,
@@ -170,71 +238,125 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
     );
   }
 
-  Widget _buildDateTextField([TextEditingController? controller, String? labelText]) {
-    final TextEditingController effectiveController = controller ?? dateController;
-    final String effectiveLabel = labelText ?? 'Date (yyyy-mm-dd)';
-
+  Widget _buildDateTextField() {
     return TextFormField(
-      controller: effectiveController,
-      decoration: InputDecoration(
-        labelText: effectiveLabel,
-        border: OutlineInputBorder(),
-        prefixIcon: const Icon(Icons.date_range),
-      ),
+      controller: dateController,
+      decoration: _buildInputDecoration('Date', Icons.calendar_today),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a date';
         }
         return null;
       },
+      readOnly: true,
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, String validationMessage, {bool readOnly = false}) {
+    return TextFormField(
+      controller: controller,
+      decoration: _buildInputDecoration(label, icon),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return validationMessage;
+        }
+        return null;
+      },
+      readOnly: readOnly,
+    );
+  }
+
+  Widget _buildNumberTextField(TextEditingController controller, String label, IconData icon, String validationMessage) {
+    return TextFormField(
+      controller: controller,
+      decoration: _buildInputDecoration(label, icon),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return validationMessage;
+        }
+        if (double.tryParse(value) == null) {
+          return 'Please enter a valid number';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildPeriodFromTextField() {
+    return TextFormField(
+      controller: periodFromController,
+      decoration: _buildInputDecoration('Period From', Icons.date_range),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter a start date';
+        }
+        return null;
+      },
+      readOnly: true, // To prevent typing, only show the calendar
       onTap: () async {
-        FocusScope.of(context).requestFocus(FocusNode());
-        DateTime? pickedDate = await showDatePicker(
+        FocusScope.of(context).requestFocus(FocusNode()); // Close the keyboard
+        DateTime? selectedDate = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
-          firstDate: DateTime(2000),
+          firstDate: DateTime(1900),
           lastDate: DateTime(2100),
         );
-        if (pickedDate != null) {
-          effectiveController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+        if (selectedDate != null) {
+          periodFromController.text = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+          // Automatically set Period To to one year after the selected date
+          DateTime periodTo = DateTime(selectedDate.year + 1, selectedDate.month, selectedDate.day);
+          periodToController.text = DateFormat('yyyy-MM-dd').format(periodTo);
         }
       },
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String labelText, IconData icon, String validationMessage) {
+  Widget _buildPeriodToTextField() {
     return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
-      ),
+      controller: periodToController,
+      decoration: _buildInputDecoration('Period To', Icons.date_range),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return validationMessage;
+          return 'Please enter an end date';
         }
         return null;
+      },
+      readOnly: true, // To prevent typing, only show the calendar
+      onTap: () async {
+        FocusScope.of(context).requestFocus(FocusNode()); // Close the keyboard
+        DateTime? selectedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime(2100),
+        );
+        if (selectedDate != null) {
+          periodToController.text = DateFormat('yyyy-MM-dd').format(selectedDate);
+        }
       },
     );
   }
 
-  Widget _buildNumberTextField(TextEditingController controller, String labelText, IconData icon, String validationMessage, {bool readOnly = false}) {
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
+
+
+  InputDecoration _buildInputDecoration(String labelText, IconData icon) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+      enabledBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.grey, width: 1.0),
+        borderRadius: BorderRadius.circular(8.0),
       ),
-      keyboardType: TextInputType.number,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return validationMessage;
-        }
-        return null;
-      },
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: Colors.white,
     );
   }
 }

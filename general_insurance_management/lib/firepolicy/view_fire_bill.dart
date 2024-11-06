@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/firepolicy/create_fire_bill.dart';
 import 'package:general_insurance_management/firepolicy/fire_bill_details.dart';
 import 'package:general_insurance_management/model/bill_model.dart';
 import '../service/bill_service.dart';
@@ -16,15 +17,23 @@ class _AllFireBillViewState extends State<AllFireBillView> {
   List<BillModel> filteredBills = []; // Store filtered bills
   String searchQuery = ''; // Store the search query
   final TextStyle commonStyle = const TextStyle(fontSize: 14, color: Colors.black);
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     final service = BillService();
-    futureBills = service.fetchFirePolicies().then((bills) {
+    futureBills = service.fetchFireBill().then((bills) {
       allBills = bills; // Initialize allBills with fetched data
       filteredBills = allBills; // Initially show all bills
       return bills;
+    });
+
+    // Optional: Debounce search input to reduce the number of times filtering occurs
+    searchController.addListener(() {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _filterBills(searchController.text);
+      });
     });
   }
 
@@ -33,8 +42,8 @@ class _AllFireBillViewState extends State<AllFireBillView> {
       searchQuery = query.toLowerCase(); // Update the search query
       // Filter the bills based on ID, policyholder, or bank name
       filteredBills = allBills.where((bill) {
-        final policyholder = bill.policy?.policyholder?.toLowerCase() ?? '';
-        final bankName = bill.policy?.bankName?.toLowerCase() ?? '';
+        final policyholder = bill.policy.policyholder?.toLowerCase() ?? '';
+        final bankName = bill.policy.bankName?.toLowerCase() ?? '';
         final id = bill.id.toString();
         return policyholder.contains(searchQuery) ||
             bankName.contains(searchQuery) ||
@@ -69,7 +78,7 @@ class _AllFireBillViewState extends State<AllFireBillView> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextField(
-              onChanged: _filterBills, // Call the filter function on text change
+              controller: searchController,
               decoration: InputDecoration(
                 hintText: 'Search by Bill No, Policyholder, or Bank Name',
                 border: OutlineInputBorder(
@@ -94,7 +103,6 @@ class _AllFireBillViewState extends State<AllFireBillView> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No bills available'));
                 } else {
-                  // Use filteredBills for the ListView
                   return ListView.builder(
                     itemCount: filteredBills.length,
                     itemBuilder: (context, index) {
@@ -125,7 +133,7 @@ class _AllFireBillViewState extends State<AllFireBillView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Bill No : ${bill.policy?.id ?? 'N/A'}',
+                                  'Bill No : ${bill.policy.id ?? 'N/A'}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -134,7 +142,7 @@ class _AllFireBillViewState extends State<AllFireBillView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  bill.policy?.bankName ?? 'Unnamed Policy',
+                                  bill.policy.bankName ?? 'Unnamed Policy',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -142,7 +150,7 @@ class _AllFireBillViewState extends State<AllFireBillView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  bill.policy?.policyholder ?? 'No policyholder available',
+                                  bill.policy.policyholder ?? 'No policyholder available',
                                   style: commonStyle,
                                 ),
                                 const SizedBox(height: 8),
@@ -151,13 +159,13 @@ class _AllFireBillViewState extends State<AllFireBillView> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        bill.policy?.address ?? 'No address',
+                                        bill.policy.address ?? 'No address',
                                         style: commonStyle,
                                       ),
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      'Tk ${bill.policy?.sumInsured?.toString() ?? 'No sum'}',
+                                      'Tk ${bill.policy.sumInsured?.toString() ?? 'No sum'}',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
@@ -169,11 +177,11 @@ class _AllFireBillViewState extends State<AllFireBillView> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Fire: ${bill.fire?.toString() ?? 'No data'}%', style: commonStyle),
-                                    Text('RSD: ${bill.rsd?.toString() ?? 'No data'}%', style: commonStyle),
-                                    Text('Net: ${bill.netPremium?.toString() ?? 'No data'}', style: commonStyle),
-                                    Text('Tax: ${bill.tax?.toString() ?? 'No data'}%', style: commonStyle),
-                                    Text('Gross: ${bill.grossPremium?.toString() ?? 'No data'}', style: commonStyle),
+                                    Text('Fire: ${bill.fire.toString() ?? 'No data'}%', style: commonStyle),
+                                    Text('RSD: ${bill.rsd.toString() ?? 'No data'}%', style: commonStyle),
+                                    Text('Net: ${bill.netPremium.toString() ?? 'No data'}', style: commonStyle),
+                                    Text('Tax: ${bill.tax.toString() ?? 'No data'}%', style: commonStyle),
+                                    Text('Gross: ${bill.grossPremium.toString() ?? 'No data'}', style: commonStyle),
                                   ],
                                 ),
                                 const SizedBox(height: 16),
@@ -223,6 +231,16 @@ class _AllFireBillViewState extends State<AllFireBillView> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateFireBill()),
+          );
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }

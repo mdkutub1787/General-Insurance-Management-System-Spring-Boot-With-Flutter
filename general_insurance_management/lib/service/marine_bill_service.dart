@@ -7,20 +7,16 @@ class MarineBillService {
   final String baseUrl = "http://localhost:8080/api/marinebill/";
 
   // Fetch all marine bills
-  Future<List<MarineBillModel>> getMarineBill() async {
+  Future<List<MarineBillModel>> getMarineBills() async {
     final response = await http.get(Uri.parse(baseUrl));
 
     if (response.statusCode == 200) {
       final List<dynamic> billJson = json.decode(response.body);
       return billJson.map((json) => MarineBillModel.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to load marine bills');
+      throw Exception('Failed to load marine bills: ${response.statusCode} ${response.body}');
     }
   }
-
-
-
-
 
   // Create a new marine bill
   Future<MarineBillModel> createMarineBill(MarineBillModel marineBill, String? token) async {
@@ -43,14 +39,27 @@ class MarineBillService {
     }
   }
 
-
   // Delete a marine bill by ID
   Future<void> deleteMarineBill(int id) async {
     final response = await http.delete(Uri.parse(baseUrl + "delete/$id"));
 
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete marine bill');
+      throw Exception('Failed to delete marine bill: ${response.statusCode} ${response.body}');
     }
   }
 
+  // Update a marine bill by ID
+  Future<void> updateMarineBill(int id, MarineBillModel marineBill) async {
+    final response = await http.put(
+      Uri.parse('${baseUrl}update/$id'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(marineBill.toJson()),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to update marine bill: ${response.statusCode} ${response.body}');
+    }
+  }
 }

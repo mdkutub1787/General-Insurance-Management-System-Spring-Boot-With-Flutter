@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/firepolicy/fire_policy_details.dart';
 import 'package:general_insurance_management/firepolicy/create_fire_policy.dart';
+import 'package:general_insurance_management/firepolicy/fire_policy_details.dart';
+import 'package:general_insurance_management/firepolicy/update_fire_policy.dart';
 import 'package:general_insurance_management/model/policy_model.dart';
 import '../service/policy_service.dart';
 
@@ -25,8 +26,32 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
   }
 
   Future<void> loadPolicies() async {
-    futurePolicies = policyService.fetchFirePolicies();
+    futurePolicies = policyService.fetchPolicies();
     setState(() {}); // Update the UI after fetching
+  }
+
+  Future<void> _confirmDeletePolicy(int policyId) async {
+    bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Deletion'),
+        content: const Text('Are you sure you want to delete this policy?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false), // Cancel deletion
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true), // Confirm deletion
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      await _deletePolicy(policyId); // Proceed with deletion if confirmed
+    }
   }
 
   Future<void> _deletePolicy(int policyId) async {
@@ -34,7 +59,7 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
       await policyService.deletePolicy(policyId);
       await loadPolicies(); // Refresh the policy list after deletion
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Policy deleted successfully'), duration: Duration(seconds: 2)),
+        const SnackBar(content: Text('Policy Deleted successfully'), duration: Duration(seconds: 2)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -154,16 +179,15 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
           gradient: LinearGradient(
             colors: policy.isHovered
                 ? [
-              Colors.blue.shade400,    // Start with red
-              Colors.pinkAccent.shade400, // Transition to orange
-              Colors.purpleAccent.shade400, // Then yellow
-              Colors.cyanAccent.shade400,// Finally green
+              Colors.blue.shade400,
+              Colors.pinkAccent.shade400,
+              Colors.purpleAccent.shade400,
+              Colors.cyanAccent.shade400,
             ]
                 : [
-
-              Colors.red.shade400,    // Start with red
-              Colors.orange.shade400, // Transition to orange
-              Colors.yellow.shade400, // Then yellow
+              Colors.red.shade400,
+              Colors.orange.shade400,
+              Colors.yellow.shade400,
               Colors.green.shade400,
             ],
             begin: Alignment.topLeft,
@@ -183,7 +207,7 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
         ),
         margin: const EdgeInsets.all(10),
         child: Card(
-          elevation: policy.isHovered ? 8 : 0, // Increase elevation on hover
+          elevation: policy.isHovered ? 8 : 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -191,7 +215,7 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Bill No : ${policy.id ?? 'N/A'}', // Displaying the Policy ID
+                  'Bill No : ${policy.id ?? 'N/A'}',
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
                 ),
                 const SizedBox(height: 8),
@@ -233,7 +257,7 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
               context,
               MaterialPageRoute(builder: (context) => AllFirePolicyDetails(policy: policy)),
             );
-            loadPolicies(); // Refresh after returning from details
+            loadPolicies();
           },
           tooltip: 'View Details',
         ),
@@ -241,12 +265,24 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
         IconButton(
           icon: const Icon(Icons.delete, color: Colors.red),
           onPressed: () {
-            _deletePolicy(policy.id!);
+            _confirmDeletePolicy(policy.id!);
           },
           tooltip: 'Delete Policy',
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          icon: const Icon(Icons.edit, color: Colors.cyan),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UpdateFirePolicy(policy: policy),
+              ),
+            );
+          },
+          tooltip: 'Edit Policy',
         ),
       ],
     );
   }
-
 }

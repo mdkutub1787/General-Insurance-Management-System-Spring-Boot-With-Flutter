@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/marinepolicy/create_marine_bill.dart';
 import 'package:general_insurance_management/marinepolicy/marine_bill_details.dart';
+import 'package:general_insurance_management/marinepolicy/update_marine_bill.dart';
 import 'package:general_insurance_management/model/marine_bill_model.dart';
 import 'package:general_insurance_management/service/marine_bill_service.dart';
 
@@ -29,7 +30,7 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
 
   Future<List<MarineBillModel>> _loadMarineBills() async {
     final service = MarineBillService();
-    final bills = await service.getMarineBill();
+    final bills = await service.getMarineBills();
     setState(() {
       allBills = bills; // Store all fetched bills
       filteredBills = bills; // Initialize filtered bills with all fetched bills
@@ -276,6 +277,18 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                                             const SnackBar(content: Text('Cannot delete bill without ID')),
                                           );
                                         }
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.cyan),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => UpdateMarineBill(marineBill: marineBill),
+                                          ),
+                                        );
                                       },
                                     ),
                                   ],

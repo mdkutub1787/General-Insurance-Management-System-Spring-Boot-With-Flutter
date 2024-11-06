@@ -5,14 +5,16 @@ import 'package:general_insurance_management/model/marine_policy_model.dart';
 import 'package:general_insurance_management/service/marine_bill_service.dart';
 import 'package:general_insurance_management/service/marine_policy_service.dart';
 
-class CreateMarineBill extends StatefulWidget {
-  const CreateMarineBill({super.key});
+class UpdateMarineBill extends StatefulWidget {
+  const UpdateMarineBill({super.key, required this.marineBill});
+
+  final MarineBillModel marineBill;
 
   @override
-  State<CreateMarineBill> createState() => _CreateMarineBillState();
+  State<UpdateMarineBill> createState() => _CreateMarineBillState();
 }
 
-class _CreateMarineBillState extends State<CreateMarineBill> {
+class _CreateMarineBillState extends State<UpdateMarineBill> {
   final TextEditingController marineRateController = TextEditingController();
   final TextEditingController warSrccRateController = TextEditingController();
   final TextEditingController netPremiumController = TextEditingController();
@@ -36,6 +38,16 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
     super.initState();
     _fetchData();
     _setupListeners();
+    _populateInitialData();
+  }
+
+  void _populateInitialData() {
+    marineRateController.text = widget.marineBill.marineRate.toString();
+    warSrccRateController.text = widget.marineBill.warSrccRate.toString();
+    netPremiumController.text = widget.marineBill.netPremium.toString();
+    taxController.text = widget.marineBill.tax.toString();
+    stampDutyController.text = widget.marineBill.stampDuty.toString();
+    grossPremiumController.text = widget.marineBill.grossPremium.toString();
   }
 
   Future<void> _fetchData() async {
@@ -80,7 +92,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
     calculatePremiums();
   }
 
-  void _createMarineBill() async {
+  void _updateMarineBill() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         isLoading = true;
@@ -97,21 +109,21 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           return;
         }
 
-        await marineBillService.createMarineBill(
+        await marineBillService.updateMarineBill(
           MarineBillModel(
             marineRate: double.parse(marineRateController.text),
             warSrccRate: double.parse(warSrccRateController.text),
-            netPremium: _parseControllerValue(netPremiumController.text),
-            tax: _parseControllerValue(taxController.text),
-            stampDuty: _parseControllerValue(stampDutyController.text),
-            grossPremium: _parseControllerValue(grossPremiumController.text),
+            netPremium: double.parse(netPremiumController.text),
+            tax: double.parse(taxController.text),
+            stampDuty: double.parse(stampDutyController.text),
+            grossPremium:double.parse(grossPremiumController.text),
             marineDetails: selectedPolicy,
-          ),
-          selectedPolicy.id.toString(),
+          ) as int,
+          selectedPolicy.id.toString() as MarineBillModel,
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Marine bill created successfully!')),
+          SnackBar(content: Text('Marine bill updated successfully!')),
         );
 
         Navigator.pushReplacement(
@@ -136,7 +148,6 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
   }
 
   void calculatePremiums() {
-    // Retrieve values from the form controllers
     double sumInsured = selectedSumInsured ?? 0.0;
     double marineRate = _parseControllerValue(marineRateController.text);
     double warSrccRate = _parseControllerValue(warSrccRateController.text);
@@ -153,7 +164,6 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
     double tax = taxRate / 100;
     double grossPremium = netPremium+(netPremium * tax )+ stampDuty;
 
-    // Update form controllers with calculated values
     setState(() {
       netPremiumController.text = netPremium.toStringAsFixed(2);
       taxController.text = tax.toStringAsFixed(2);
@@ -168,7 +178,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create Marine Bill")),
+      appBar: AppBar(title: Text("Update Marine Bill")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -195,10 +205,10 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
               _buildReadOnlyField(grossPremiumController, 'Gross Premium', Icons.monetization_on),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: isLoading ? null : _createMarineBill,
+                onPressed: isLoading ? null : _updateMarineBill,
                 child: isLoading
                     ? CircularProgressIndicator(color: Colors.white)
-                    : Text("Create Marine Bill", style: TextStyle(fontWeight: FontWeight.w600)),
+                    : Text("Update Marine Bill", style: TextStyle(fontWeight: FontWeight.w600)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
                   foregroundColor: Colors.white,
@@ -229,18 +239,11 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
         labelText: 'Policyholder',
         border: OutlineInputBorder(),
         prefixIcon: Icon(Icons.person),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 16), // Updated label style
-        isDense: true, // Dense style for less height
-        contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8), // Content padding
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey), // Border color
-        ),
       ),
       items: policies.map<DropdownMenuItem<String>>((MarinePolicyModel policy) {
         return DropdownMenuItem<String>(
           value: policy.policyholder,
-          child: Text(policy.policyholder!),
+          child: Text(policy.policyholder ?? ''),
         );
       }).toList(),
     );
@@ -252,24 +255,12 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
       onChanged: isLoading ? null : (String? newValue) {
         setState(() {
           selectedBankName = newValue;
-          final selectedPolicy = policies.firstWhere(
-                (policy) => policy.bankName == newValue,
-            orElse: () => MarinePolicyModel(policyholder: '', id: null, sumInsured: 0.0, bankName: ''),
-          );
-          selectedSumInsured = selectedPolicy.sumInsured;
         });
       },
       decoration: InputDecoration(
         labelText: 'Bank Name',
         border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.account_balance),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 16), // Updated label style
-        isDense: true, // Dense style for less height
-        contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8), // Content padding
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey), // Border color
-        ),
+        prefixIcon: Icon(Icons.food_bank),
       ),
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
@@ -291,14 +282,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
       decoration: InputDecoration(
         labelText: 'Sum Insured',
         border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.money),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 16), // Updated label style
-        isDense: true, // Dense style for less height
-        contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8), // Content padding
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey), // Border color
-        ),
+        prefixIcon: Icon(Icons.attach_money),
       ),
       items: uniqueSumInsured.map<DropdownMenuItem<double>>((double sumInsured) {
         return DropdownMenuItem<double>(
@@ -316,18 +300,11 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
         labelText: label,
         border: OutlineInputBorder(),
         prefixIcon: Icon(icon),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 16), // Updated label style
-        isDense: true, // Dense style for less height
-        contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8), // Content padding
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey), // Border color
-        ),
       ),
       keyboardType: TextInputType.number,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter $label';
+          return 'Please enter a valid value';
         }
         return null;
       },
@@ -342,22 +319,8 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
         labelText: label,
         border: OutlineInputBorder(),
         prefixIcon: Icon(icon),
-        filled: true,
-        fillColor: Colors.white,
-        labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-        isDense: true, // Dense style for less height
-        contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
       ),
+      keyboardType: TextInputType.number,
     );
-
-
   }
 }

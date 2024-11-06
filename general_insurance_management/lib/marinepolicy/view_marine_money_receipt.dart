@@ -43,9 +43,9 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
     setState(() {
       filteredMarineMoneyReceipts = allMarineMoneyReceipts.where((receipt) {
         final bankName =
-            receipt.marinebill?.marineDetails?.bankName?.toLowerCase() ?? '';
+            receipt.marinebill?.marineDetails.bankName?.toLowerCase() ?? '';
         final policyholder =
-            receipt.marinebill?.marineDetails?.policyholder?.toLowerCase() ?? '';
+            receipt.marinebill?.marineDetails.policyholder?.toLowerCase() ?? '';
         final id = receipt.id.toString(); // Assuming receipt has an 'id' property
 
         return bankName.contains(query.toLowerCase()) ||
@@ -53,6 +53,27 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
             id.contains(query);
       }).toList();
     });
+  }
+
+  Future<void> onDelete(int id) async {
+    final service = MarineMoneyReceiptService();
+    try {
+      bool success = await service.deleteMarineMoneyReceipt(id);
+      if (success) {
+        setState(() {
+          // Remove the deleted receipt from the list
+          filteredMarineMoneyReceipts.removeWhere((receipt) => receipt.id == id);
+          allMarineMoneyReceipts.removeWhere((receipt) => receipt.id == id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Receipt deleted successfully')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting receipt: $e')),
+      );
+    }
   }
 
   @override
@@ -137,7 +158,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Bill No : ${marinemoneyreceipt.marinebill?.marineDetails?.id ?? 'N/A'}',
+                                  'Bill No : ${marinemoneyreceipt.marinebill?.marineDetails.id ?? 'N/A'}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -147,7 +168,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                 const SizedBox(height: 8),
                                 Text(
                                   marinemoneyreceipt
-                                      .marinebill?.marineDetails?.bankName ??
+                                      .marinebill?.marineDetails.bankName ??
                                       'Unnamed Policy',
                                   style: const TextStyle(
                                     fontSize: 16,
@@ -156,8 +177,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  marinemoneyreceipt.marinebill?.marineDetails
-                                      ?.policyholder ??
+                                  marinemoneyreceipt.marinebill?.marineDetails.policyholder ??
                                       'No policyholder available',
                                   style: commonStyle,
                                 ),
@@ -169,14 +189,14 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                     Expanded(
                                       child: Text(
                                         marinemoneyreceipt.marinebill
-                                            ?.marineDetails?.address ??
+                                            ?.marineDetails.address ??
                                             'No address',
                                         style: commonStyle,
                                       ),
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      'Tk ${marinemoneyreceipt.marinebill?.marineDetails?.sumInsured?.round() ?? 'No sum'}',
+                                      'Tk ${marinemoneyreceipt.marinebill?.marineDetails.sumInsured?.round() ?? 'No sum'}',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
@@ -190,16 +210,16 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                   MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                        'Net: Tk ${marinemoneyreceipt.marinebill?.netPremium?.round() ?? 'No data'}',
+                                        'Net: Tk ${marinemoneyreceipt.marinebill?.netPremium.round() ?? 'No data'}',
                                         style: commonStyle),
                                     Text(
-                                        'Tax: ${marinemoneyreceipt.marinebill?.tax?.round() ?? 'No data'}%',
+                                        'Tax: ${marinemoneyreceipt.marinebill?.tax.round() ?? 'No data'}%',
                                         style: commonStyle),
                                     Text(
-                                        'Stamp: Tk ${marinemoneyreceipt.marinebill?.stampDuty?.round() ?? 'No data'}',
+                                        'Stamp: Tk ${marinemoneyreceipt.marinebill?.stampDuty.round() ?? 'No data'}',
                                         style: commonStyle),
                                     Text(
-                                        'Gross: Tk ${marinemoneyreceipt.marinebill?.grossPremium?.round() ?? 'No data'}',
+                                        'Gross: Tk ${marinemoneyreceipt.marinebill?.grossPremium.round() ?? 'No data'}',
                                         style: commonStyle),
                                   ],
                                 ),
@@ -264,13 +284,13 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                           mainAxisAlignment:
                                           MainAxisAlignment.center,
                                           children: const [
-                                            Icon(Icons.note),
+                                            Icon(Icons.print),
                                             SizedBox(width: 8),
                                             Text('Cover Note'),
                                           ],
                                         ),
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue,
+                                          backgroundColor: Colors.green,
                                           foregroundColor: Colors.black,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
@@ -283,6 +303,39 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                         ),
                                       ),
                                     ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 100,
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          if (marinemoneyreceipt.id != null) {
+                                            onDelete(marinemoneyreceipt.id!); // Use the null assertion operator
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Receipt ID is null, cannot delete.')),
+                                            );
+                                          }
+                                        },
+                                        child: const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.delete),
+                                            SizedBox(width: 8),
+
+                                          ],
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+
+                                        ),
+                                      ),
+                                    ),
+
                                   ],
                                 ),
                               ],

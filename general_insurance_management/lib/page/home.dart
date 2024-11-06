@@ -62,24 +62,10 @@ class Home extends StatelessWidget {
           ),
           child: AppBar(
             title: const Text(
-              "Home",
+              "ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.transparent,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.account_circle),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/profile');
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/settings');
-                },
-              ),
-            ],
           ),
         ),
       ),
@@ -105,7 +91,7 @@ class Home extends StatelessWidget {
                   const CircleAvatar(
                     radius: 30,
                     backgroundImage: NetworkImage(
-                        'https://cdn.pixabay.com/photo/2015/10/30/20/13/sunset-1014712_960_720.jpg'),
+                        'https://media.licdn.com/media/AAYQAQSOAAgAAQAAAAAAAB-zrMZEDXI2T62PSuT6kpB6qg.png'),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -126,34 +112,11 @@ class Home extends StatelessWidget {
                 ],
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.pushNamed(context, '/home');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                Navigator.pushNamed(context, '/profile');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.contact_mail),
-              title: const Text('Contact Us'),
-              onTap: () {
-                Navigator.pushNamed(context, '/contact');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                Navigator.pushNamed(context, '/login');
-              },
-            ),
+            _buildDrawerItem(context, Icons.home, 'Home', '/home'),
+            _buildDrawerItem(context, Icons.person, 'Profile', '/profile'),
+            _buildDrawerItem(context, Icons.contact_mail, 'Contact Us', '/contact'),
+            _buildDrawerItem(context, Icons.settings, 'Settings', '/settings'),
+            _buildDrawerItem(context, Icons.logout, 'Logout', '/login'),
           ],
         ),
       ),
@@ -216,8 +179,6 @@ class Home extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.green, Colors.blue, Colors.orange],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
             ),
           ),
           child: IconTheme(
@@ -225,43 +186,37 @@ class Home extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.home),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/home');
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/search');
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.notifications),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/notifications');
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.account_circle),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/profile');
-                  },
-                ),
+                _buildBottomIconButton(context, Icons.home, '/home'),
+                _buildBottomIconButton(context, Icons.search, '/search'),
+                _buildBottomIconButton(context, Icons.notifications, '/notifications'),
+                _buildBottomIconButton(context, Icons.account_circle, '/profile'),
+                _buildBottomIconButton(context, Icons.login, '/login'),
+                _buildBottomIconButton(context, Icons.app_registration, '/registration'),
+                _buildBottomIconButton(context, Icons.settings, '/settings'),
               ],
             ),
           ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Colors.blueAccent,
-      //   child: const Icon(Icons.add),
-      //   onPressed: () {
-      //     Navigator.pushNamed(context, '/new');
-      //   },
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, String route) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      onTap: () {
+        Navigator.pushNamed(context, route);
+      },
+    );
+  }
+
+  Widget _buildBottomIconButton(BuildContext context, IconData icon, String route) {
+    return IconButton(
+      icon: Icon(icon),
+      onPressed: () {
+        Navigator.pushNamed(context, route);
+      },
     );
   }
 }

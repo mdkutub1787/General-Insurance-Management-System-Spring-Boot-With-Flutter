@@ -43,7 +43,7 @@ class _LoginState extends State<Login> {
           context,
           MaterialPageRoute(
             builder: (context) => LocalOffice(
-              officeName: 'Grand Plaza',
+              officeName: 'Kushtia',
               address: '123 Main St, Cityville',
               contactNumber: '01763001787',
               workingHours: 'Mon-Fri, 9 AM - 5 PM',

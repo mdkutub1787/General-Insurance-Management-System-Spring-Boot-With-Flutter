@@ -18,20 +18,6 @@ class MarineMoneyReceiptService {
     }
   }
 
-  // Future<MarineMoneyReceiptModel> createMarineMoneyReceipt(MarineMoneyReceiptModel receipt) async {
-  //   final response = await http.post(
-  //     Uri.parse(apiUrl + 'save'),
-  //     headers: {'Content-Type': 'application/json'},
-  //     body: json.encode(receipt.toJson()), // Serialize the receipt to JSON
-  //   );
-  //
-  //   if (response.statusCode == 201) {
-  //     // Return the created receipt from the response
-  //     return MarineMoneyReceiptModel.fromJson(json.decode(response.body));
-  //   } else {
-  //     throw Exception('Failed to create Marine Money Receipt');
-  //   }
-  // }
 
 
   // Create a new marine bill
@@ -52,6 +38,23 @@ class MarineMoneyReceiptService {
       return MarineMoneyReceiptModel.fromJson(json.decode(response.body));
     } else {
       throw Exception('Failed to create marine bill: ${response.statusCode} ${response.body}');
+    }
+  }
+
+  /// Deletes a marine money receipt by ID.
+  Future<bool> deleteMarineMoneyReceipt(int id) async {
+    final String apiUrl = '${baseUrl}delete/$id';
+
+    try {
+      final response = await http.delete(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true; // Deletion successful
+      } else {
+        throw Exception('Failed to delete Marine Money Receipt: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Error deleting Marine Money Receipt: $e');
     }
   }
 

@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/firepolicy/view_money_receipt.dart';
+import 'package:general_insurance_management/model/bill_model.dart';
+import 'package:general_insurance_management/model/money_receipt_model.dart';
+import 'package:general_insurance_management/service/bill_service.dart';
+import 'package:general_insurance_management/service/money_receipt_service.dart';
 import 'package:intl/intl.dart';
-import 'package:general_insurance_management/marinepolicy/view_marine_money_receipt.dart';
 import 'package:general_insurance_management/model/marine_bill_model.dart';
 import 'package:general_insurance_management/model/marine_money_receipt_model.dart';
 import 'package:general_insurance_management/service/marine_bill_service.dart';
-import 'package:general_insurance_management/service/marine_money_receipt_service.dart';
 
-class CreateMarineMoneyReceipt extends StatefulWidget {
-  const CreateMarineMoneyReceipt({Key? key}) : super(key: key);
+class CreateFireMoneyReceipt extends StatefulWidget {
+  const CreateFireMoneyReceipt({Key? key}) : super(key: key);
 
   @override
-  State<CreateMarineMoneyReceipt> createState() =>
-      _CreateMarineMoneyReceiptState();
+  State<CreateFireMoneyReceipt> createState() => _CreateFireMoneyReceiptState();
 }
 
-class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
+class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
   final TextEditingController issuingOfficeController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController modeOfPaymentController = TextEditingController();
   final TextEditingController issuedAgainstController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final MarineMoneyReceiptService marineMoneyReceiptService =
-      MarineMoneyReceiptService();
+  final MoneyReceiptService moneyReceiptService = MoneyReceiptService();
 
-  List<MarineBillModel> marinebills = [];
+  List<BillModel> bills = [];
   List<String> uniqueBankNames = [];
   List<double> uniqueSumInsured = [];
   String? selectedPolicyholder;
@@ -59,24 +60,24 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
   Future<void> _fetchData() async {
     setState(() => isLoading = true);
     try {
-      marinebills = await MarineBillService().getMarineBills();
-      uniqueBankNames = marinebills
-          .map((marinebill) => marinebill.marineDetails.bankName)
+      bills = await BillService().fetchFireBill();
+      uniqueBankNames = bills
+          .map((bill) => bill.policy.bankName)
           .whereType<String>()
           .toSet()
           .toList();
-      uniqueSumInsured = marinebills
-          .map((marinebill) => marinebill.marineDetails.sumInsured)
+      uniqueSumInsured = bills
+          .map((bill) => bill.policy.sumInsured)
           .whereType<double>()
           .toSet()
           .toList();
 
-      if (marinebills.isNotEmpty) {
+      if (bills.isNotEmpty) {
         setState(() {
-          selectedPolicyholder = marinebills.first.marineDetails.policyholder;
+          selectedPolicyholder = bills.first.policy.policyholder;
           selectedBankName =
-              marinebills.first.marineDetails.bankName ?? uniqueBankNames.first;
-          selectedSumInsured = marinebills.first.marineDetails.sumInsured ??
+              bills.first.policy.bankName ?? uniqueBankNames.first;
+          selectedSumInsured = bills.first.policy.sumInsured ??
               uniqueSumInsured.first;
         });
       }
@@ -88,14 +89,14 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
     }
   }
 
-  void _createMarineMoneyReceipt() async {
+  void _createMoneyReceipt() async {
     if (_formKey.currentState!.validate()) {
       setState(() => isLoading = true);
 
       try {
-        final selectedPolicy = marinebills.firstWhere(
-          (marinebill) =>
-              marinebill.marineDetails.policyholder == selectedPolicyholder,
+        final selectedPolicy = bills.firstWhere(
+              (bill) =>
+              bill.policy.policyholder == selectedPolicyholder,
         );
 
         if (selectedPolicy.id == null) {
@@ -103,14 +104,14 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
           return;
         }
 
-        await marineMoneyReceiptService.createMarineMoneyReceipt(
-          MarineMoneyReceiptModel(
+        await moneyReceiptService.createMoneyReceipt(
+          MoneyReceiptModel(
             issuingOffice: issuingOfficeController.text,
             classOfInsurance: selectedClassOfInsurance!,
             modeOfPayment: selectedModeOfPayment!,
-            date: DateTime.parse(dateController.text),
+            date: dateController.text,
             issuedAgainst: issuedAgainstController.text,
-            marinebill: selectedPolicy,
+            bill: selectedPolicy,
           ),
           selectedPolicy.id.toString(),
         );
@@ -121,7 +122,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AllMarineMoneyReceiptView()),
+          MaterialPageRoute(builder: (context) => AllFireMoneyReceiptView()),
         );
       } catch (error) {
         _showErrorSnackBar('Error: $error');
@@ -140,50 +141,50 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create Marine Money Receipt")),
+      appBar: AppBar(title: Text("Create Fire Money Receipt")),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildDropdownField(),
-                    SizedBox(height: 20),
-                    _buildDropdownBankNameField(),
-                    SizedBox(height: 20),
-                    _buildDropdownSumInsuredField(),
-                    SizedBox(height: 20),
-                    _buildTextField(issuingOfficeController, 'Issuing Office',
-                        Icons.production_quantity_limits_outlined),
-                    SizedBox(height: 20),
-                    _buildClassOfInsuranceDropdown(),
-                    SizedBox(height: 20),
-                    _buildDateField(),
-                    SizedBox(height: 20),
-                    _buildModeOfPaymentDropdown(),
-                    // Icons.attach_money),
-                    SizedBox(height: 20),
-                    _buildTextField(issuedAgainstController, 'Issued Against',
-                        Icons.receipt),
-                    SizedBox(height: 20),
-                    _buildCreateButton(),
-                  ],
-                ),
-              ),
-            ),
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildDropdownField(),
+              SizedBox(height: 20),
+              _buildDropdownBankNameField(),
+              SizedBox(height: 20),
+              _buildDropdownSumInsuredField(),
+              SizedBox(height: 20),
+              _buildTextField(issuingOfficeController, 'Issuing Office',
+                  Icons.production_quantity_limits_outlined),
+              SizedBox(height: 20),
+              _buildClassOfInsuranceDropdown(),
+              SizedBox(height: 20),
+              _buildDateField(),
+              SizedBox(height: 20),
+              _buildModeOfPaymentDropdown(),
+              // Icons.attach_money),
+              SizedBox(height: 20),
+              _buildTextField(issuedAgainstController, 'Issued Against',
+                  Icons.receipt),
+              SizedBox(height: 20),
+              _buildCreateButton(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildCreateButton() {
     return ElevatedButton(
-      onPressed: isLoading ? null : _createMarineMoneyReceipt,
+      onPressed: isLoading ? null : _createMoneyReceipt,
       child: isLoading
           ? CircularProgressIndicator(color: Colors.white)
-          : Text("Create Marine Money Receipt",
-              style: TextStyle(fontWeight: FontWeight.w600)),
+          : Text("Create Fire Money Receipt",
+          style: TextStyle(fontWeight: FontWeight.w600)),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
@@ -197,22 +198,22 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       onChanged: isLoading
           ? null
           : (String? newValue) {
-              setState(() {
-                selectedPolicyholder = newValue;
-                final selectedPolicy = marinebills.firstWhere(
-                  (marinebill) =>
-                      marinebill.marineDetails.policyholder == newValue,
-                );
-                selectedSumInsured = selectedPolicy.marineDetails.sumInsured;
-                selectedBankName = selectedPolicy.marineDetails.bankName;
-              });
-            },
+        setState(() {
+          selectedPolicyholder = newValue;
+          final selectedPolicy = bills.firstWhere(
+                (bill) =>
+            bill.policy.policyholder == newValue,
+          );
+          selectedSumInsured = selectedPolicy.policy.sumInsured;
+          selectedBankName = selectedPolicy.policy.bankName;
+        });
+      },
       decoration: _inputDecoration('Policyholder', Icons.person),
-      items: marinebills
-          .map<DropdownMenuItem<String>>((MarineBillModel marinebill) {
+      items: bills
+          .map<DropdownMenuItem<String>>((BillModel bill) {
         return DropdownMenuItem<String>(
-          value: marinebill.marineDetails.policyholder,
-          child: Text(marinebill.marineDetails.policyholder ?? ''),
+          value: bill.policy.policyholder,
+          child: Text(bill.policy.policyholder ?? ''),
         );
       }).toList(),
     );
@@ -224,10 +225,10 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       onChanged: isLoading
           ? null
           : (String? newValue) {
-              setState(() {
-                selectedBankName = newValue;
-              });
-            },
+        setState(() {
+          selectedBankName = newValue;
+        });
+      },
       decoration: _inputDecoration('Bank Name', Icons.account_balance),
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
@@ -244,13 +245,13 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       onChanged: isLoading
           ? null
           : (double? newValue) {
-              setState(() {
-                selectedSumInsured = newValue;
-              });
-            },
+        setState(() {
+          selectedSumInsured = newValue;
+        });
+      },
       decoration: _inputDecoration('Sum Insured', Icons.monetization_on),
       items:
-          uniqueSumInsured.map<DropdownMenuItem<double>>((double sumInsured) {
+      uniqueSumInsured.map<DropdownMenuItem<double>>((double sumInsured) {
         return DropdownMenuItem<double>(
           value: sumInsured,
           child: Text(sumInsured.toString()),
@@ -265,7 +266,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       controller: controller,
       decoration: _inputDecoration(label, icon),
       validator: (value) =>
-          value == null || value.isEmpty ? 'Please enter $label' : null,
+      value == null || value.isEmpty ? 'Please enter $label' : null,
     );
   }
 
@@ -289,7 +290,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
         }
       },
       validator: (value) =>
-          value == null || value.isEmpty ? 'Please select a date' : null,
+      value == null || value.isEmpty ? 'Please select a date' : null,
     );
   }
 
@@ -303,14 +304,14 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       },
       decoration: _inputDecoration('Class of Insurance', Icons.category),
       items:
-          classOfInsuranceOptions.map<DropdownMenuItem<String>>((String value) {
+      classOfInsuranceOptions.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
         );
       }).toList(),
       validator: (value) =>
-          value == null || value.isEmpty ? 'Please select a class' : null,
+      value == null || value.isEmpty ? 'Please select a class' : null,
     );
   }
 
@@ -330,7 +331,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
         );
       }).toList(),
       validator: (value) =>
-          value == null || value.isEmpty ? 'Please select a Payment' : null,
+      value == null || value.isEmpty ? 'Please select a Payment' : null,
     );
   }
 
@@ -340,7 +341,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
       isDense: true,
       contentPadding:
-          const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+      const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Colors.grey, width: 1.0),
         borderRadius: BorderRadius.circular(8.0),

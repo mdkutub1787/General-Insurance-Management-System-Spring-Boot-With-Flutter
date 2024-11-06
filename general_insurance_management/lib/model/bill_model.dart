@@ -1,48 +1,49 @@
-
+import 'dart:convert';
 import 'package:general_insurance_management/model/policy_model.dart';
 
 class BillModel {
   int? id;
-  int? fire;
-  int? rsd;
-  int? netPremium;
-  int? tax;
-  int? grossPremium;
-  PolicyModel? policy;
+  double fire;
+  double rsd;
+  double netPremium;
+  double tax;
+  double grossPremium;
+  PolicyModel policy;
+
 
   BillModel({
-    this.id,
-    this.fire,
-    this.rsd,
-    this.netPremium,
-    this.tax,
-    this.grossPremium,
-    this.policy,
+    this.id, // Nullable ID
+    required this.fire,
+    required this.rsd,
+    required this.netPremium,
+    required this.tax,
+    required this.grossPremium,
+    required this.policy,
   });
 
-
-  BillModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    fire = json['fire'];
-    rsd = json['rsd'];
-    netPremium = json['netPremium'];
-    tax = json['tax'];
-    grossPremium = json['grossPremium'];
-    policy = json['policy'] != null ? PolicyModel.fromJson(json['policy']) : null;
+  /// Factory constructor to create a MarineBillModel from a JSON map
+  factory BillModel.fromJson(Map<String, dynamic> json) {
+    return BillModel(
+      id: json['id'], // Nullable ID
+      fire: (json['fire'] is num) ? json['fire'].toDouble() : 0.0,
+      rsd: (json['rsd'] is num) ? json['rsd'].toDouble() : 0.0,
+      netPremium: (json['netPremium'] is num) ? json['netPremium'].toDouble() : 0.0,
+      tax: (json['tax'] is num) ? json['tax'].toDouble() : 0.0,
+      grossPremium: (json['grossPremium'] is num) ? json['grossPremium'].toDouble() : 0.0,
+      policy: PolicyModel.fromJson(json['policy']),
+    );
   }
 
-
+  /// Convert the MarineBillModel object to a JSON map
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['fire'] = fire;
-    data['rsd'] = rsd;
-    data['netPremium'] = netPremium;
-    data['tax'] = tax;
-    data['grossPremium'] = grossPremium;
-    if (policy != null) {
-      data['policy'] = policy!.toJson();
-    }
-    return data;
+    return {
+      'id': id,
+      'fire': fire,
+      'rsd': rsd,
+      'netPremium': netPremium,
+      'tax': tax,
+      'grossPremium': grossPremium,
+      'policy': policy.toJson(),
+    };
   }
 }

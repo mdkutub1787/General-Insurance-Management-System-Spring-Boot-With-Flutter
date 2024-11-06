@@ -62,8 +62,8 @@ class PrintMarineMoneyReceipt extends StatelessWidget {
     return pw.Table.fromTextArray(
       data: [
         [
-          'Fire Bill No', moneyreceipt.marinebill?.marineDetails?.id ?? "N/A",
-          'Issue Date', formatDate(moneyreceipt.marinebill?.marineDetails?.date as DateTime?) ?? "N/A"
+          'Fire Bill No', moneyreceipt.marinebill?.marineDetails.id ?? "N/A",
+          'Issue Date', formatDate(moneyreceipt.marinebill?.marineDetails.date as DateTime?) ?? "N/A"
         ],
       ],
 
@@ -78,13 +78,13 @@ class PrintMarineMoneyReceipt extends StatelessWidget {
         ['Class of Insurance', moneyreceipt.classOfInsurance ?? "N/A"],
         [
           'Received with thanks from',
-          '${moneyreceipt.marinebill?.marineDetails?.bankName ?? "N/A"}\n'
-              '${moneyreceipt.marinebill?.marineDetails?.policyholder ?? "N/A"}\n'
-              '${moneyreceipt.marinebill?.marineDetails?.address ?? "N/A"}'
+          '${moneyreceipt.marinebill?.marineDetails.bankName ?? "N/A"}\n'
+              '${moneyreceipt.marinebill?.marineDetails.policyholder ?? "N/A"}\n'
+              '${moneyreceipt.marinebill?.marineDetails.address ?? "N/A"}'
         ],
-        ['The sum USD', '${moneyreceipt.marinebill?.marineDetails?.sumInsuredUsd ?? "N/A"} USD'],
-        ['Rate', '${moneyreceipt.marinebill?.marineDetails?.usdRate ?? "N/A"} TK'],
-        ['The sum of', '${moneyreceipt.marinebill?.marineDetails?.sumInsured ?? "N/A"} TK'],
+        ['The sum USD', '${moneyreceipt.marinebill?.marineDetails.sumInsuredUsd ?? "N/A"} USD'],
+        ['Rate', '${moneyreceipt.marinebill?.marineDetails.usdRate ?? "N/A"} TK'],
+        ['The sum of', '${moneyreceipt.marinebill?.marineDetails.sumInsured ?? "N/A"} TK'],
         ['Mode Of Payment', moneyreceipt.modeOfPayment ?? "N/A"],
         ['Issued Against', moneyreceipt.issuedAgainst ?? "N/A"],
       ],
@@ -179,17 +179,17 @@ class PrintMarineMoneyReceipt extends StatelessWidget {
 
   List<Widget> _buildInfoRows() {
     return [
-      _buildRow('Fire Bill No:', '${moneyreceipt.marinebill?.marineDetails?.id ?? "N/A"}'),
-      _buildRow('Issue Date:', formatDate(moneyreceipt.marinebill?.marineDetails?.date as DateTime?) ?? "N/A"),
+      _buildRow('Fire Bill No:', '${moneyreceipt.marinebill?.marineDetails.id ?? "N/A"}'),
+      _buildRow('Issue Date:', formatDate(moneyreceipt.marinebill?.marineDetails.date as DateTime?) ?? "N/A"),
       _buildRow('Issuing Office:', '${moneyreceipt.issuingOffice ?? "N/A"}'),
       _buildRow('Money Receipt No:', '${moneyreceipt.id ?? "N/A"}'),
       _buildRow('Class of Insurance:', '${moneyreceipt.classOfInsurance ?? "N/A"}'),
-      _buildRow('Bank Name:', '${moneyreceipt.marinebill?.marineDetails?.bankName ?? "N/A"}'),
-      _buildRow('Policyholder:', '${moneyreceipt.marinebill?.marineDetails?.policyholder ?? "N/A"}'),
-      _buildRow('Address:', '${moneyreceipt.marinebill?.marineDetails?.address ?? "N/A"}'),
-      _buildRow('Sum Insured USD:', '${moneyreceipt.marinebill?.marineDetails?.sumInsuredUsd ?? "N/A"} USD'),
-      _buildRow('Rate:', '${moneyreceipt.marinebill?.marineDetails?.usdRate ?? "N/A"} TK'),
-      _buildRow('Sum Insured:', '${moneyreceipt.marinebill?.marineDetails?.sumInsured ?? "N/A"} TK'),
+      _buildRow('Bank Name:', '${moneyreceipt.marinebill?.marineDetails.bankName ?? "N/A"}'),
+      _buildRow('Policyholder:', '${moneyreceipt.marinebill?.marineDetails.policyholder ?? "N/A"}'),
+      _buildRow('Address:', '${moneyreceipt.marinebill?.marineDetails.address ?? "N/A"}'),
+      _buildRow('Sum Insured USD:', '${moneyreceipt.marinebill?.marineDetails.sumInsuredUsd ?? "N/A"} USD'),
+      _buildRow('Rate:', '${moneyreceipt.marinebill?.marineDetails.usdRate ?? "N/A"} TK'),
+      _buildRow('Sum Insured:', '${moneyreceipt.marinebill?.marineDetails.sumInsured ?? "N/A"} TK'),
       _buildRow('Mode Of Payment:', '${moneyreceipt.modeOfPayment ?? "N/A"}'),
       _buildRow('Issued Against:', '${moneyreceipt.issuedAgainst ?? "N/A"}'),
     ];
@@ -207,13 +207,13 @@ class PrintMarineMoneyReceipt extends StatelessWidget {
 
   // Calculation Methods
   double getTotalFire() {
-    return ((moneyreceipt.marinebill?.marineDetails?.sumInsured ?? 0) *
+    return ((moneyreceipt.marinebill?.marineDetails.sumInsured ?? 0) *
         (moneyreceipt.marinebill?.marineRate ?? 0) /
         100).roundToDouble();
   }
 
   double getTotalRsd() {
-    return ((moneyreceipt.marinebill?.marineDetails?.sumInsured ?? 0) *
+    return ((moneyreceipt.marinebill?.marineDetails.sumInsured ?? 0) *
         (moneyreceipt.marinebill?.warSrccRate ?? 0) /
         100).roundToDouble();
   }

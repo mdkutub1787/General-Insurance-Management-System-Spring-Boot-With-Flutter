@@ -55,6 +55,10 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
         body: jsonEncode(policy.toJson()), // Assuming `toJson` method exists in `PolicyModel`
       );
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fire  Policy Created Successfully!')),
+      );
+
       if (response.statusCode == 201 || response.statusCode == 200) {
         return response;
       } else {

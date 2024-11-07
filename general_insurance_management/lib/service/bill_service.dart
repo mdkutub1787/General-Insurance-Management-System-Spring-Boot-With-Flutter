@@ -19,23 +19,44 @@ class BillService {
   }
 
   //  Create a new marine bill
-  Future<BillModel> createFireBill(BillModel bill, String? token) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('token'); // Adjust key based on your implementation
+  // Future<BillModel> createFireBill(BillModel bill, String? token) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final String? token = prefs.getString('token'); // Adjust key based on your implementation
+  //
+  //   final response = await http.post(
+  //     Uri.parse(baseUrl + "save"),
+  //
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': token != null ? 'Bearer $token' : '', // Include token if available
+  //     },
+  //     body: json.encode(bill.toJson()),
+  //   );
+  //
+  //
+  //   if (response.statusCode == 201) {
+  //     return BillModel.fromJson(json.decode(response.body));
+  //   } else {
+  //     throw Exception('Failed to create fire bill: ${response.statusCode} ${response.body}');
+  //   }
+  // }
 
-    final response = await http.post(
-      Uri.parse(baseUrl + "save"),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token != null ? 'Bearer $token' : '', // Include token if available
-      },
-      body: json.encode(bill.toJson()),
+  Future<void> createFireBill(BillModel bill, String policyId,
+      {String? token}) async {
+    final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
+    final headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+
+   final response = await http.post(Uri.parse(baseUrl + "save"),
+      headers: headers,
+      body: jsonEncode(bill.toJson()),
     );
 
-    if (response.statusCode == 201) {
-      return BillModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to create fire bill: ${response.statusCode} ${response.body}');
+    if (response.statusCode != 200) {
+      throw Exception('Failed to create fire bill');
     }
   }
 

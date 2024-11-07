@@ -20,7 +20,8 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController stockInsuredController = TextEditingController();
   final TextEditingController sumInsuredController = TextEditingController();
-  final TextEditingController interestInsuredController = TextEditingController();
+  final TextEditingController interestInsuredController =
+      TextEditingController();
   final TextEditingController coverageController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController ownerController = TextEditingController();
@@ -30,8 +31,16 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
   final _formKey = GlobalKey<FormState>();
   final PolicyService policyService = PolicyService();
 
-  final List<String> constructionTypes = ['1st Class', '2nd Class', '3rd Class'];
-  final List<String> usageTypes = ['Shop Only', 'Godown Only', 'Shop-Cum-Godown only'];
+  final List<String> constructionTypes = [
+    '1st Class',
+    '2nd Class',
+    '3rd Class'
+  ];
+  final List<String> usageTypes = [
+    'Shop Only',
+    'Godown Only',
+    'Shop-Cum-Godown only'
+  ];
 
   String? selectedConstruction;
   String? selectedUsage;
@@ -148,117 +157,95 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
             child: Column(
               children: [
                 SizedBox(height: 20),
-                _buildDateTextField(dateController, 'Date', 'Please select a date'),
+                _buildDateTextField(
+                    dateController, 'Date', 'Please select a date'),
                 SizedBox(height: 20),
-                _buildTextField(
-                    bankNameController,
-                    'Bank Name',
-                    Icons.account_balance,
-                    'Please enter a bank name'
-                ),
+                _buildTextField(bankNameController, 'Bank Name',
+                    Icons.account_balance, 'Please enter a bank name'),
                 SizedBox(height: 20),
-                _buildTextField(
-                    policyholderController,
-                    'Policyholder',
-                    Icons.person,
-                    'Please enter the policyholder name'
-                ),
+                _buildTextField(policyholderController, 'Policyholder',
+                    Icons.person, 'Please enter the policyholder name'),
                 SizedBox(height: 20),
-                _buildTextField(
-                    addressController,
-                    'Address',
-                    Icons.location_on,
-                    'Please enter an address'
-                ),
+                _buildTextField(addressController, 'Address', Icons.location_on,
+                    'Please enter an address'),
                 SizedBox(height: 20),
-                _buildTextField(
-                    stockInsuredController,
-                    'Stock Insured',
-                    Icons.inventory,
-                    'Please enter the stock insured'
-                ),
+                _buildTextField(stockInsuredController, 'Stock Insured',
+                    Icons.inventory, 'Please enter the stock insured'),
                 SizedBox(height: 20),
-                _buildNumberTextField(
-                    sumInsuredController,
-                    'Sum Insured',
-                    Icons.money,
-                    'Please enter the sum insured'
-                ),
+                _buildNumberTextField(sumInsuredController, 'Sum Insured',
+                    Icons.money, 'Please enter the sum insured'),
                 SizedBox(height: 20),
-                _buildTextField(
-                    interestInsuredController,
-                    'Interest Insured',
-                    Icons.info,
-                    'Please enter interest insured details'
-                ),
+                _buildTextField(interestInsuredController, 'Interest Insured',
+                    Icons.info, 'Please enter interest insured details'),
                 SizedBox(height: 20),
-                _buildTextField(
-                    coverageController,
-                    'Coverage',
-                    Icons.assignment,
-                    'Please enter the coverage details',
-                    readOnly: true
-                ),
+                _buildTextField(coverageController, 'Coverage',
+                    Icons.assignment, 'Please enter the coverage details',
+                    readOnly: true),
                 SizedBox(height: 20),
-                _buildTextField(
-                    locationController,
-                    'Location',
-                    Icons.location_city,
-                    'Please enter the location'
-                ),
+                _buildTextField(locationController, 'Location',
+                    Icons.location_city, 'Please enter the location'),
                 SizedBox(height: 20),
                 DropdownButtonFormField<String>(
                   value: selectedConstruction,
-                  decoration: _buildInputDecoration('Construction Type', Icons.build),
+                  decoration:
+                      _buildInputDecoration('Construction Type', Icons.build),
                   items: constructionTypes.map((type) {
-                    return DropdownMenuItem<String>(value: type, child: Text(type));
+                    return DropdownMenuItem<String>(
+                        value: type, child: Text(type));
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
                       selectedConstruction = value;
                     });
                   },
-                  validator: (value) => value == null ? 'Please select a construction type' : null,
+                  validator: (value) => value == null
+                      ? 'Please select a construction type'
+                      : null,
                 ),
                 SizedBox(height: 20),
                 DropdownButtonFormField<String>(
                   value: selectedUsage,
                   decoration: _buildInputDecoration('Used As', Icons.business),
                   items: usageTypes.map((type) {
-                    return DropdownMenuItem<String>(value: type, child: Text(type));
+                    return DropdownMenuItem<String>(
+                        value: type, child: Text(type));
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
                       selectedUsage = value;
                     });
                   },
-                  validator: (value) => value == null ? 'Please select how it is used' : null,
+                  validator: (value) =>
+                      value == null ? 'Please select how it is used' : null,
                 ),
                 SizedBox(height: 20),
-                _buildTextField(
-                    ownerController,
-                    'Owner',
-                    Icons.person,
+                _buildTextField(ownerController, 'Owner', Icons.person,
                     'Please enter the owner name',
-                    readOnly: true
-                ),
+                    readOnly: true),
                 SizedBox(height: 20),
-                _buildDateTextField(periodFromController, 'Period From', 'Please enter a valid date', isPeriodFrom: true),
+                _buildDateTextField(periodFromController, 'Period From',
+                    'Please enter a valid date',
+                    isPeriodFrom: true),
                 SizedBox(height: 20),
-                _buildDateTextField(periodToController, 'Period To', 'Please enter a valid date'),
+                _buildDateTextField(periodToController, 'Period To',
+                    'Please enter a valid date'),
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _updateFirePolicy,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: const Text(
                     "Update Fire Policy",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18,color:Colors.white),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white),
                   ),
                 ),
               ],
@@ -269,7 +256,9 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
     );
   }
 
-  TextFormField _buildTextField(TextEditingController controller, String label, IconData icon, String errorMsg, {bool readOnly = false}) {
+  TextFormField _buildTextField(TextEditingController controller, String label,
+      IconData icon, String errorMsg,
+      {bool readOnly = false}) {
     return TextFormField(
       controller: controller,
       readOnly: readOnly,
@@ -278,14 +267,17 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
     );
   }
 
-  TextFormField _buildNumberTextField(TextEditingController controller, String label, IconData icon, String errorMsg) {
+  TextFormField _buildNumberTextField(TextEditingController controller,
+      String label, IconData icon, String errorMsg) {
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.number,
       decoration: _buildInputDecoration(label, icon),
-      validator: (value) => value!.isEmpty || double.tryParse(value) == null ? errorMsg : null,
+      validator: (value) =>
+          value!.isEmpty || double.tryParse(value) == null ? errorMsg : null,
     );
   }
+
 
   TextFormField _buildDateTextField(TextEditingController controller, String label, String errorMsg, {bool isPeriodFrom = false}) {
     return TextFormField(
@@ -302,6 +294,10 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
         if (pickedDate != null) {
           setState(() {
             controller.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+            if (isPeriodFrom) {
+              // Set 'Period To' to exactly 1 year after 'Period From'
+              periodToController.text = DateFormat('yyyy-MM-dd').format(pickedDate.add(const Duration(days: 365)));
+            }
           });
         }
       },
@@ -309,12 +305,14 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
     );
   }
 
+
   InputDecoration _buildInputDecoration(String labelText, IconData icon) {
     return InputDecoration(
       labelText: labelText,
       labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+      contentPadding:
+          const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
       enabledBorder: OutlineInputBorder(
         borderSide: const BorderSide(color: Colors.grey, width: 1.0),
         borderRadius: BorderRadius.circular(8.0),

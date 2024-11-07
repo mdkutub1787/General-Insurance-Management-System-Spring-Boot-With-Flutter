@@ -151,7 +151,7 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
                 const SizedBox(height: 20),
                 _buildTextField(addressController, 'Address', Icons.location_on, 'Please enter an address'),
                 const SizedBox(height: 20),
-                _buildTextField(stockInsuredController, 'Stock Insured', Icons.monetization_on, 'Please enter the stock insured'),
+                _buildTextField(stockInsuredController, 'Stock Insured', Icons.inventory, 'Please enter the stock insured'),
                 const SizedBox(height: 20),
                 _buildNumberTextField(sumInsuredController, 'Sum Insured', Icons.monetization_on, 'Please enter the sum insured'),
                 const SizedBox(height: 20),
@@ -213,23 +213,8 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
                 const SizedBox(height: 20),
                 _buildPeriodToTextField(),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _createFirePolicy,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    "Create Fire Policy",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                _buildSubmitButton(),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -237,6 +222,37 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
       ),
     );
   }
+
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: _createFirePolicy,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          shadowColor: Colors.pink,  // Shadow color
+          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
+        ),
+        child: const Text(
+          "Create Fire Policy",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
 
   Widget _buildDateTextField() {
     return TextFormField(
@@ -343,20 +359,25 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
   InputDecoration _buildInputDecoration(String labelText, IconData icon) {
     return InputDecoration(
       labelText: labelText,
-      labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+      ),
+      prefixIcon: Icon(icon, color: Colors.green),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
       enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.grey, width: 1.0),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.purple, width: 2.0),
       ),
-      prefixIcon: Icon(icon),
-      filled: true,
-      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      isDense: true,
     );
   }
 }

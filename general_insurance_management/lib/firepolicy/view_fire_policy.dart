@@ -155,12 +155,14 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateFirePolicy()));
-          loadPolicies(); // Refresh after returning from create page
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateFirePolicy()),
+          );
         },
-        tooltip: 'Create Fire Policy',
-        child: const Icon(Icons.add, color: Colors.blue),
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }

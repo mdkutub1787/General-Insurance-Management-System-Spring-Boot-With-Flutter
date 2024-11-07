@@ -38,4 +38,34 @@ class BillService {
       throw Exception('Failed to create fire bill: ${response.statusCode} ${response.body}');
     }
   }
+
+  /// Deletes a fire policy by ID.
+  Future<bool> deleteBill(int id) async {
+    final String apiUrl = '${baseUrl}delete/$id';
+
+    try {
+      final response = await http.delete(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true; // Deletion successful
+      } else {
+        throw Exception('Failed to delete fire bill: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Error deleting fire Policy: $e');
+    }
+  }
+
+  /// Updates a fire policy by ID.
+  Future<void> updateBill(int id, BillModel bill) async {
+    final response = await http.put(
+      Uri.parse('${baseUrl}update/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(bill.toJson()),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to update fire  bill: ${response.body}');
+    }
+  }
 }

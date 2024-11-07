@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/firepolicy/create_fire_bill.dart';
 import 'package:general_insurance_management/firepolicy/fire_bill_details.dart';
+import 'package:general_insurance_management/firepolicy/update_fire_bill.dart';
 import 'package:general_insurance_management/model/bill_model.dart';
 import '../service/bill_service.dart';
 
@@ -184,41 +185,7 @@ class _AllFireBillViewState extends State<AllFireBillView> {
                                     Text('Gross: ${bill.grossPremium.toString() ?? 'No data'}', style: commonStyle),
                                   ],
                                 ),
-                                const SizedBox(height: 16),
-                                SizedBox(
-                                  width: 125,
-                                  height: 30,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // Navigate to AllFireBillDetails page with the selected bill
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AllFireBillDetails(bill: bill), // Pass the selected bill
-                                        ),
-                                      );
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: const [
-                                        Icon(Icons.visibility),
-                                        SizedBox(width: 8),
-                                        Text('Details'),
-                                      ],
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
-                                      foregroundColor: Colors.black,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                        horizontal: 24,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                _buildActionButtons(bill),
                               ],
                             ),
                           ),
@@ -243,5 +210,85 @@ class _AllFireBillViewState extends State<AllFireBillView> {
         backgroundColor: Colors.blue,
       ),
     );
+  }
+
+  Widget _buildActionButtons(BillModel bill) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.visibility, color: Colors.blue),
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AllFireBillDetails(bill: bill)),
+            );
+          },
+          tooltip: 'View Details',
+        ),
+        const SizedBox(width: 16),
+        IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: () {
+            _confirmDeleteBill(bill.id!);
+          },
+          tooltip: 'Delete Bill',
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          icon: const Icon(Icons.edit, color: Colors.cyan),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UpdateFireBill(bill: bill),
+              ),
+            );
+          },
+          tooltip: 'Edit Bill',
+        ),
+      ],
+    );
+  }
+
+  void _confirmDeleteBill(int billId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this bill?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteBill(billId);
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteBill(int billId) async {
+    final service = BillService();
+    try {
+      await service.deleteBill(billId); // Delete the bill
+      setState(() {
+        filteredBills.removeWhere((bill) => bill.id == billId); // Update the list
+      });
+    } catch (e) {
+      // Handle errors if necessary
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error deleting bill: $e'),
+      ));
+    }
   }
 }

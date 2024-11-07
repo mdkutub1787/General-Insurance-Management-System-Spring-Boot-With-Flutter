@@ -34,6 +34,8 @@ class BillModel {
     );
   }
 
+
+
   /// Convert the MarineBillModel object to a JSON map
   Map<String, dynamic> toJson() {
     return {

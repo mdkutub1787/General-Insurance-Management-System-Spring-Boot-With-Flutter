@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/marinepolicy/view_maeine_bill.dart';
+import 'package:general_insurance_management/firepolicy/view_fire_bill.dart';
+import 'package:general_insurance_management/model/bill_model.dart';
 import 'package:general_insurance_management/model/marine_bill_model.dart';
 import 'package:general_insurance_management/model/marine_policy_model.dart';
 import 'package:general_insurance_management/service/marine_bill_service.dart';
 import 'package:general_insurance_management/service/marine_policy_service.dart';
 
-class UpdateMarineBill extends StatefulWidget {
-  const UpdateMarineBill({super.key, required this.marineBill});
+class UpdateFireBill extends StatefulWidget {
+  const UpdateFireBill({super.key, required this.bill, });
 
-  final MarineBillModel marineBill;
+  final BillModel bill;
 
   @override
-  State<UpdateMarineBill> createState() => _CreateMarineBillState();
+  State<UpdateFireBill> createState() => _CreateMarineBillState();
 }
 
-class _CreateMarineBillState extends State<UpdateMarineBill> {
+class _CreateMarineBillState extends State<UpdateFireBill> {
   final TextEditingController marineRateController = TextEditingController();
   final TextEditingController warSrccRateController = TextEditingController();
   final TextEditingController netPremiumController = TextEditingController();
@@ -42,12 +43,12 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
   }
 
   void _populateInitialData() {
-    marineRateController.text = widget.marineBill.marineRate.toString();
-    warSrccRateController.text = widget.marineBill.warSrccRate.toString();
-    netPremiumController.text = widget.marineBill.netPremium.toString();
-    taxController.text = widget.marineBill.tax.toString();
-    stampDutyController.text = widget.marineBill.stampDuty.toString();
-    grossPremiumController.text = widget.marineBill.grossPremium.toString();
+    // marineRateController.text = widget.marineBill.marineRate.toString();
+    // warSrccRateController.text = widget.marineBill.warSrccRate.toString();
+    // netPremiumController.text = widget.marineBill.netPremium.toString();
+    // taxController.text = widget.marineBill.tax.toString();
+    // stampDutyController.text = widget.marineBill.stampDuty.toString();
+    // grossPremiumController.text = widget.marineBill.grossPremium.toString();
   }
 
   Future<void> _fetchData() async {
@@ -128,7 +129,7 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AllMarineBillView()),
+          MaterialPageRoute(builder: (context) => AllFireBillView()),
         );
       } catch (error) {
         _showErrorSnackBar('Error: $error');

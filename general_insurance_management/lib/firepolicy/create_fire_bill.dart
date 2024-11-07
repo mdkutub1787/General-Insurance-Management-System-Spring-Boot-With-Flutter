@@ -4,6 +4,7 @@ import 'package:general_insurance_management/model/bill_model.dart';
 import 'package:general_insurance_management/model/policy_model.dart';
 import 'package:general_insurance_management/service/bill_service.dart';
 import 'package:general_insurance_management/service/policy_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateFireBill extends StatefulWidget {
   const CreateFireBill({super.key});
@@ -84,7 +85,8 @@ class _CreateFireBillState extends State<CreateFireBill> {
       setState(() {
         isLoading = true;
       });
-
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
       try {
         final selectedPolicy = policies.firstWhere(
               (policy) => policy.policyholder == selectedPolicyholder,
@@ -109,7 +111,7 @@ class _CreateFireBillState extends State<CreateFireBill> {
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('fire bill created successfully!')),
+          SnackBar(content: Text('Fire  Bill Created Successfully!')),
         );
 
         Navigator.pushReplacement(
@@ -189,16 +191,7 @@ class _CreateFireBillState extends State<CreateFireBill> {
               SizedBox(height: 20),
               _buildReadOnlyField(grossPremiumController, 'Gross Premium', Icons.monetization_on),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: isLoading ? null : _CreateFireBill,
-                child: isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text("Create Fire Bill", style: TextStyle(fontWeight: FontWeight.w600)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
-                ),
-              ),
+              _buildSubmitButton(),
             ],
           ),
         ),
@@ -355,4 +348,34 @@ class _CreateFireBillState extends State<CreateFireBill> {
 
 
   }
+
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: _CreateFireBill,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          shadowColor: Colors.pink,  // Shadow color
+          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
+        ),
+        child: const Text(
+          "Create Fire Policy",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+
 }

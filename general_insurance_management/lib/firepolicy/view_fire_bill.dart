@@ -284,6 +284,9 @@ class _AllFireBillViewState extends State<AllFireBillView> {
       setState(() {
         filteredBills.removeWhere((bill) => bill.id == billId); // Update the list
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fire  Bill Delete Successfully!')),
+      );
     } catch (e) {
       // Handle errors if necessary
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

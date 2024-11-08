@@ -150,8 +150,8 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
 
     // Calculate netPremium, tax, and grossPremium
     double netPremium = (sumInsured * (marineRate + warSrccRate)) / 100;
-    double tax = taxRate / 100;
-    double grossPremium = netPremium+(netPremium * tax )+ stampDuty;
+    double tax = taxRate;
+    double grossPremium = netPremium+(netPremium * tax )/ 100+ stampDuty ;
 
     // Update form controllers with calculated values
     setState(() {
@@ -168,7 +168,24 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create Marine Bill")),
+      appBar: AppBar(
+        title: const Text('Create Marine Bill Form'),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.yellow.withOpacity(0.8),
+                Colors.green.withOpacity(0.8),
+                Colors.orange.withOpacity(0.8),
+                Colors.red.withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -176,6 +193,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 10),
               _buildDropdownField(),
               SizedBox(height: 20),
               _buildDropdownBankNameField(),
@@ -194,23 +212,15 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
               SizedBox(height: 20),
               _buildReadOnlyField(grossPremiumController, 'Gross Premium', Icons.monetization_on),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: isLoading ? null : _createMarineBill,
-                child: isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text("Create Marine Bill", style: TextStyle(fontWeight: FontWeight.w600)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
-                ),
-              ),
+              _buildSubmitButton(),
+              SizedBox(height: 20),
+
             ],
           ),
         ),
       ),
     );
   }
-
   Widget _buildDropdownField() {
     return DropdownButtonFormField<String>(
       value: selectedPolicyholder,
@@ -225,22 +235,11 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           selectedBankName = selectedPolicy.bankName;
         });
       },
-      decoration: InputDecoration(
-        labelText: 'Policyholder',
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.person),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 16), // Updated label style
-        isDense: true, // Dense style for less height
-        contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8), // Content padding
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey), // Border color
-        ),
-      ),
+      decoration: _buildInputDecoration('Policyholder', Icons.person),
       items: policies.map<DropdownMenuItem<String>>((MarinePolicyModel policy) {
         return DropdownMenuItem<String>(
           value: policy.policyholder,
-          child: Text(policy.policyholder!),
+          child: Text(policy.policyholder ?? '', style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -252,29 +251,13 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
       onChanged: isLoading ? null : (String? newValue) {
         setState(() {
           selectedBankName = newValue;
-          final selectedPolicy = policies.firstWhere(
-                (policy) => policy.bankName == newValue,
-            orElse: () => MarinePolicyModel(policyholder: '', id: null, sumInsured: 0.0, bankName: ''),
-          );
-          selectedSumInsured = selectedPolicy.sumInsured;
         });
       },
-      decoration: InputDecoration(
-        labelText: 'Bank Name',
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.account_balance),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 16), // Updated label style
-        isDense: true, // Dense style for less height
-        contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8), // Content padding
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey), // Border color
-        ),
-      ),
+      decoration: _buildInputDecoration('Bank Name', Icons.food_bank),
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
           value: bankName,
-          child: Text(bankName),
+          child: Text(bankName ,style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -288,46 +271,25 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           selectedSumInsured = newValue;
         });
       },
-      decoration: InputDecoration(
-        labelText: 'Sum Insured',
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.money),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 16), // Updated label style
-        isDense: true, // Dense style for less height
-        contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8), // Content padding
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey), // Border color
-        ),
-      ),
+      decoration: _buildInputDecoration('Sum Insured', Icons.account_balance_wallet),
       items: uniqueSumInsured.map<DropdownMenuItem<double>>((double sumInsured) {
         return DropdownMenuItem<double>(
           value: sumInsured,
-          child: Text(sumInsured.toString()),
+          child: Text(sumInsured.toStringAsFixed(2)),
         );
       }).toList(),
     );
   }
 
+
   Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 16), // Updated label style
-        isDense: true, // Dense style for less height
-        contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8), // Content padding
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey), // Border color
-        ),
-      ),
       keyboardType: TextInputType.number,
+      decoration: _buildInputDecoration(label, icon),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter $label';
+          return 'Please enter a value';
         }
         return null;
       },
@@ -338,26 +300,62 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
     return TextFormField(
       controller: controller,
       readOnly: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
-        filled: true,
-        fillColor: Colors.white,
-        labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-        isDense: true, // Dense style for less height
-        contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-          borderRadius: BorderRadius.circular(8.0),
+      decoration: _buildInputDecoration(label, icon),
+    );
+  }
+
+
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: _createMarineBill,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          shadowColor: Colors.pink,  // Shadow color
+          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-          borderRadius: BorderRadius.circular(8.0),
+        child: const Text(
+          "Create Fire Bill",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
+          ),
         ),
       ),
     );
+  }
 
 
+  InputDecoration _buildInputDecoration(String labelText, IconData icon) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+      ),
+      prefixIcon: Icon(icon, color: Colors.green),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.purple, width: 2.0),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      isDense: true,
+    );
   }
 }

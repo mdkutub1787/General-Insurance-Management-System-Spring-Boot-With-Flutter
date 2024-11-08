@@ -50,22 +50,14 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: Container(
+      appBar: AppBar(
+        title: const Text('ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড'),
+        centerTitle: true,
+        flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.green, Colors.blue, Colors.orange, Colors.purple],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
             ),
-          ),
-          child: AppBar(
-            title: const Text(
-              "ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            backgroundColor: Colors.transparent,
           ),
         ),
       ),

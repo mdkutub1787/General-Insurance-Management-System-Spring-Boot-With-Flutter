@@ -140,7 +140,24 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create Marine Money Receipt")),
+      appBar: AppBar(
+        title: const Text('Create  Marine Money Receipt Form'),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.yellow.withOpacity(0.8),
+                Colors.green.withOpacity(0.8),
+                Colors.orange.withOpacity(0.8),
+                Colors.red.withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -150,6 +167,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const SizedBox(height: 10),
                     _buildDropdownField(),
                     SizedBox(height: 20),
                     _buildDropdownBankNameField(),
@@ -169,7 +187,9 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
                     _buildTextField(issuedAgainstController, 'Issued Against',
                         Icons.receipt),
                     SizedBox(height: 20),
-                    _buildCreateButton(),
+                    _buildSubmitButton(),
+                    SizedBox(height: 20),
+
                   ],
                 ),
               ),
@@ -177,19 +197,34 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
     );
   }
 
-  Widget _buildCreateButton() {
-    return ElevatedButton(
-      onPressed: isLoading ? null : _createMarineMoneyReceipt,
-      child: isLoading
-          ? CircularProgressIndicator(color: Colors.white)
-          : Text("Create Marine Money Receipt",
-              style: TextStyle(fontWeight: FontWeight.w600)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: _createMarineMoneyReceipt,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          shadowColor: Colors.pink,  // Shadow color
+          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
+        ),
+        child: const Text(
+          "Create Money Receipt",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
+
 
   Widget _buildDropdownField() {
     return DropdownButtonFormField<String>(
@@ -197,22 +232,22 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       onChanged: isLoading
           ? null
           : (String? newValue) {
-              setState(() {
-                selectedPolicyholder = newValue;
-                final selectedPolicy = marinebills.firstWhere(
-                  (marinebill) =>
-                      marinebill.marineDetails.policyholder == newValue,
-                );
-                selectedSumInsured = selectedPolicy.marineDetails.sumInsured;
-                selectedBankName = selectedPolicy.marineDetails.bankName;
-              });
-            },
+        setState(() {
+          selectedPolicyholder = newValue;
+          final selectedPolicy = marinebills.firstWhere(
+                (marinebill) =>
+            marinebill.marineDetails.policyholder == newValue,
+          );
+          selectedSumInsured = selectedPolicy.marineDetails.sumInsured;
+          selectedBankName = selectedPolicy.marineDetails.bankName;
+        });
+      },
       decoration: _inputDecoration('Policyholder', Icons.person),
       items: marinebills
           .map<DropdownMenuItem<String>>((MarineBillModel marinebill) {
         return DropdownMenuItem<String>(
           value: marinebill.marineDetails.policyholder,
-          child: Text(marinebill.marineDetails.policyholder ?? ''),
+          child: Text(marinebill.marineDetails.policyholder ?? '' , style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -224,15 +259,15 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       onChanged: isLoading
           ? null
           : (String? newValue) {
-              setState(() {
-                selectedBankName = newValue;
-              });
-            },
+        setState(() {
+          selectedBankName = newValue;
+        });
+      },
       decoration: _inputDecoration('Bank Name', Icons.account_balance),
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
           value: bankName,
-          child: Text(bankName),
+          child: Text(bankName,  style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -244,13 +279,13 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       onChanged: isLoading
           ? null
           : (double? newValue) {
-              setState(() {
-                selectedSumInsured = newValue;
-              });
-            },
+        setState(() {
+          selectedSumInsured = newValue;
+        });
+      },
       decoration: _inputDecoration('Sum Insured', Icons.monetization_on),
       items:
-          uniqueSumInsured.map<DropdownMenuItem<double>>((double sumInsured) {
+      uniqueSumInsured.map<DropdownMenuItem<double>>((double sumInsured) {
         return DropdownMenuItem<double>(
           value: sumInsured,
           child: Text(sumInsured.toString()),
@@ -265,7 +300,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       controller: controller,
       decoration: _inputDecoration(label, icon),
       validator: (value) =>
-          value == null || value.isEmpty ? 'Please enter $label' : null,
+      value == null || value.isEmpty ? 'Please enter $label' : null,
     );
   }
 
@@ -289,7 +324,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
         }
       },
       validator: (value) =>
-          value == null || value.isEmpty ? 'Please select a date' : null,
+      value == null || value.isEmpty ? 'Please select a date' : null,
     );
   }
 
@@ -303,14 +338,14 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
       },
       decoration: _inputDecoration('Class of Insurance', Icons.category),
       items:
-          classOfInsuranceOptions.map<DropdownMenuItem<String>>((String value) {
+      classOfInsuranceOptions.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
         );
       }).toList(),
       validator: (value) =>
-          value == null || value.isEmpty ? 'Please select a class' : null,
+      value == null || value.isEmpty ? 'Please select a class' : null,
     );
   }
 
@@ -330,27 +365,32 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
         );
       }).toList(),
       validator: (value) =>
-          value == null || value.isEmpty ? 'Please select a Payment' : null,
+      value == null || value.isEmpty ? 'Please select a Payment' : null,
     );
   }
 
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-      isDense: true,
-      contentPadding:
-          const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+      ),
+      prefixIcon: Icon(icon, color: Colors.green),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.blue, width: 2.0),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.purple, width: 2.0),
       ),
-      prefixIcon: Icon(icon),
-      filled: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      isDense: true,
       fillColor: Colors.white,
     );
   }

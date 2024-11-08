@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/firepolicy/create_fire_money_receipt.dart';
-import 'package:general_insurance_management/firepolicy/print_fire_money_receipt.dart';
 import 'package:general_insurance_management/firepolicy/print_fire_cover_note.dart';
+import 'package:general_insurance_management/firepolicy/print_fire_money_receipt.dart';
 import 'package:general_insurance_management/model/money_receipt_model.dart';
 import 'package:general_insurance_management/service/money_receipt_service.dart';
 
@@ -9,41 +9,70 @@ class AllFireMoneyReceiptView extends StatefulWidget {
   const AllFireMoneyReceiptView({super.key});
 
   @override
-  State<AllFireMoneyReceiptView> createState() => _AllFireMoneyReceiptViewState();
+  State<AllFireMoneyReceiptView> createState() =>
+      _AllFireMoneyReceiptViewState();
 }
 
 class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
-  late Future<List<MoneyReceiptModel>> futureReceipts;
+  late Future<List<MoneyReceiptModel>> fetchMoneyReceipts;
+  List<MoneyReceiptModel> allMoneyReceipts = [];
+  List<MoneyReceiptModel> filteredMoneyReceipts = [];
   final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
-
-  // Variable to hold the original list of receipts
-  List<MoneyReceiptModel> allReceipts = [];
-  List<MoneyReceiptModel> filteredReceipts = [];
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     final service = MoneyReceiptService();
-    futureReceipts = service.fetchMoneyReceipts().then((receipts) {
-      allReceipts = receipts;
-      filteredReceipts = allReceipts; // Initialize filtered list
+    fetchMoneyReceipts = service.fetchMoneyReceipts().then((receipts) {
+      allMoneyReceipts = receipts;
+      filteredMoneyReceipts = receipts; // Initialize with all receipts
       return receipts;
     });
   }
 
-  void _filterReceipts(String query) {
+  void filterReceipts(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        filteredMoneyReceipts = allMoneyReceipts;
+      });
+      return;
+    }
+
     setState(() {
-      if (query.isEmpty) {
-        filteredReceipts = allReceipts; // Reset to original list if query is empty
-      } else {
-        filteredReceipts = allReceipts.where((receipt) {
-          return (receipt.bill?.policy.policyholder ?? '').toLowerCase().contains(query.toLowerCase()) ||
-              (receipt.bill?.policy.bankName ?? '').toLowerCase().contains(query.toLowerCase()) ||
-              (receipt.id.toString() ?? '').toLowerCase().contains(query.toLowerCase()) ||
-              (receipt.bill?.policy.id?.toString() ?? '').toLowerCase().contains(query.toLowerCase()); // Added policy ID filter
-        }).toList();
-      }
+      filteredMoneyReceipts = allMoneyReceipts.where((receipt) {
+        final bankName = receipt.bill?.policy.bankName?.toLowerCase() ?? '';
+        final policyholder =
+            receipt.bill?.policy.policyholder?.toLowerCase() ?? '';
+        final id =
+            receipt.id.toString(); // Assuming receipt has an 'id' property
+
+        return bankName.contains(query.toLowerCase()) ||
+            policyholder.contains(query.toLowerCase()) ||
+            id.contains(query);
+      }).toList();
     });
+  }
+
+  Future<void> onDelete(int id) async {
+    final service = MoneyReceiptService();
+    try {
+      bool success = await service.deleteMoneyReceipt(id);
+      if (success) {
+        setState(() {
+          // Remove the deleted receipt from the list
+          filteredMoneyReceipts.removeWhere((receipt) => receipt.id == id);
+          allMoneyReceipts.removeWhere((receipt) => receipt.id == id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Money Receipt Delete successfully')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting receipt: $e')),
+      );
+    }
   }
 
   @override
@@ -72,9 +101,10 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextField(
-              onChanged: _filterReceipts, // Call the filter function on text change
+              controller: searchController,
+              onChanged: filterReceipts, // Correctly call the filter function
               decoration: InputDecoration(
-                hintText: 'Search by Bill No, Policyholder, or  Bank Name',
+                hintText: 'Search by Bill No, Policyholder, or Bank Name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -85,24 +115,25 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
           Expanded(
             child: FutureBuilder<List<MoneyReceiptModel>>(
-              future: futureReceipts,
+              future: fetchMoneyReceipts,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || filteredReceipts.isEmpty) {
-                  return const Center(child: Text('No receipts available'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No bills available'));
                 } else {
                   return ListView.builder(
-                    itemCount: filteredReceipts.length,
+                    itemCount: filteredMoneyReceipts.length,
                     itemBuilder: (context, index) {
-                      final receipt = filteredReceipts[index];
+                      final moneyreceipt = filteredMoneyReceipts[index];
                       return Container(
+                        margin: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
                           gradient: LinearGradient(
                             colors: [
                               Colors.red,
@@ -113,26 +144,29 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(15),
                         ),
-                        margin: const EdgeInsets.all(10),
                         child: Card(
-                          elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
+                          elevation: 4,
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Bill No : ${receipt.bill?.policy.id ?? 'No ID'}',
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+                                  'Bill No : ${moneyreceipt.bill?.policy.id ?? 'N/A'}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  receipt.bill?.policy.bankName ?? 'Unnamed Policy',
+                                  moneyreceipt.bill?.policy.bankName ??
+                                      'Unnamed Policy',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -140,22 +174,25 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  receipt.bill?.policy.policyholder ?? 'No policyholder available',
+                                  moneyreceipt.bill?.policy.policyholder ??
+                                      'No policyholder available',
                                   style: commonStyle,
                                 ),
                                 const SizedBox(height: 8),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        receipt.bill?.policy.address ?? 'No address',
+                                        moneyreceipt.bill?.policy.address ??
+                                            'No address',
                                         style: commonStyle,
                                       ),
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      'Tk ${receipt.bill?.policy.sumInsured?.toString() ?? 'No sum'}',
+                                      'Tk ${moneyreceipt.bill?.policy.sumInsured?.round() ?? 'No sum'}',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
@@ -165,11 +202,18 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Net: ${receipt.bill?.netPremium.toString() ?? 'No data'}', style: commonStyle),
-                                    Text('Tax: ${receipt.bill?.tax.toString() ?? 'No data'}%', style: commonStyle),
-                                    Text('Gross: ${receipt.bill?.grossPremium.toString() ?? 'No data'}', style: commonStyle),
+                                    Text(
+                                        'Net: Tk ${moneyreceipt.bill?.netPremium.round() ?? 'No data'}',
+                                        style: commonStyle),
+                                    Text(
+                                        'Tax: ${moneyreceipt.bill?.tax.round() ?? 'No data'}%',
+                                        style: commonStyle),
+                                    Text(
+                                        'Gross: Tk ${moneyreceipt.bill?.grossPremium.round() ?? 'No data'}',
+                                        style: commonStyle),
                                   ],
                                 ),
                                 const SizedBox(height: 16),
@@ -183,12 +227,16 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => PrintFireMoneyReceipt(moneyreceipt: receipt),
+                                              builder: (context) =>
+                                                  PrintFireMoneyReceipt(
+                                                      moneyreceipt:
+                                                          moneyreceipt),
                                             ),
                                           );
                                         },
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: const [
                                             Icon(Icons.visibility),
                                             SizedBox(width: 8),
@@ -199,7 +247,8 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                           backgroundColor: Colors.blue,
                                           foregroundColor: Colors.black,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
+                                            borderRadius:
+                                                BorderRadius.circular(30),
                                           ),
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 12,
@@ -217,23 +266,28 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => PrintFireCoverNote(moneyreceipt: receipt),
+                                              builder: (context) =>
+                                                  PrintFireCoverNote(
+                                                      moneyreceipt:
+                                                          moneyreceipt),
                                             ),
                                           );
                                         },
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: const [
-                                            Icon(Icons.note),
+                                            Icon(Icons.print),
                                             SizedBox(width: 8),
                                             Text('Cover Note'),
                                           ],
                                         ),
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue,
+                                          backgroundColor: Colors.green,
                                           foregroundColor: Colors.black,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
+                                            borderRadius:
+                                                BorderRadius.circular(30),
                                           ),
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 12,
@@ -241,6 +295,24 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                           ),
                                         ),
                                       ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        if (moneyreceipt.id != null) {
+                                          onDelete(moneyreceipt
+                                              .id!); // Use the null assertion operator
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Receipt ID is null, cannot delete.')),
+                                          );
+                                        }
+                                      },
                                     ),
                                   ],
                                 ),
@@ -257,12 +329,12 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
           ),
         ],
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const CreateFireMoneyReceipt()),
+            MaterialPageRoute(
+                builder: (context) => const CreateFireMoneyReceipt()),
           );
         },
         child: const Icon(Icons.add),

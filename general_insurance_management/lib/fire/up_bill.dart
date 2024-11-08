@@ -4,16 +4,17 @@ import 'package:general_insurance_management/model/bill_model.dart';
 import 'package:general_insurance_management/model/policy_model.dart';
 import 'package:general_insurance_management/service/bill_service.dart';
 import 'package:general_insurance_management/service/policy_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class CreateFireBill extends StatefulWidget {
-  const CreateFireBill({super.key});
+class UpdateFireBill extends StatefulWidget {
+  const UpdateFireBill({Key? key, required this.bill}) : super(key: key);
+
+  final BillModel bill;
 
   @override
-  State<CreateFireBill> createState() => _CreateFireBillState();
+  State<UpdateFireBill> createState() => _UpdateFireBillState();
 }
 
-class _CreateFireBillState extends State<CreateFireBill> {
+class _UpdateFireBillState extends State<UpdateFireBill> {
   final TextEditingController fireController = TextEditingController();
   final TextEditingController rsdController = TextEditingController();
   final TextEditingController netPremiumController = TextEditingController();
@@ -35,7 +36,19 @@ class _CreateFireBillState extends State<CreateFireBill> {
   void initState() {
     super.initState();
     _fetchData();
+    _populateInitialData();
     _setupListeners();
+  }
+
+  void _populateInitialData() {
+    fireController.text = widget.bill.fire.toString();
+    rsdController.text = widget.bill.rsd.toString();
+    netPremiumController.text = widget.bill.netPremium.toString();
+    taxController.text = widget.bill.tax.toString();
+    grossPremiumController.text = widget.bill.grossPremium.toString();
+    selectedPolicyholder = widget.bill.policy.policyholder;
+    selectedBankName = widget.bill.policy.bankName;
+    selectedSumInsured = widget.bill.policy.sumInsured;
   }
 
   Future<void> _fetchData() async {
@@ -57,9 +70,9 @@ class _CreateFireBillState extends State<CreateFireBill> {
 
       setState(() {
         if (policies.isNotEmpty) {
-          selectedPolicyholder = policies.first.policyholder;
-          selectedBankName = policies.first.bankName ?? uniqueBankNames.first;
-          selectedSumInsured = policies.first.sumInsured ?? uniqueSumInsured.first;
+          selectedPolicyholder = selectedPolicyholder ?? policies.first.policyholder;
+          selectedBankName = selectedBankName ?? uniqueBankNames.first;
+          selectedSumInsured = selectedSumInsured ?? uniqueSumInsured.first;
         }
       });
     } catch (error) {
@@ -72,21 +85,18 @@ class _CreateFireBillState extends State<CreateFireBill> {
   void _setupListeners() {
     fireController.addListener(_updateCalculatedFields);
     rsdController.addListener(_updateCalculatedFields);
-    taxController.addListener(_updateCalculatedFields);
-
   }
 
   void _updateCalculatedFields() {
     calculatePremiums();
   }
 
-  void _CreateFireBill() async {
+  void _updateBill() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         isLoading = true;
       });
-      final prefs = await SharedPreferences.getInstance();
-      final String? token = prefs.getString('token');
+
       try {
         final selectedPolicy = policies.firstWhere(
               (policy) => policy.policyholder == selectedPolicyholder,
@@ -98,25 +108,25 @@ class _CreateFireBillState extends State<CreateFireBill> {
           return;
         }
 
-        await billService.createFireBill(
+        await billService.updateBill(
+          widget.bill.id!,
           BillModel(
             fire: double.parse(fireController.text),
             rsd: double.parse(rsdController.text),
-            netPremium: _parseControllerValue(netPremiumController.text),
-            tax: _parseControllerValue(taxController.text),
-            grossPremium: _parseControllerValue(grossPremiumController.text),
+            netPremium: double.parse(netPremiumController.text),
+            tax: double.parse(taxController.text),
+            grossPremium: double.parse(grossPremiumController.text),
             policy: selectedPolicy,
           ),
-          selectedPolicy.id.toString(),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fire  Bill Created Successfully!')),
+          const SnackBar(content: Text('Fire Bill Updated Successfully!')),
         );
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AllFireBillView()),
+          MaterialPageRoute(builder: (context) => const AllFireBillView()),
         );
       } catch (error) {
         _showErrorSnackBar('Error: $error');
@@ -136,26 +146,22 @@ class _CreateFireBillState extends State<CreateFireBill> {
   }
 
   void calculatePremiums() {
-    // Retrieve values from the form controllers
     double sumInsured = selectedSumInsured ?? 0.0;
     double fire = _parseControllerValue(fireController.text);
     double rsd = _parseControllerValue(rsdController.text);
-    const double taxRate = 15; // Fixed tax rate at 15%
+    const double taxRate = 15.0;
 
     if (fire > 100 || rsd > 100 || taxRate > 100) {
-      _showErrorSnackBar('Rates must be less than or equal to 100%.');
+      _showErrorSnackBar('Rates must be less than or equal to 100%');
       return;
     }
 
-    // Calculate netPremium, tax, and grossPremium
     double netPremium = (sumInsured * (fire + rsd)) / 100;
-    double tax = taxRate ;
-    double grossPremium = netPremium+(netPremium * taxRate )/100;
+    double grossPremium = netPremium + (netPremium * taxRate) / 100;
 
-    // Update form controllers with calculated values
     setState(() {
       netPremiumController.text = netPremium.toStringAsFixed(2);
-      taxController.text = tax.toStringAsFixed(2);
+      taxController.text = taxRate.toStringAsFixed(2);
       grossPremiumController.text = grossPremium.toStringAsFixed(2);
     });
   }
@@ -168,7 +174,7 @@ class _CreateFireBillState extends State<CreateFireBill> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Fire Bill Form'),
+        title: const Text('Update Fire Bill Form'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -196,21 +202,49 @@ class _CreateFireBillState extends State<CreateFireBill> {
               _buildDropdownField(),
               const SizedBox(height: 20),
               _buildDropdownBankNameField(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildDropdownSumInsuredField(),
-              SizedBox(height: 20),
-              _buildTextField(fireController, 'Fire Rate', Icons.production_quantity_limits_outlined),
-              SizedBox(height: 20),
-              _buildTextField(rsdController, ' Rsd Rate', Icons.storage),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
+              _buildTextField(fireController, 'Fire Rate', Icons.fire_extinguisher),
+              const SizedBox(height: 20),
+              _buildTextField(rsdController, 'Rsd Rate', Icons.dangerous),
+              const SizedBox(height: 20),
               _buildReadOnlyField(netPremiumController, 'Net Premium', Icons.monetization_on),
-              SizedBox(height: 20),
-              _buildReadOnlyField(taxController, 'Tax  Rate', Icons.attach_money),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
+              _buildReadOnlyField(taxController, 'Tax', Icons.money),
+              const SizedBox(height: 20),
               _buildReadOnlyField(grossPremiumController, 'Gross Premium', Icons.monetization_on),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildSubmitButton(),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: _updateBill,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          shadowColor: Colors.pink,  // Shadow color
+          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
+        ),
+        child: const Text(
+          "Update Fire Bill",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
           ),
         ),
       ),
@@ -253,7 +287,7 @@ class _CreateFireBillState extends State<CreateFireBill> {
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
           value: bankName,
-          child: Text(bankName ,style: TextStyle(fontSize: 14)),
+          child: Text(bankName,style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -277,7 +311,6 @@ class _CreateFireBillState extends State<CreateFireBill> {
     );
   }
 
-
   Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
     return TextFormField(
       controller: controller,
@@ -299,36 +332,6 @@ class _CreateFireBillState extends State<CreateFireBill> {
       decoration: _buildInputDecoration(label, icon),
     );
   }
-
-
-  bool _isHovered = false;
-  Widget _buildSubmitButton() {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: ElevatedButton(
-        onPressed: _CreateFireBill,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          shadowColor: Colors.pink,  // Shadow color
-          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
-        ),
-        child: const Text(
-          "Create Fire Bill",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
 
   InputDecoration _buildInputDecoration(String labelText, IconData icon) {
     return InputDecoration(
@@ -354,5 +357,4 @@ class _CreateFireBillState extends State<CreateFireBill> {
       isDense: true,
     );
   }
-
 }

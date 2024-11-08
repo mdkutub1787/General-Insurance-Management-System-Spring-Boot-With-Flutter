@@ -19,32 +19,47 @@ class MarineBillService {
   }
 
   // Create a new marine bill
-  Future<MarineBillModel> createMarineBill(MarineBillModel marineBill, String? token) async {
+  Future<void> createMarineBill(MarineBillModel marinebill, String policyId,
+      {String? token}) async {
     final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('token'); // Adjust key based on your implementation
+    final String? token = prefs.getString('token');
+    final headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
 
-    final response = await http.post(
-      Uri.parse(baseUrl + "save"),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token != null ? 'Bearer $token' : '', // Include token if available
-      },
-      body: json.encode(marineBill.toJson()),
+    final response = await http.post(Uri.parse(baseUrl + "save"),
+      headers: headers,
+      body: jsonEncode(marinebill.toJson()),
     );
 
-    if (response.statusCode == 201) {
-      return MarineBillModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to create marine bill: ${response.statusCode} ${response.body}');
+    if (response.statusCode != 200) {
+      throw Exception('Failed to create fire bill');
     }
   }
 
   // Delete a marine bill by ID
-  Future<void> deleteMarineBill(int id) async {
-    final response = await http.delete(Uri.parse(baseUrl + "delete/$id"));
+  // Future<void> deleteMarineBill(int id) async {
+  //   final response = await http.delete(Uri.parse(baseUrl + "delete/$id"));
+  //
+  //   if (response.statusCode != 204) {
+  //     throw Exception('Failed to delete marine bill: ${response.statusCode} ${response.body}');
+  //   }
+  // }
 
-    if (response.statusCode != 204) {
-      throw Exception('Failed to delete marine bill: ${response.statusCode} ${response.body}');
+  Future<bool> deleteMarineBill(int id) async {
+    final String apiUrl = '${baseUrl}delete/$id';
+
+    try {
+      final response = await http.delete(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true; // Deletion successful
+      } else {
+        throw Exception('Failed to delete Marine  bill: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Error deleting fire Policy: $e');
     }
   }
 

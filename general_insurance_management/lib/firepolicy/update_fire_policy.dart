@@ -136,15 +136,16 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
         title: const Text('Update Fire Policy Form'),
         centerTitle: true,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.pinkAccent,
-                Colors.blue,
-                Colors.green,
-                Colors.orange,
-                Colors.purple
+                Colors.yellow.withOpacity(0.8),
+                Colors.green.withOpacity(0.8),
+                Colors.orange.withOpacity(0.8),
+                Colors.red.withOpacity(0.8),
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
         ),
@@ -156,7 +157,7 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
             key: _formKey,
             child: Column(
               children: [
-                SizedBox(height: 20),
+                const SizedBox(height: 10),
                 _buildDateTextField(
                     dateController, 'Date', 'Please select a date'),
                 SizedBox(height: 20),
@@ -251,7 +252,7 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
           backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(20),
           ),
           shadowColor: Colors.pink,  // Shadow color
           elevation: _isHovered ? 12 : 4,  // Higher elevation on hover

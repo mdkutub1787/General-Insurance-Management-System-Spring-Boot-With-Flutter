@@ -133,9 +133,16 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
         title: const Text('Create Fire Policy Form'),
         centerTitle: true,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.pinkAccent, Colors.blue, Colors.green, Colors.orange, Colors.purple],
+              colors: [
+                Colors.yellow.withOpacity(0.8),
+                Colors.green.withOpacity(0.8),
+                Colors.orange.withOpacity(0.8),
+                Colors.red.withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
         ),
@@ -147,6 +154,7 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
             key: _formKey,
             child: Column(
               children: [
+                const SizedBox(height: 10),
                 _buildDateTextField(),
                 const SizedBox(height: 20),
                 _buildTextField(bankNameController, 'Bank Name', Icons.account_balance, 'Please enter a bank name'),
@@ -238,7 +246,7 @@ class _CreateFirePolicyState extends State<CreateFirePolicy> {
           backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(20),
           ),
           shadowColor: Colors.pink,  // Shadow color
           elevation: _isHovered ? 12 : 4,  // Higher elevation on hover

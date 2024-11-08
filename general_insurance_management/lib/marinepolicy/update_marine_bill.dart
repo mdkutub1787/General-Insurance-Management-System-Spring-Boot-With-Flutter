@@ -99,38 +99,45 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
       });
 
       try {
+        // Find the selected policy
         final selectedPolicy = policies.firstWhere(
               (policy) => policy.policyholder == selectedPolicyholder,
           orElse: () => MarinePolicyModel(policyholder: '', id: null),
         );
 
+        // Ensure the policy has a valid ID
         if (selectedPolicy.id == null) {
           _showErrorSnackBar('Selected policy does not have a valid ID');
           return;
         }
 
-        await marineBillService.updateMarineBill(
-          MarineBillModel(
-            marineRate: double.parse(marineRateController.text),
-            warSrccRate: double.parse(warSrccRateController.text),
-            netPremium: double.parse(netPremiumController.text),
-            tax: double.parse(taxController.text),
-            stampDuty: double.parse(stampDutyController.text),
-            grossPremium:double.parse(grossPremiumController.text),
-            marineDetails: selectedPolicy,
-          ) as int,
-          selectedPolicy.id.toString() as MarineBillModel,
+        // Create a MarineBillModel instance with the input data
+        MarineBillModel marineBill = MarineBillModel(
+          marineRate: double.parse(marineRateController.text),
+          warSrccRate: double.parse(warSrccRateController.text),
+          netPremium: double.parse(netPremiumController.text),
+          tax: double.parse(taxController.text),
+          stampDuty: double.parse(stampDutyController.text),
+          grossPremium: double.parse(grossPremiumController.text),
+          marineDetails: selectedPolicy,
         );
 
+        // Call the service to update the marine bill, passing correct parameters
+        await marineBillService.updateMarineBill(selectedPolicy.id!, marineBill);
+
+        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Marine bill updated successfully!')),
         );
 
+        // Navigate back to the view
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AllMarineBillView()),
         );
       } catch (error) {
+        // Log the error and show it in a Snackbar
+        print('Error updating marine bill: $error');
         _showErrorSnackBar('Error: $error');
       } finally {
         setState(() {
@@ -139,6 +146,7 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
       }
     }
   }
+
 
   void _showErrorSnackBar(String message) {
     setState(() {
@@ -178,7 +186,24 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Update Marine Bill")),
+      appBar: AppBar(
+        title: const Text('Update Marine Bill Form'),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.yellow.withOpacity(0.8),
+                Colors.green.withOpacity(0.8),
+                Colors.orange.withOpacity(0.8),
+                Colors.red.withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -186,6 +211,7 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 10),
               _buildDropdownField(),
               SizedBox(height: 20),
               _buildDropdownBankNameField(),
@@ -204,16 +230,9 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
               SizedBox(height: 20),
               _buildReadOnlyField(grossPremiumController, 'Gross Premium', Icons.monetization_on),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: isLoading ? null : _updateMarineBill,
-                child: isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text("Update Marine Bill", style: TextStyle(fontWeight: FontWeight.w600)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
-                ),
-              ),
+              _buildSubmitButton(),
+              SizedBox(height: 20),
+
             ],
           ),
         ),
@@ -235,15 +254,11 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
           selectedBankName = selectedPolicy.bankName;
         });
       },
-      decoration: InputDecoration(
-        labelText: 'Policyholder',
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.person),
-      ),
+      decoration: _buildInputDecoration('Policyholder', Icons.person),
       items: policies.map<DropdownMenuItem<String>>((MarinePolicyModel policy) {
         return DropdownMenuItem<String>(
           value: policy.policyholder,
-          child: Text(policy.policyholder ?? ''),
+          child: Text(policy.policyholder ?? '', style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -257,15 +272,11 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
           selectedBankName = newValue;
         });
       },
-      decoration: InputDecoration(
-        labelText: 'Bank Name',
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.food_bank),
-      ),
+      decoration: _buildInputDecoration('Bank Name', Icons.food_bank),
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
           value: bankName,
-          child: Text(bankName),
+          child: Text(bankName ,style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -279,32 +290,25 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
           selectedSumInsured = newValue;
         });
       },
-      decoration: InputDecoration(
-        labelText: 'Sum Insured',
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.attach_money),
-      ),
+      decoration: _buildInputDecoration('Sum Insured', Icons.account_balance_wallet),
       items: uniqueSumInsured.map<DropdownMenuItem<double>>((double sumInsured) {
         return DropdownMenuItem<double>(
           value: sumInsured,
-          child: Text(sumInsured.toString()),
+          child: Text(sumInsured.toStringAsFixed(2)),
         );
       }).toList(),
     );
   }
 
+
   Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
-      ),
       keyboardType: TextInputType.number,
+      decoration: _buildInputDecoration(label, icon),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter a valid value';
+          return 'Please enter a value';
         }
         return null;
       },
@@ -315,12 +319,62 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
     return TextFormField(
       controller: controller,
       readOnly: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(icon),
+      decoration: _buildInputDecoration(label, icon),
+    );
+  }
+
+
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: _updateMarineBill,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          shadowColor: Colors.pink,  // Shadow color
+          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
+        ),
+        child: const Text(
+          "Create Fire Bill",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
       ),
-      keyboardType: TextInputType.number,
+    );
+  }
+
+
+  InputDecoration _buildInputDecoration(String labelText, IconData icon) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+      ),
+      prefixIcon: Icon(icon, color: Colors.green),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.purple, width: 2.0),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      isDense: true,
     );
   }
 }

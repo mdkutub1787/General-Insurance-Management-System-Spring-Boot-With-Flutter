@@ -128,9 +128,16 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
         title: const Text('Create Marine Policy Form'),
         centerTitle: true,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.pinkAccent, Colors.blue, Colors.green, Colors.orange, Colors.purple],
+              colors: [
+                Colors.yellow.withOpacity(0.8),
+                Colors.green.withOpacity(0.8),
+                Colors.orange.withOpacity(0.8),
+                Colors.red.withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
         ),
@@ -142,6 +149,7 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
             key: _formKey,
             child: Column(
               children: [
+                const SizedBox(height: 10),
                 _buildDateTextField(),
                 const SizedBox(height: 20),
                 _buildTextField(bankNameController, 'Bank Name', Icons.account_balance, 'Please enter a bank name'),
@@ -166,25 +174,38 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
                 const SizedBox(height: 20),
                 _buildTextField(coverageController, 'Coverage', Icons.assignment, 'Please enter the coverage details', readOnly: true),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _createMarinePolicy,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    "Create Marine Policy",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+              _buildSubmitButton(),
+                const SizedBox(height: 20),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: _createMarinePolicy,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          shadowColor: Colors.pink,  // Shadow color
+          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
+        ),
+        child: const Text(
+          "Create Marine Policy",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
           ),
         ),
       ),
@@ -251,20 +272,25 @@ class _CreateMarinePolicyState extends State<CreateMarinePolicy> {
   InputDecoration _buildInputDecoration(String labelText, IconData icon) {
     return InputDecoration(
       labelText: labelText,
-      labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+      ),
+      prefixIcon: Icon(icon, color: Colors.green),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
       enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.grey, width: 1.0),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.purple, width: 2.0),
       ),
-      prefixIcon: Icon(icon),
-      filled: true,
-      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      isDense: true,
     );
   }
 

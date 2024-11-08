@@ -14,9 +14,9 @@ class AllMarineMoneyReceiptView extends StatefulWidget {
 }
 
 class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
-  late Future<List<MarineMoneyReceiptModel>> fetchMarineMoneyReceipts;
-  List<MarineMoneyReceiptModel> allMarineMoneyReceipts = [];
-  List<MarineMoneyReceiptModel> filteredMarineMoneyReceipts = [];
+  late Future<List<MarineMoneyReceiptModel>> fetchMoneyReceipts;
+  List<MarineMoneyReceiptModel> allMoneyReceipts = [];
+  List<MarineMoneyReceiptModel> filteredMoneyReceipts = [];
   final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
   final TextEditingController searchController = TextEditingController();
 
@@ -24,29 +24,28 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
   void initState() {
     super.initState();
     final service = MarineMoneyReceiptService();
-    fetchMarineMoneyReceipts =
-        service.fetchMarineMoneyReceipts().then((receipts) {
-          allMarineMoneyReceipts = receipts;
-          filteredMarineMoneyReceipts = receipts; // Initialize with all receipts
-          return receipts;
-        });
+    fetchMoneyReceipts = service.fetchMarineMoneyReceipts().then((receipts) {
+      allMoneyReceipts = receipts;
+      filteredMoneyReceipts = receipts; // Initialize with all receipts
+      return receipts;
+    });
   }
 
   void filterReceipts(String query) {
     if (query.isEmpty) {
       setState(() {
-        filteredMarineMoneyReceipts = allMarineMoneyReceipts;
+        filteredMoneyReceipts = allMoneyReceipts;
       });
       return;
     }
 
     setState(() {
-      filteredMarineMoneyReceipts = allMarineMoneyReceipts.where((receipt) {
-        final bankName =
-            receipt.marinebill?.marineDetails.bankName?.toLowerCase() ?? '';
+      filteredMoneyReceipts = allMoneyReceipts.where((receipt) {
+        final bankName = receipt.marinebill?.marineDetails.bankName?.toLowerCase() ?? '';
         final policyholder =
             receipt.marinebill?.marineDetails.policyholder?.toLowerCase() ?? '';
-        final id = receipt.id.toString(); // Assuming receipt has an 'id' property
+        final id =
+            receipt.id.toString(); // Assuming receipt has an 'id' property
 
         return bankName.contains(query.toLowerCase()) ||
             policyholder.contains(query.toLowerCase()) ||
@@ -62,11 +61,11 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
       if (success) {
         setState(() {
           // Remove the deleted receipt from the list
-          filteredMarineMoneyReceipts.removeWhere((receipt) => receipt.id == id);
-          allMarineMoneyReceipts.removeWhere((receipt) => receipt.id == id);
+          filteredMoneyReceipts.removeWhere((receipt) => receipt.id == id);
+          allMoneyReceipts.removeWhere((receipt) => receipt.id == id);
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Receipt deleted successfully')),
+          SnackBar(content: Text('Marine Money Receipt deleted successfully')),
         );
       }
     } catch (e) {
@@ -86,10 +85,9 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.yellow.withOpacity(0.8),
+                Colors.blue.withOpacity(0.8),
                 Colors.green.withOpacity(0.8),
                 Colors.orange.withOpacity(0.8),
-                Colors.red.withOpacity(0.8),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -118,7 +116,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
           ),
           Expanded(
             child: FutureBuilder<List<MarineMoneyReceiptModel>>(
-              future: fetchMarineMoneyReceipts,
+              future: fetchMoneyReceipts,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -128,10 +126,9 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                   return const Center(child: Text('No bills available'));
                 } else {
                   return ListView.builder(
-                    itemCount: filteredMarineMoneyReceipts.length,
+                    itemCount: filteredMoneyReceipts.length,
                     itemBuilder: (context, index) {
-                      final marinemoneyreceipt =
-                      filteredMarineMoneyReceipts[index];
+                      final moneyreceipt = filteredMoneyReceipts[index];
                       return Container(
                         margin: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -158,7 +155,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Bill No : ${marinemoneyreceipt.marinebill?.marineDetails.id ?? 'N/A'}',
+                                  'Bill No : ${moneyreceipt.marinebill?.marineDetails.id ?? 'N/A'}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -167,8 +164,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  marinemoneyreceipt
-                                      .marinebill?.marineDetails.bankName ??
+                                  moneyreceipt.marinebill?.marineDetails.bankName ??
                                       'Unnamed Policy',
                                   style: const TextStyle(
                                     fontSize: 16,
@@ -177,26 +173,25 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  marinemoneyreceipt.marinebill?.marineDetails.policyholder ??
+                                  moneyreceipt.marinebill?.marineDetails.policyholder ??
                                       'No policyholder available',
                                   style: commonStyle,
                                 ),
                                 const SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        marinemoneyreceipt.marinebill
-                                            ?.marineDetails.address ??
+                                        moneyreceipt.marinebill?.marineDetails.address ??
                                             'No address',
                                         style: commonStyle,
                                       ),
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      'Tk ${marinemoneyreceipt.marinebill?.marineDetails.sumInsured?.round() ?? 'No sum'}',
+                                      'Tk ${moneyreceipt.marinebill?.marineDetails.sumInsured?.round() ?? 'No sum'}',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
@@ -207,19 +202,16 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                 const SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                        'Net: Tk ${marinemoneyreceipt.marinebill?.netPremium.round() ?? 'No data'}',
+                                        'Net: Tk ${moneyreceipt.marinebill?.netPremium.round() ?? 'No data'}',
                                         style: commonStyle),
                                     Text(
-                                        'Tax: ${marinemoneyreceipt.marinebill?.tax.round() ?? 'No data'}%',
+                                        'Tax: ${moneyreceipt.marinebill?.tax.round() ?? 'No data'}%',
                                         style: commonStyle),
                                     Text(
-                                        'Stamp: Tk ${marinemoneyreceipt.marinebill?.stampDuty.round() ?? 'No data'}',
-                                        style: commonStyle),
-                                    Text(
-                                        'Gross: Tk ${marinemoneyreceipt.marinebill?.grossPremium.round() ?? 'No data'}',
+                                        'Gross: Tk ${moneyreceipt.marinebill?.grossPremium.round() ?? 'No data'}',
                                         style: commonStyle),
                                   ],
                                 ),
@@ -237,13 +229,13 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                               builder: (context) =>
                                                   PrintMarineMoneyReceipt(
                                                       moneyreceipt:
-                                                      marinemoneyreceipt),
+                                                          moneyreceipt),
                                             ),
                                           );
                                         },
                                         child: Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                              MainAxisAlignment.center,
                                           children: const [
                                             Icon(Icons.visibility),
                                             SizedBox(width: 8),
@@ -255,7 +247,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                           foregroundColor: Colors.black,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                            BorderRadius.circular(30),
+                                                BorderRadius.circular(30),
                                           ),
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 12,
@@ -276,13 +268,13 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                               builder: (context) =>
                                                   PrintMarineCoverNote(
                                                       moneyreceipt:
-                                                      marinemoneyreceipt),
+                                                          moneyreceipt),
                                             ),
                                           );
                                         },
                                         child: Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                              MainAxisAlignment.center,
                                           children: const [
                                             Icon(Icons.print),
                                             SizedBox(width: 8),
@@ -294,7 +286,7 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                           foregroundColor: Colors.black,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                            BorderRadius.circular(30),
+                                                BorderRadius.circular(30),
                                           ),
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 12,
@@ -304,38 +296,23 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    SizedBox(
-                                      width: 100,
-                                      height: 30,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          if (marinemoneyreceipt.id != null) {
-                                            onDelete(marinemoneyreceipt.id!); // Use the null assertion operator
-                                          } else {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Receipt ID is null, cannot delete.')),
-                                            );
-                                          }
-                                        },
-                                        child: const Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.delete),
-                                            SizedBox(width: 8),
-
-                                          ],
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red,
-                                          foregroundColor: Colors.black,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-
-                                        ),
-                                      ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        if (moneyreceipt.id != null) {
+                                          onDelete(moneyreceipt
+                                              .id!); // Use the null assertion operator
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Receipt ID is null, cannot delete.')),
+                                          );
+                                        }
+                                      },
                                     ),
-
                                   ],
                                 ),
                               ],
@@ -355,7 +332,8 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const CreateMarineMoneyReceipt()),
+            MaterialPageRoute(
+                builder: (context) => const CreateMarineMoneyReceipt()),
           );
         },
         child: const Icon(Icons.add),

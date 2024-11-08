@@ -1,11 +1,12 @@
 import 'package:general_insurance_management/model/bill_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BillService {
   final String baseUrl = 'http://localhost:8080/api/bill/';
+
+
 
   Future<List<BillModel>> fetchFireBill() async {
     final response = await http.get(Uri.parse(baseUrl));
@@ -19,28 +20,6 @@ class BillService {
   }
 
   //  Create a new marine bill
-  // Future<BillModel> createFireBill(BillModel bill, String? token) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final String? token = prefs.getString('token'); // Adjust key based on your implementation
-  //
-  //   final response = await http.post(
-  //     Uri.parse(baseUrl + "save"),
-  //
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': token != null ? 'Bearer $token' : '', // Include token if available
-  //     },
-  //     body: json.encode(bill.toJson()),
-  //   );
-  //
-  //
-  //   if (response.statusCode == 201) {
-  //     return BillModel.fromJson(json.decode(response.body));
-  //   } else {
-  //     throw Exception('Failed to create fire bill: ${response.statusCode} ${response.body}');
-  //   }
-  // }
-
   Future<void> createFireBill(BillModel bill, String policyId,
       {String? token}) async {
     final prefs = await SharedPreferences.getInstance();
@@ -60,7 +39,7 @@ class BillService {
     }
   }
 
-  /// Deletes a fire policy by ID.
+  // Deletes a fire policy by ID.
   Future<bool> deleteBill(int id) async {
     final String apiUrl = '${baseUrl}delete/$id';
 
@@ -77,7 +56,7 @@ class BillService {
     }
   }
 
-  /// Updates a fire policy by ID.
+  // Updates a fire bill by ID.
   Future<void> updateBill(int id, BillModel bill) async {
     final response = await http.put(
       Uri.parse('${baseUrl}update/$id'),
@@ -86,7 +65,7 @@ class BillService {
     );
 
     if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception('Failed to update fire  bill: ${response.body}');
+      throw Exception('Failed to update fire bill: ${response.statusCode}');
     }
   }
 }

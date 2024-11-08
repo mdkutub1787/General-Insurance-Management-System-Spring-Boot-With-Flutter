@@ -31,21 +31,7 @@ class PolicyService {
       throw Exception('Network error: $e');
     }
   }
-  //
-  // // Create a new policy (generalized for different types)
-  // Future<http.Response> createPolicy(PolicyModel policy, {String policyType = ''}) async {
-  //   final response = await http.post(
-  //     Uri.parse('${baseUrl}$policyType/save'),
-  //     headers: {'Content-Type': 'application/json'},
-  //     body: json.encode(policy.toJson()), // Convert model to JSON
-  //   );
-  //
-  //   if (response.statusCode == 200 || response.statusCode == 201) {
-  //     return response; // Successful response
-  //   } else {
-  //     throw Exception('Failed to create Policy: ${response.body}');
-  //   }
-  // }
+
 
   //  Create a new marine policy
   Future<PolicyModel> createFireBill(PolicyModel policy, String? token) async {

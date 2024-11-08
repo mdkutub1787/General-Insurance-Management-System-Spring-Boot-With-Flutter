@@ -5,9 +5,7 @@ import 'package:general_insurance_management/model/money_receipt_model.dart';
 import 'package:general_insurance_management/service/bill_service.dart';
 import 'package:general_insurance_management/service/money_receipt_service.dart';
 import 'package:intl/intl.dart';
-import 'package:general_insurance_management/model/marine_bill_model.dart';
-import 'package:general_insurance_management/model/marine_money_receipt_model.dart';
-import 'package:general_insurance_management/service/marine_bill_service.dart';
+
 
 class CreateFireMoneyReceipt extends StatefulWidget {
   const CreateFireMoneyReceipt({Key? key}) : super(key: key);
@@ -141,7 +139,24 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create Fire Money Receipt")),
+      appBar: AppBar(
+        title: const Text('Create Fire Money Receipt Form'),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.yellow.withOpacity(0.8),
+                Colors.green.withOpacity(0.8),
+                Colors.orange.withOpacity(0.8),
+                Colors.red.withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -151,6 +166,7 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 10),
               _buildDropdownField(),
               SizedBox(height: 20),
               _buildDropdownBankNameField(),
@@ -170,7 +186,7 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
               _buildTextField(issuedAgainstController, 'Issued Against',
                   Icons.receipt),
               SizedBox(height: 20),
-              _buildCreateButton(),
+              _buildSubmitButton()
             ],
           ),
         ),
@@ -178,19 +194,34 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
     );
   }
 
-  Widget _buildCreateButton() {
-    return ElevatedButton(
-      onPressed: isLoading ? null : _createMoneyReceipt,
-      child: isLoading
-          ? CircularProgressIndicator(color: Colors.white)
-          : Text("Create Fire Money Receipt",
-          style: TextStyle(fontWeight: FontWeight.w600)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: _createMoneyReceipt,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          shadowColor: Colors.pink,  // Shadow color
+          elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
+        ),
+        child: const Text(
+          "Create Money Receipt",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
+
 
   Widget _buildDropdownField() {
     return DropdownButtonFormField<String>(
@@ -213,7 +244,7 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
           .map<DropdownMenuItem<String>>((BillModel bill) {
         return DropdownMenuItem<String>(
           value: bill.policy.policyholder,
-          child: Text(bill.policy.policyholder ?? ''),
+          child: Text(bill.policy.policyholder ?? '',  style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -233,7 +264,7 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
           value: bankName,
-          child: Text(bankName),
+          child: Text(bankName,  style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -338,21 +369,28 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-      isDense: true,
-      contentPadding:
-      const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+      ),
+      prefixIcon: Icon(icon, color: Colors.green),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
+      ),
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.green, width: 1.0),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.blue, width: 2.0),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(20.0),
+        borderSide: const BorderSide(color: Colors.purple, width: 2.0),
       ),
-      prefixIcon: Icon(icon),
-      filled: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      isDense: true,
       fillColor: Colors.white,
     );
   }
+
+
 }

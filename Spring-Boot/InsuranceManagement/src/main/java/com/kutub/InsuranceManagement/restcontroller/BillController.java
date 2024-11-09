@@ -3,6 +3,7 @@ package com.kutub.InsuranceManagement.restcontroller;
 import com.kutub.InsuranceManagement.entity.Bill;
 import com.kutub.InsuranceManagement.service.BillService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,13 @@ public class BillController {
 
 
     @PutMapping("/update/{id}")
-    public  void updateBill(@RequestBody Bill b){
-        billService.saveBill(b);
+    public ResponseEntity<String> updateBill(@PathVariable int id, @RequestBody Bill b) {
+        try {
+            billService.updateBill(b, id);
+            return ResponseEntity.ok("Bill updated successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
 

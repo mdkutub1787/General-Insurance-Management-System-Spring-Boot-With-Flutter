@@ -6,9 +6,9 @@ import 'package:general_insurance_management/service/marine_bill_service.dart';
 import 'package:general_insurance_management/service/marine_policy_service.dart';
 
 class UpdateMarineBill extends StatefulWidget {
-  const UpdateMarineBill({super.key, required this.marineBill});
+  const UpdateMarineBill({super.key, required this.marinebill});
 
-  final MarineBillModel marineBill;
+  final MarineBillModel marinebill;
 
   @override
   State<UpdateMarineBill> createState() => _CreateMarineBillState();
@@ -42,12 +42,15 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
   }
 
   void _populateInitialData() {
-    marineRateController.text = widget.marineBill.marineRate.toString();
-    warSrccRateController.text = widget.marineBill.warSrccRate.toString();
-    netPremiumController.text = widget.marineBill.netPremium.toString();
-    taxController.text = widget.marineBill.tax.toString();
-    stampDutyController.text = widget.marineBill.stampDuty.toString();
-    grossPremiumController.text = widget.marineBill.grossPremium.toString();
+    marineRateController.text = widget.marinebill.marineRate.toString();
+    warSrccRateController.text = widget.marinebill.warSrccRate.toString();
+    netPremiumController.text = widget.marinebill.netPremium.toString();
+    taxController.text = widget.marinebill.tax.toString();
+    stampDutyController.text = widget.marinebill.stampDuty.toString();
+    grossPremiumController.text = widget.marinebill.grossPremium.toString();
+    selectedPolicyholder = widget.marinebill.marineDetails.policyholder;
+    selectedBankName = widget.marinebill.marineDetails.bankName;
+    selectedSumInsured = widget.marinebill.marineDetails.sumInsured;
   }
 
   Future<void> _fetchData() async {
@@ -69,9 +72,9 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
 
       setState(() {
         if (policies.isNotEmpty) {
-          selectedPolicyholder = policies.first.policyholder;
-          selectedBankName = policies.first.bankName ?? uniqueBankNames.first;
-          selectedSumInsured = policies.first.sumInsured ?? uniqueSumInsured.first;
+          selectedPolicyholder = selectedPolicyholder ?? policies.first.policyholder;
+          selectedBankName = selectedBankName ?? uniqueBankNames.first;
+          selectedSumInsured = selectedSumInsured ?? uniqueSumInsured.first;
         }
       });
     } catch (error) {
@@ -99,7 +102,6 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
       });
 
       try {
-        // Find the selected policy
         final selectedPolicy = policies.firstWhere(
               (policy) => policy.policyholder == selectedPolicyholder,
           orElse: () => MarinePolicyModel(policyholder: '', id: null),
@@ -111,20 +113,19 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
           return;
         }
 
-        // Create a MarineBillModel instance with the input data
-        MarineBillModel marineBill = MarineBillModel(
-          marineRate: double.parse(marineRateController.text),
-          warSrccRate: double.parse(warSrccRateController.text),
-          netPremium: double.parse(netPremiumController.text),
-          tax: double.parse(taxController.text),
-          stampDuty: double.parse(stampDutyController.text),
-          grossPremium: double.parse(grossPremiumController.text),
-          marineDetails: selectedPolicy,
+
+        await marineBillService.updateMarineBill(
+          widget.marinebill.id!,
+          MarineBillModel(
+              marineRate: double.parse(marineRateController.text),
+              warSrccRate: double.parse(warSrccRateController.text),
+              netPremium: double.parse(netPremiumController.text),
+              tax: double.parse(taxController.text),
+              stampDuty: double.parse(stampDutyController.text),
+              grossPremium: double.parse(grossPremiumController.text),
+              marineDetails: selectedPolicy,
+          ),
         );
-
-        // Call the service to update the marine bill, passing correct parameters
-        await marineBillService.updateMarineBill(selectedPolicy.id!, marineBill);
-
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Marine bill updated successfully!')),
@@ -169,8 +170,8 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
 
     // Calculate netPremium, tax, and grossPremium
     double netPremium = (sumInsured * (marineRate + warSrccRate)) / 100;
-    double tax = taxRate / 100;
-    double grossPremium = netPremium+(netPremium * tax )+ stampDuty;
+    double tax = taxRate;
+    double grossPremium = netPremium+(netPremium * tax )/100+ stampDuty;
 
     setState(() {
       netPremiumController.text = netPremium.toStringAsFixed(2);
@@ -341,7 +342,7 @@ class _CreateMarineBillState extends State<UpdateMarineBill> {
           elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
         ),
         child: const Text(
-          "Create Fire Bill",
+          "Submit",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,

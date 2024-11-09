@@ -38,14 +38,6 @@ class MarineBillService {
     }
   }
 
-  // Delete a marine bill by ID
-  // Future<void> deleteMarineBill(int id) async {
-  //   final response = await http.delete(Uri.parse(baseUrl + "delete/$id"));
-  //
-  //   if (response.statusCode != 204) {
-  //     throw Exception('Failed to delete marine bill: ${response.statusCode} ${response.body}');
-  //   }
-  // }
 
   Future<bool> deleteMarineBill(int id) async {
     final String apiUrl = '${baseUrl}delete/$id';
@@ -77,4 +69,6 @@ class MarineBillService {
       throw Exception('Failed to update marine bill: ${response.statusCode} ${response.body}');
     }
   }
+
+
 }

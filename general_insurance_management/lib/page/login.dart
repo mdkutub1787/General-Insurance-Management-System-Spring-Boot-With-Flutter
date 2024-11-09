@@ -109,9 +109,9 @@ class _LoginState extends State<Login> {
                       SizedBox(height: 20),
                       _buildTextField(password, 'Password', Icons.lock, obscureText: true),
                       SizedBox(height: 20),
-                      _buildLoginButton(context),
-                      SizedBox(height: 10),
-                      _buildRegistrationButton(context),
+                      _buildSubmitButton(),
+                      SizedBox(height: 20),
+                      _buildSubmitRegButton(),
                     ],
                   ),
                 ),
@@ -163,49 +163,69 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _buildLoginButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
+  bool _isHovered = false;
+  Widget _buildSubmitButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
       child: ElevatedButton(
         onPressed: isLoading ? null : () => login(context),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          shadowColor: Colors.pink, // Shadow color
+          elevation: _isHovered ? 12 : 4, // Higher elevation on hover
+        ),
         child: Text(
           isLoading ? "Loading..." : "Login",
           style: GoogleFonts.lato(
-            textStyle: TextStyle(fontWeight: FontWeight.bold),
+            textStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.white,
+            ),
           ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.yellowAccent,
-          minimumSize: Size(120, 45),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          elevation: 10,
-          shadowColor: Colors.green,
         ),
       ),
     );
   }
 
-  Widget _buildRegistrationButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Registration()),
-          );
-        },
-        child: Text(
-          'Create an Account',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+
+  Widget _buildSubmitRegButton() {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: isLoading
+            ? null
+            : () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Registration()),
         ),
-        style: TextButton.styleFrom(
-          elevation: 4,
-          shadowColor: Colors.black.withOpacity(0.4),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          shadowColor: Colors.pink, // Shadow color
+          elevation: _isHovered ? 12 : 4, // Higher elevation on hover
+        ),
+        child: Text(
+          isLoading ? "Loading..." : "Create an Account",
+          style: GoogleFonts.lato(
+            textStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
   }
+
 }

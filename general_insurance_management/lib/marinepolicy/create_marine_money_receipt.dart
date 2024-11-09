@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/model/marine_policy_model.dart';
 import 'package:intl/intl.dart';
 import 'package:general_insurance_management/marinepolicy/view_marine_money_receipt.dart';
 import 'package:general_insurance_management/model/marine_bill_model.dart';
@@ -24,6 +25,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
   final MarineMoneyReceiptService marineMoneyReceiptService =
       MarineMoneyReceiptService();
 
+  List<MarineBillModel> filteredBills = [];
   List<MarineBillModel> marinebills = [];
   List<String> uniqueBankNames = [];
   List<double> uniqueSumInsured = [];
@@ -33,11 +35,13 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
   String? selectedClassOfInsurance;
   String? selectedModeOfPayment;
   bool isLoading = false;
+  TextEditingController searchController = TextEditingController();
+
 
   final List<String> classOfInsuranceOptions = [
-    'Marine Insrurance',
-    'Fire Insrurance',
-    'Motor Insrurance'
+    'Marine Insurance',
+    'Fire Insurance',
+    'Motor Insurance'
   ];
 
   final List<String> modeOfPaymentOptions = [
@@ -51,6 +55,8 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
   void initState() {
     super.initState();
     _fetchData();
+    searchController.addListener(_filterPolicyholders);
+
 
     // Set the current date to the dateController
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -73,6 +79,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
 
       if (marinebills.isNotEmpty) {
         setState(() {
+          filteredBills = List.from(marinebills);
           selectedPolicyholder = marinebills.first.marineDetails.policyholder;
           selectedBankName =
               marinebills.first.marineDetails.bankName ?? uniqueBankNames.first;
@@ -86,6 +93,15 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
     } finally {
       setState(() => isLoading = false);
     }
+  }
+
+  void _filterPolicyholders() {
+    String query = searchController.text.toLowerCase();
+    setState(() {
+      filteredBills = marinebills.where((marinebill) {
+        return marinebill.marineDetails.policyholder?.toLowerCase().contains(query) ?? false;
+      }).toList();
+    });
   }
 
   void _createMarineMoneyReceipt() async {
@@ -168,6 +184,8 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 10),
+                    _buildSearchField(),
+                    const SizedBox(height: 20),
                     _buildDropdownField(),
                     SizedBox(height: 20),
                     _buildDropdownBankNameField(),
@@ -225,29 +243,56 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
     );
   }
 
+  Widget _buildSearchField() {
+    return TextField(
+      controller: searchController,
+      decoration: _inputDecoration('Search Policyholder',Icons.search),
+    );
+
+  }
 
   Widget _buildDropdownField() {
+    // Extract unique policyholders from filteredBills
+    final uniquePolicyholders = {
+      for (var marinbill in filteredBills) marinbill.marineDetails.policyholder
+    }.where((policyholder) => policyholder != null).cast<String>().toList();
+
+    // Set the initial selected value if none has been set
+    if (selectedPolicyholder == null && uniquePolicyholders.isNotEmpty) {
+      selectedPolicyholder = uniquePolicyholders.first;
+    }
+
     return DropdownButtonFormField<String>(
-      value: selectedPolicyholder,
-      onChanged: isLoading
-          ? null
-          : (String? newValue) {
+      value: uniquePolicyholders.contains(selectedPolicyholder) ? selectedPolicyholder : null,
+      onChanged: isLoading ? null : (String? newValue) {
         setState(() {
           selectedPolicyholder = newValue;
-          final selectedPolicy = marinebills.firstWhere(
-                (marinebill) =>
-            marinebill.marineDetails.policyholder == newValue,
+
+          // Find the first bill with the selected policyholder
+          final selectedBill = marinebills.firstWhere(
+                (marinebill) => marinebill.marineDetails.policyholder == selectedPolicyholder,
+            orElse: () => MarineBillModel(
+              marineDetails: MarinePolicyModel(bankName: null, sumInsured: null),
+              marineRate: 0.0, // Default value
+              warSrccRate: 0.0, // Default value
+              netPremium: 0.0, // Default value
+              tax: 0.0,
+              stampDuty: 0.0,
+              grossPremium: 0.0,
+              // Default value
+            ),
           );
-          selectedSumInsured = selectedPolicy.marineDetails.sumInsured;
-          selectedBankName = selectedPolicy.marineDetails.bankName;
+
+          // Update bankName and sumInsured based on selected policyholder's policy
+          selectedSumInsured = selectedBill.marineDetails.sumInsured;
+          selectedBankName = selectedBill.marineDetails.bankName;
         });
       },
       decoration: _inputDecoration('Policyholder', Icons.person),
-      items: marinebills
-          .map<DropdownMenuItem<String>>((MarineBillModel marinebill) {
+      items: uniquePolicyholders.map<DropdownMenuItem<String>>((String policyholder) {
         return DropdownMenuItem<String>(
-          value: marinebill.marineDetails.policyholder,
-          child: Text(marinebill.marineDetails.policyholder ?? '' , style: TextStyle(fontSize: 14)),
+          value: policyholder,
+          child: Text(policyholder, style: const TextStyle(fontSize: 14)),
         );
       }).toList(),
     );

@@ -24,23 +24,27 @@ class _CreateFireBillState extends State<CreateFireBill> {
   final BillService billService = BillService();
 
   List<PolicyModel> policies = [];
+  List<PolicyModel> filteredPolicies = [];
   List<String> uniqueBankNames = [];
   List<double> uniqueSumInsured = [];
   String? selectedPolicyholder;
   String? selectedBankName;
   double? selectedSumInsured;
   bool isLoading = false;
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchData();
     _setupListeners();
+    searchController.addListener(_filterPolicyholders);
   }
 
   Future<void> _fetchData() async {
     try {
       policies = await PolicyService().fetchPolicies();
+      filteredPolicies = List.from(policies); // Initialize with all policies
       uniqueBankNames = policies
           .map((policy) => policy.bankName)
           .where((bankName) => bankName != null)
@@ -67,6 +71,15 @@ class _CreateFireBillState extends State<CreateFireBill> {
         SnackBar(content: Text('Error fetching data: $error')),
       );
     }
+  }
+
+  void _filterPolicyholders() {
+    String query = searchController.text.toLowerCase();
+    setState(() {
+      filteredPolicies = policies.where((policy) {
+        return policy.policyholder?.toLowerCase().contains(query) ?? false;
+      }).toList();
+    });
   }
 
   void _setupListeners() {
@@ -193,6 +206,8 @@ class _CreateFireBillState extends State<CreateFireBill> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 10),
+              _buildSearchField(),
+              const SizedBox(height: 20),
               _buildDropdownField(),
               const SizedBox(height: 20),
               _buildDropdownBankNameField(),
@@ -217,25 +232,38 @@ class _CreateFireBillState extends State<CreateFireBill> {
     );
   }
 
+  Widget _buildSearchField() {
+    return TextField(
+      controller: searchController,
+      decoration: _buildInputDecoration('Search Policyholder',Icons.search),
+      );
+
+  }
+
   Widget _buildDropdownField() {
+    final uniquePolicyholders = {
+      for (var policy in filteredPolicies) policy.policyholder
+    }.where((policyholder) => policyholder != null).cast<String>().toList();
     return DropdownButtonFormField<String>(
-      value: selectedPolicyholder,
+      value: uniquePolicyholders.contains(selectedPolicyholder) ? selectedPolicyholder : null,
       onChanged: isLoading ? null : (String? newValue) {
         setState(() {
           selectedPolicyholder = newValue;
+          // Filter policies to get bankName and sumInsured for the selected policyholder
           final selectedPolicy = policies.firstWhere(
-                (policy) => policy.policyholder == newValue,
-            orElse: () => PolicyModel(policyholder: '', id: null, sumInsured: 0.0, bankName: ''),
+                (policy) => policy.policyholder == selectedPolicyholder,
+            orElse: () => PolicyModel(bankName: null, sumInsured: null),
           );
-          selectedSumInsured = selectedPolicy.sumInsured;
+          // Update bankName and sumInsured based on selected policyholder
           selectedBankName = selectedPolicy.bankName;
+          selectedSumInsured = selectedPolicy.sumInsured;
         });
       },
-      decoration: _buildInputDecoration('Policyholder', Icons.person),
-      items: policies.map<DropdownMenuItem<String>>((PolicyModel policy) {
+      decoration: _buildInputDecoration('Policy Holder', Icons.person),
+      items: uniquePolicyholders.map<DropdownMenuItem<String>>((String policyholder) {
         return DropdownMenuItem<String>(
-          value: policy.policyholder,
-          child: Text(policy.policyholder ?? '', style: TextStyle(fontSize: 14)),
+          value: policyholder,
+          child: Text(policyholder,  style: TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
@@ -249,7 +277,7 @@ class _CreateFireBillState extends State<CreateFireBill> {
           selectedBankName = newValue;
         });
       },
-      decoration: _buildInputDecoration('Bank Name', Icons.food_bank),
+      decoration: _buildInputDecoration('Bank Name', Icons.account_balance),
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
           value: bankName,

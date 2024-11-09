@@ -1,51 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/marinepolicy/view_maeine_bill.dart';
-import 'package:general_insurance_management/model/marine_bill_model.dart';
-import 'package:general_insurance_management/model/marine_policy_model.dart';
-import 'package:general_insurance_management/service/marine_bill_service.dart';
-import 'package:general_insurance_management/service/marine_policy_service.dart';
+import 'package:general_insurance_management/firepolicy/view_fire_bill.dart';
+import 'package:general_insurance_management/model/bill_model.dart';
+import 'package:general_insurance_management/model/policy_model.dart';
+import 'package:general_insurance_management/service/bill_service.dart';
+import 'package:general_insurance_management/service/policy_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CreateMarineBill extends StatefulWidget {
-  const CreateMarineBill({super.key});
+class CreateFireBill extends StatefulWidget {
+  const CreateFireBill({super.key});
 
   @override
-  State<CreateMarineBill> createState() => _CreateMarineBillState();
+  State<CreateFireBill> createState() => _CreateFireBillState();
 }
 
-class _CreateMarineBillState extends State<CreateMarineBill> {
-  final TextEditingController marineRateController = TextEditingController();
-  final TextEditingController warSrccRateController = TextEditingController();
+class _CreateFireBillState extends State<CreateFireBill> {
+  final TextEditingController fireController = TextEditingController();
+  final TextEditingController rsdController = TextEditingController();
   final TextEditingController netPremiumController = TextEditingController();
   final TextEditingController taxController = TextEditingController();
-  final TextEditingController stampDutyController = TextEditingController();
   final TextEditingController grossPremiumController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final MarineBillService marineBillService = MarineBillService();
+  final BillService billService = BillService();
 
-  List<MarinePolicyModel> filteredPolicies = [];
-  List<MarinePolicyModel> policies = [];
+  List<PolicyModel> policies = [];
   List<String> uniqueBankNames = [];
   List<double> uniqueSumInsured = [];
   String? selectedPolicyholder;
   String? selectedBankName;
   double? selectedSumInsured;
   bool isLoading = false;
-  TextEditingController searchController = TextEditingController();
-
 
   @override
   void initState() {
     super.initState();
     _fetchData();
     _setupListeners();
-    searchController.addListener(_filterPolicyholders);
   }
 
   Future<void> _fetchData() async {
     try {
-      filteredPolicies = List.from(policies); // Initialize with all policies
-      policies = await MarinePolicyService().fetchMarinePolicies();
+      policies = await PolicyService().fetchPolicies();
       uniqueBankNames = policies
           .map((policy) => policy.bankName)
           .where((bankName) => bankName != null)
@@ -74,36 +69,28 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
     }
   }
 
-  void _filterPolicyholders() {
-    String query = searchController.text.toLowerCase();
-    setState(() {
-      filteredPolicies = policies.where((policy) {
-        return policy.policyholder?.toLowerCase().contains(query) ?? false;
-      }).toList();
-    });
-  }
-
   void _setupListeners() {
-    marineRateController.addListener(_updateCalculatedFields);
-    warSrccRateController.addListener(_updateCalculatedFields);
+    fireController.addListener(_updateCalculatedFields);
+    rsdController.addListener(_updateCalculatedFields);
     taxController.addListener(_updateCalculatedFields);
-    stampDutyController.addListener(_updateCalculatedFields);
+
   }
 
   void _updateCalculatedFields() {
     calculatePremiums();
   }
 
-  void _createMarineBill() async {
+  void _CreateFireBill() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         isLoading = true;
       });
-
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
       try {
         final selectedPolicy = policies.firstWhere(
               (policy) => policy.policyholder == selectedPolicyholder,
-          orElse: () => MarinePolicyModel(policyholder: '', id: null),
+          orElse: () => PolicyModel(policyholder: '', id: null),
         );
 
         if (selectedPolicy.id == null) {
@@ -111,26 +98,25 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           return;
         }
 
-        await marineBillService.createMarineBill(
-          MarineBillModel(
-            marineRate: double.parse(marineRateController.text),
-            warSrccRate: double.parse(warSrccRateController.text),
+        await billService.createFireBill(
+          BillModel(
+            fire: double.parse(fireController.text),
+            rsd: double.parse(rsdController.text),
             netPremium: _parseControllerValue(netPremiumController.text),
             tax: _parseControllerValue(taxController.text),
-            stampDuty: _parseControllerValue(stampDutyController.text),
             grossPremium: _parseControllerValue(grossPremiumController.text),
-            marineDetails: selectedPolicy,
+            policy: selectedPolicy,
           ),
           selectedPolicy.id.toString(),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Marine bill created successfully!')),
+          SnackBar(content: Text('Fire  Bill Created Successfully!')),
         );
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AllMarineBillView()),
+          MaterialPageRoute(builder: (context) => AllFireBillView()),
         );
       } catch (error) {
         _showErrorSnackBar('Error: $error');
@@ -152,20 +138,19 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
   void calculatePremiums() {
     // Retrieve values from the form controllers
     double sumInsured = selectedSumInsured ?? 0.0;
-    double marineRate = _parseControllerValue(marineRateController.text);
-    double warSrccRate = _parseControllerValue(warSrccRateController.text);
-    double stampDuty = _parseControllerValue(stampDutyController.text);
-    const double taxRate = 15.0; // Fixed tax rate at 15%
+    double fire = _parseControllerValue(fireController.text);
+    double rsd = _parseControllerValue(rsdController.text);
+    const double taxRate = 15; // Fixed tax rate at 15%
 
-    if (marineRate > 100 || warSrccRate > 100 || taxRate > 100) {
+    if (fire > 100 || rsd > 100 || taxRate > 100) {
       _showErrorSnackBar('Rates must be less than or equal to 100%.');
       return;
     }
 
     // Calculate netPremium, tax, and grossPremium
-    double netPremium = (sumInsured * (marineRate + warSrccRate)) / 100;
-    double tax = taxRate;
-    double grossPremium = netPremium+(netPremium * tax )/ 100+ stampDuty ;
+    double netPremium = (sumInsured * (fire + rsd)) / 100;
+    double tax = taxRate ;
+    double grossPremium = netPremium+(netPremium * taxRate )/100;
 
     // Update form controllers with calculated values
     setState(() {
@@ -183,7 +168,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Marine Bill Form'),
+        title: const Text('Create Fire Bill Form'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -208,29 +193,23 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 10),
-              _buildSearchField(),
-               SizedBox(height: 20),
               _buildDropdownField(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildDropdownBankNameField(),
               SizedBox(height: 20),
               _buildDropdownSumInsuredField(),
               SizedBox(height: 20),
-              _buildTextField(marineRateController, 'Marine Rate', Icons.production_quantity_limits_outlined),
+              _buildTextField(fireController, 'Fire Rate', Icons.production_quantity_limits_outlined),
               SizedBox(height: 20),
-              _buildTextField(warSrccRateController, 'War SRCC Rate', Icons.storage),
+              _buildTextField(rsdController, ' Rsd Rate', Icons.storage),
               SizedBox(height: 20),
               _buildReadOnlyField(netPremiumController, 'Net Premium', Icons.monetization_on),
               SizedBox(height: 20),
-              _buildReadOnlyField(taxController, 'Tax', Icons.attach_money),
-              SizedBox(height: 20),
-              _buildTextField(stampDutyController, 'Stamp Duty', Icons.receipt),
+              _buildReadOnlyField(taxController, 'Tax  Rate', Icons.attach_money),
               SizedBox(height: 20),
               _buildReadOnlyField(grossPremiumController, 'Gross Premium', Icons.monetization_on),
               SizedBox(height: 20),
               _buildSubmitButton(),
-              SizedBox(height: 20),
-
             ],
           ),
         ),
@@ -238,40 +217,27 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
     );
   }
 
-  Widget _buildSearchField() {
-    return TextField(
-      controller: searchController,
-      decoration: _buildInputDecoration('Search Policyholder',Icons.search),
-    );
-  }
-
   Widget _buildDropdownField() {
-    final uniquePolicyholders = {
-      for (var policy in filteredPolicies) policy.policyholder
-    }.where((policyholder) => policyholder != null).cast<String>().toList();
     return DropdownButtonFormField<String>(
-      value: uniquePolicyholders.contains(selectedPolicyholder) ? selectedPolicyholder : null,
+      value: selectedPolicyholder,
       onChanged: isLoading ? null : (String? newValue) {
         setState(() {
           selectedPolicyholder = newValue;
-          // Filter policies to get bankName and sumInsured for the selected policyholder
           final selectedPolicy = policies.firstWhere(
-                (policy) => policy.policyholder == selectedPolicyholder,
-            orElse: () => MarinePolicyModel(bankName: null, sumInsured: null),
+                (policy) => policy.policyholder == newValue,
+            orElse: () => PolicyModel(policyholder: '', id: null, sumInsured: 0.0, bankName: ''),
           );
-          // Update bankName and sumInsured based on selected policyholder
-          selectedBankName = selectedPolicy.bankName;
           selectedSumInsured = selectedPolicy.sumInsured;
+          selectedBankName = selectedPolicy.bankName;
         });
       },
-      decoration: _buildInputDecoration('Policy Holder', Icons.person),
-      items: uniquePolicyholders.map<DropdownMenuItem<String>>((String policyholder) {
+      decoration: _buildInputDecoration('Policyholder', Icons.person),
+      items: policies.map<DropdownMenuItem<String>>((PolicyModel policy) {
         return DropdownMenuItem<String>(
-          value: policyholder,
-          child: Text(policyholder,style: TextStyle(fontSize: 14)),
+          value: policy.policyholder,
+          child: Text(policy.policyholder ?? '', style: TextStyle(fontSize: 14)),
         );
       }).toList(),
-
     );
   }
 
@@ -283,7 +249,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           selectedBankName = newValue;
         });
       },
-      decoration: _buildInputDecoration('Bank Name', Icons.account_balance),
+      decoration: _buildInputDecoration('Bank Name', Icons.food_bank),
       items: uniqueBankNames.map<DropdownMenuItem<String>>((String bankName) {
         return DropdownMenuItem<String>(
           value: bankName,
@@ -341,7 +307,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: ElevatedButton(
-        onPressed: _createMarineBill,
+        onPressed: _CreateFireBill,
         style: ElevatedButton.styleFrom(
           backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -352,7 +318,7 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
           elevation: _isHovered ? 12 : 4,  // Higher elevation on hover
         ),
         child: const Text(
-          "Submit",
+          "Create Fire Bill",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -388,4 +354,5 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
       isDense: true,
     );
   }
+
 }

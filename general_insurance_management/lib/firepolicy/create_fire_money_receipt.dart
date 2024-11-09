@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:general_insurance_management/firepolicy/view_money_receipt.dart';
 import 'package:general_insurance_management/model/bill_model.dart';
 import 'package:general_insurance_management/model/money_receipt_model.dart';
+import 'package:general_insurance_management/model/policy_model.dart';
 import 'package:general_insurance_management/service/bill_service.dart';
 import 'package:general_insurance_management/service/money_receipt_service.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +24,7 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
   final _formKey = GlobalKey<FormState>();
   final MoneyReceiptService moneyReceiptService = MoneyReceiptService();
 
+  List<BillModel> filteredBills = [];
   List<BillModel> bills = [];
   List<String> uniqueBankNames = [];
   List<double> uniqueSumInsured = [];
@@ -32,11 +34,13 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
   String? selectedClassOfInsurance;
   String? selectedModeOfPayment;
   bool isLoading = false;
+  TextEditingController searchController = TextEditingController();
+
 
   final List<String> classOfInsuranceOptions = [
-    'Marine Insrurance',
-    'Fire Insrurance',
-    'Motor Insrurance'
+    'Fire Insurance',
+    'Marine Insurance',
+    'Motor Insurance'
   ];
 
   final List<String> modeOfPaymentOptions = [
@@ -50,6 +54,8 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
   void initState() {
     super.initState();
     _fetchData();
+    searchController.addListener(_filterPolicyholders);
+
 
     // Set the current date to the dateController
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -59,32 +65,33 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
     setState(() => isLoading = true);
     try {
       bills = await BillService().fetchFireBill();
-      uniqueBankNames = bills
-          .map((bill) => bill.policy.bankName)
-          .whereType<String>()
-          .toSet()
-          .toList();
-      uniqueSumInsured = bills
-          .map((bill) => bill.policy.sumInsured)
-          .whereType<double>()
-          .toSet()
-          .toList();
+      uniqueBankNames = bills.map((bill) => bill.policy.bankName).whereType<String>().toSet().toList();
+      uniqueSumInsured = bills.map((bill) => bill.policy.sumInsured).whereType<double>().toSet().toList();
 
       if (bills.isNotEmpty) {
         setState(() {
+          filteredBills = List.from(bills);
           selectedPolicyholder = bills.first.policy.policyholder;
-          selectedBankName =
-              bills.first.policy.bankName ?? uniqueBankNames.first;
-          selectedSumInsured = bills.first.policy.sumInsured ??
-              uniqueSumInsured.first;
+          selectedBankName = bills.first.policy.bankName ?? uniqueBankNames.first;
+          selectedSumInsured = bills.first.policy.sumInsured ?? uniqueSumInsured.first;
         });
       }
     } catch (error) {
       _showErrorSnackBar('Error fetching data: $error');
-      print('Error fetching data: $error'); // Log the error for debugging
+      print('Error fetching data: $error');
     } finally {
       setState(() => isLoading = false);
     }
+  }
+
+
+  void _filterPolicyholders() {
+    String query = searchController.text.toLowerCase();
+    setState(() {
+      filteredBills = bills.where((bill) {
+        return bill.policy.policyholder?.toLowerCase().contains(query) ?? false;
+      }).toList();
+    });
   }
 
   void _createMoneyReceipt() async {
@@ -167,6 +174,8 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 10),
+              _buildSearchField(),
+              const SizedBox(height: 20),
               _buildDropdownField(),
               SizedBox(height: 20),
               _buildDropdownBankNameField(),
@@ -222,33 +231,61 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
     );
   }
 
+  Widget _buildSearchField() {
+    return TextField(
+      controller: searchController,
+      decoration: _inputDecoration('Search Policyholder',Icons.search),
+    );
+
+  }
 
   Widget _buildDropdownField() {
+    // Extract unique policyholders from filteredBills
+    final uniquePolicyholders = {
+      for (var bill in filteredBills) bill.policy.policyholder
+    }.where((policyholder) => policyholder != null).cast<String>().toList();
+
+    // Set the initial selected value if none has been set
+    if (selectedPolicyholder == null && uniquePolicyholders.isNotEmpty) {
+      selectedPolicyholder = uniquePolicyholders.first;
+    }
+
     return DropdownButtonFormField<String>(
-      value: selectedPolicyholder,
-      onChanged: isLoading
-          ? null
-          : (String? newValue) {
+      value: uniquePolicyholders.contains(selectedPolicyholder) ? selectedPolicyholder : null,
+      onChanged: isLoading ? null : (String? newValue) {
         setState(() {
           selectedPolicyholder = newValue;
-          final selectedPolicy = bills.firstWhere(
-                (bill) =>
-            bill.policy.policyholder == newValue,
+
+          // Find the first bill with the selected policyholder
+          final selectedBill = bills.firstWhere(
+                (bill) => bill.policy.policyholder == selectedPolicyholder,
+            orElse: () => BillModel(
+              policy: PolicyModel(bankName: null, sumInsured: null),
+              fire: 0.0, // Default value
+              rsd: 0.0, // Default value
+              netPremium: 0.0, // Default value
+              tax: 0.0, // Default value
+              grossPremium: 0.0, // Default value
+            ),
           );
-          selectedSumInsured = selectedPolicy.policy.sumInsured;
-          selectedBankName = selectedPolicy.policy.bankName;
+
+          // Update bankName and sumInsured based on selected policyholder's policy
+          selectedSumInsured = selectedBill.policy.sumInsured;
+          selectedBankName = selectedBill.policy.bankName;
         });
       },
       decoration: _inputDecoration('Policyholder', Icons.person),
-      items: bills
-          .map<DropdownMenuItem<String>>((BillModel bill) {
+      items: uniquePolicyholders.map<DropdownMenuItem<String>>((String policyholder) {
         return DropdownMenuItem<String>(
-          value: bill.policy.policyholder,
-          child: Text(bill.policy.policyholder ?? '',  style: TextStyle(fontSize: 14)),
+          value: policyholder,
+          child: Text(policyholder, style: const TextStyle(fontSize: 14)),
         );
       }).toList(),
     );
   }
+
+
+
 
   Widget _buildDropdownBankNameField() {
     return DropdownButtonFormField<String>(
@@ -280,7 +317,7 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
           selectedSumInsured = newValue;
         });
       },
-      decoration: _inputDecoration('Sum Insured', Icons.monetization_on),
+      decoration: _inputDecoration('Sum Insured', Icons.account_balance_wallet),
       items:
       uniqueSumInsured.map<DropdownMenuItem<double>>((double sumInsured) {
         return DropdownMenuItem<double>(

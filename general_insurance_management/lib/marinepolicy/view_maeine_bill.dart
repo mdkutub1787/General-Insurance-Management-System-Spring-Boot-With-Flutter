@@ -286,7 +286,7 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => UpdateMarineBill(marineBill: marineBill),
+                                            builder: (context) => UpdateMarineBill(marinebill: marineBill),
                                           ),
                                         );
                                       },

@@ -104,33 +104,45 @@ class _RegistrationPageState extends State<Registration> {
       {bool obscureText = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon, color: Colors.white, size: 20),
-          filled: true,
-          fillColor: Colors.white24,
-          labelStyle: TextStyle(color: Colors.white, fontSize: 16),
-          isDense: true,
-          contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide(color: Colors.white24),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide(color: Colors.white),
-          ),
-        ),
-        obscureText: obscureText,
-        style: TextStyle(color: Colors.white, fontSize: 14),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter $label';
-          }
-          return null;
+      child: MouseRegion(
+        onEnter: (_) {
+          setState(() {
+            // Add hover effect
+          });
         },
+        onExit: (_) {
+          setState(() {
+            // Remove hover effect
+          });
+        },
+        child: TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: Icon(icon, color: Colors.white, size: 20),
+            filled: true,
+            fillColor: Colors.white24,
+            labelStyle: TextStyle(color: Colors.white, fontSize: 16),
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: Colors.white24),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          ),
+          obscureText: obscureText,
+          style: TextStyle(color: Colors.white, fontSize: 14),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter $label';
+            }
+            return null;
+          },
+        ),
       ),
     );
   }
@@ -145,42 +157,78 @@ class _RegistrationPageState extends State<Registration> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: RadioListTile<String>(
-                title: Text('Male', style: TextStyle(color: Colors.white)),
-                value: 'Male',
-                groupValue: selectedGender,
-                onChanged: (value) {
+              child: MouseRegion(
+                onEnter: (_) {
                   setState(() {
-                    selectedGender = value!;
+                    // Add hover effect
                   });
                 },
-                activeColor: Colors.yellow,
+                onExit: (_) {
+                  setState(() {
+                    // Remove hover effect
+                  });
+                },
+                child: RadioListTile<String>(
+                  title: Text('Male', style: TextStyle(color: Colors.white)),
+                  value: 'Male',
+                  groupValue: selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedGender = value!;
+                    });
+                  },
+                  activeColor: Colors.yellow,
+                ),
               ),
             ),
             Expanded(
-              child: RadioListTile<String>(
-                title: Text('Female', style: TextStyle(color: Colors.white)),
-                value: 'Female',
-                groupValue: selectedGender,
-                onChanged: (value) {
+              child: MouseRegion(
+                onEnter: (_) {
                   setState(() {
-                    selectedGender = value!;
+                    // Add hover effect
                   });
                 },
-                activeColor: Colors.yellow,
+                onExit: (_) {
+                  setState(() {
+                    // Remove hover effect
+                  });
+                },
+                child: RadioListTile<String>(
+                  title: Text('Female', style: TextStyle(color: Colors.white)),
+                  value: 'Female',
+                  groupValue: selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedGender = value!;
+                    });
+                  },
+                  activeColor: Colors.yellow,
+                ),
               ),
             ),
             Expanded(
-              child: RadioListTile<String>(
-                title: Text('Other', style: TextStyle(color: Colors.white)),
-                value: 'Other',
-                groupValue: selectedGender,
-                onChanged: (value) {
+              child: MouseRegion(
+                onEnter: (_) {
                   setState(() {
-                    selectedGender = value!;
+                    // Add hover effect
                   });
                 },
-                activeColor: Colors.yellow,
+                onExit: (_) {
+                  setState(() {
+                    // Remove hover effect
+                  });
+                },
+                child: RadioListTile<String>(
+                  title: Text('Other', style: TextStyle(color: Colors.white)),
+                  value: 'Other',
+                  groupValue: selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedGender = value!;
+                    });
+                  },
+                  activeColor: Colors.yellow,
+                ),
               ),
             ),
           ],
@@ -192,20 +240,32 @@ class _RegistrationPageState extends State<Registration> {
   Widget _buildRegistrationButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Login()),
-          );
+      child: MouseRegion(
+        onEnter: (_) {
+          setState(() {
+            // Add hover effect
+          });
         },
-        child: Text(
-          'Already have an account? Login',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        style: TextButton.styleFrom(
-          elevation: 4,
-          shadowColor: Colors.black.withOpacity(0.4),
+        onExit: (_) {
+          setState(() {
+            // Remove hover effect
+          });
+        },
+        child: TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Login()),
+            );
+          },
+          child: Text(
+            'Already have an account? Login',
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+          style: TextButton.styleFrom(
+            elevation: 4,
+            shadowColor: Colors.black.withOpacity(0.4),
+          ),
         ),
       ),
     );
@@ -269,22 +329,35 @@ class _RegistrationPageState extends State<Registration> {
                       controller: dob,
                       decoration: InputDecoration(
                         labelText: "Date of Birth",
-                        prefixIcon: Icon(Icons.calendar_today,
-                            color: Colors.white, size: 20),
+                        prefixIcon: Icon(Icons.calendar_today),
+                        filled: true,
+                        fillColor: Colors.white24,
+                        labelStyle: TextStyle(color: Colors.white, fontSize: 16),
+                        isDense: true,
+                        contentPadding:
+                        EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
                       ),
                       readOnly: true,
                       onTap: () async {
                         DateTime? pickedDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
+                          initialDate: selectedDate ?? DateTime.now(),
                           firstDate: DateTime(1900),
-                          lastDate: DateTime(2101),
+                          lastDate: DateTime.now(),
                         );
-                        if (pickedDate != null) {
+                        if (pickedDate != null && pickedDate != selectedDate) {
                           setState(() {
                             selectedDate = pickedDate;
-                            dob.text =
-                                DateFormat('dd-MM-yyyy').format(selectedDate!);
+                            dob.text = DateFormat('yyyy-MM-dd')
+                                .format(selectedDate!);
                           });
                         }
                       },
@@ -292,18 +365,21 @@ class _RegistrationPageState extends State<Registration> {
                     SizedBox(height: 20),
                     _buildGenderSelection(),
                     SizedBox(height: 20),
-                    if (_isLoading)
-                      CircularProgressIndicator()
-                    else
-                      ElevatedButton(
-                        onPressed: _register,
-                        child: Text('Register', style: TextStyle(fontSize: 15)),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 15),
+                    _isLoading
+                        ? CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                        : ElevatedButton(
+                      onPressed: _register,
+                      child: Text('Register', style: TextStyle(fontSize: 18)),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                    SizedBox(height: 20),
+                    ),
                     _buildRegistrationButton(context),
                   ],
                 ),

@@ -85,9 +85,10 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.blue.withOpacity(0.8),
+                Colors.yellow.withOpacity(0.8),
                 Colors.green.withOpacity(0.8),
                 Colors.orange.withOpacity(0.8),
+                Colors.red.withOpacity(0.8),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,

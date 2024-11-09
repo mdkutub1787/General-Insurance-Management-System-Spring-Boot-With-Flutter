@@ -4,7 +4,7 @@ import 'package:general_insurance_management/firepolicy/view_fire_policy.dart';
 import 'package:general_insurance_management/marinepolicy/view_maeine_bill.dart';
 import 'package:general_insurance_management/marinepolicy/view_marine_money_receipt.dart';
 import 'package:general_insurance_management/marinepolicy/view_marine_policy.dart';
-import 'package:general_insurance_management/page/home.dart';
+import 'package:general_insurance_management/page/Home.dart';
 import 'package:general_insurance_management/page/login.dart';
 import 'package:general_insurance_management/page/registration.dart';
 import 'firepolicy/view_money_receipt.dart';
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
-        '/home': (context) => Home(),
+        '/home': (context) => HomePage(),
         '/login': (context) => Login(),
         '/registration': (context) => Registration(),
         '/viewfirepolicy': (context) => AllFirePolicyView(),
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
           body: const Center(child: Text("The page you're looking for doesn't exist.")),
         ),
       ),
-      home: Home(),
+      home: HomePage(),
     );
   }
 }

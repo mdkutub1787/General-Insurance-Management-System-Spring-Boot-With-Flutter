@@ -5,6 +5,7 @@ import com.kutub.InsuranceManagement.entity.MoneyReceipt;
 import com.kutub.InsuranceManagement.entity.Policy;
 import com.kutub.InsuranceManagement.service.MoneyReceiptService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +35,13 @@ public class MoneyReceiptController {
 
 
     @PutMapping("/update/{id}")
-    public  void updateMoneyReceipt(@RequestBody MoneyReceipt mr){
-        moneyReceiptService.saveMoneyReceipt(mr);
+    public ResponseEntity<String> updateMoneyReceipt(@PathVariable int id, @RequestBody MoneyReceipt mr) {
+        try {
+            moneyReceiptService.updateMoneyReceipt(mr, id);
+            return ResponseEntity.ok("Money  Receipt updated successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     // Delete a Receipt by ID

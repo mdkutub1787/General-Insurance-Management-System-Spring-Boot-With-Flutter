@@ -1,9 +1,11 @@
 package com.kutub.InsuranceManagement.restcontroller;
 
 
+import com.kutub.InsuranceManagement.entity.Bill;
 import com.kutub.InsuranceManagement.entity.MarineInsuranceBill;
 import com.kutub.InsuranceManagement.service.MarineInsuranceBillService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,10 +29,16 @@ public class MarineInsuranceBillController {
     public void saveMarineInsuranceBill(@RequestBody MarineInsuranceBill mb) {
         marineInsuranceBillService.saveMarineInsuranceBill(mb);
     }
+    
 
     @PutMapping("/update/{id}")
-    public  void updateMarineInsuranceBill(@RequestBody MarineInsuranceBill mb){
-        marineInsuranceBillService.saveMarineInsuranceBill(mb);
+    public ResponseEntity<String> updateMarineBill(@PathVariable int id, @RequestBody MarineInsuranceBill mb) {
+        try {
+            marineInsuranceBillService.updateMarineInsuranceBill(mb, id);
+            return ResponseEntity.ok("Marine  Bill updated successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/delete/{id}")

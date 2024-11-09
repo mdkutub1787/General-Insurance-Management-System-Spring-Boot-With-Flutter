@@ -1,6 +1,7 @@
 package com.kutub.InsuranceManagement.restcontroller;
 
 import com.kutub.InsuranceManagement.entity.MarineBillMoneyReceipt;
+import com.kutub.InsuranceManagement.entity.MoneyReceipt;
 import com.kutub.InsuranceManagement.service.MarineBillMoneyReceiptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,11 +39,13 @@ public class MarineBillMoneyReceiptController {
 
     // Update an existing receipt
     @PutMapping("/update/{id}")
-    public ResponseEntity<MarineBillMoneyReceipt> updateMarineBillMoneyReceipt(
-            @RequestBody MarineBillMoneyReceipt mr,
-            @PathVariable long id) {
-        MarineBillMoneyReceipt updatedReceipt = marineBillMoneyReceiptService.updateMarineBillMoneyReceipt(mr, id);
-        return ResponseEntity.ok(updatedReceipt);
+    public ResponseEntity<String> updateMarineBillMoneyReceipt(@PathVariable long id, @RequestBody MarineBillMoneyReceipt mr) {
+        try {
+            marineBillMoneyReceiptService.updateMarineBillMoneyReceipt(mr, id);
+            return ResponseEntity.ok("Marine Money  Receipt updated successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     // Delete a receipt by ID

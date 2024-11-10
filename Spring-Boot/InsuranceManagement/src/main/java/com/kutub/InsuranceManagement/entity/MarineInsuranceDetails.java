@@ -61,9 +61,8 @@ public class MarineInsuranceDetails {
     private String coverage;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "marineDetails", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "marineDetails", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MarineInsuranceBill> marineInsuranceBills;
-
 
     public void convertSumInsuredUsd(double exchangeRate) {
         this.sumInsured = this.sumInsuredUsd * exchangeRate;

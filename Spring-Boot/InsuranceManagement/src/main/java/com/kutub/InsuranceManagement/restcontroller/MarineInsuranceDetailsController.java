@@ -51,6 +51,7 @@ public class MarineInsuranceDetailsController {
     }
 
     // Delete Marine Insurance details by ID
+    // Delete Marine Insurance details by ID
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteMarineInsurance(@PathVariable long id) {
         try {

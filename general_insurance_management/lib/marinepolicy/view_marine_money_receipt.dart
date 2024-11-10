@@ -100,19 +100,23 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             child: TextField(
               controller: searchController,
               onChanged: filterReceipts, // Correctly call the filter function
               decoration: InputDecoration(
-                hintText: 'Search by Bill No, Policyholder, or Bank Name',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
+                hintText: 'Search ',
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: const BorderSide(color: Colors.green, width: 1.0),
                 ),
                 filled: true,
                 fillColor: Colors.white,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search, color: Colors.green),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: const BorderSide(color: Colors.green, width: 1.0),
+                ),
               ),
             ),
           ),

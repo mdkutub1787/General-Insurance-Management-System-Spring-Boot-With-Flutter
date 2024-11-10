@@ -225,6 +225,7 @@ class _CreateFireBillState extends State<CreateFireBill> {
               _buildReadOnlyField(grossPremiumController, 'Gross Premium', Icons.monetization_on),
               SizedBox(height: 20),
               _buildSubmitButton(),
+              const SizedBox(height: 20),
             ],
           ),
         ),

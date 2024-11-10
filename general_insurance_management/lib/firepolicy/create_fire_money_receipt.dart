@@ -195,7 +195,8 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
               _buildTextField(issuedAgainstController, 'Issued Against',
                   Icons.receipt),
               SizedBox(height: 20),
-              _buildSubmitButton()
+              _buildSubmitButton(),
+              const SizedBox(height: 20),
             ],
           ),
         ),

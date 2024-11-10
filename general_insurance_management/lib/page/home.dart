@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/page/Head_Office.dart';
+import 'package:general_insurance_management/page/Local_Office.dart';
+import 'package:general_insurance_management/page/User.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -184,17 +187,21 @@ class _HomePageState extends State<HomePage>
                 ],
               ),
             ),
-            _buildDrawerItem(context, Icons.home, 'Home', '/home'),
             _buildDrawerItem(context, Icons.person, 'Profile', '/profile'),
             _buildDrawerItem(context, Icons.contact_mail, 'Contact Us', '/contact'),
             _buildDrawerItem(context, Icons.business, 'Head Office', '/headOffice'),
             _buildDrawerItem(context, Icons.location_city, 'Local Office', '/localOffice'),
-            _buildDrawerItem(context, Icons.notifications, 'Notifications', '/notifications'),
             _buildDrawerItem(context, Icons.settings, 'Settings', '/settings'),
+            Divider(),  // Add a divider to separate login/logout from other items
+            _buildDrawerItem(context, Icons.login, 'Login', '/login'),
+            _buildDrawerItem(context, Icons.logout, 'Logout', '/login'),
           ],
         ),
       ),
-      body: Padding(
+
+
+
+    body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Column(
           children: [
@@ -326,29 +333,44 @@ class _HomePageState extends State<HomePage>
           ],
         ),
       ),
+
+
       bottomNavigationBar: BottomAppBar(
         child: Container(
           height: kBottomNavigationBarHeight,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              _buildBottomIconButton(
-                  context, Icons.business, '/headOffice', 'Head Office'),
-              _buildBottomIconButton(
-                  context, Icons.location_city, '/localOffice', 'Local Office'),
+              // Use pushReplacement for the Head Office button
+              IconButton(
+                icon: Icon(Icons.business, color: Colors.blue),
+                tooltip: 'Head Office',
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HeadOffice()),
+                  );
+                },
+              ),
+
+              IconButton(
+                icon: Icon(Icons.business, color: Colors.blue),
+                tooltip: 'Local Office',
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => User()),
+                  );
+                },
+              ),
               _buildBottomIconButton(context, Icons.home, '/home', 'Home'),
-              _buildBottomIconButton(
-                  context, Icons.search, '/search', 'Search'),
-              _buildBottomIconButton(context, Icons.notifications,
-                  '/notifications', 'Notifications'),
-              _buildBottomIconButton(
-                  context, Icons.account_circle, '/profile', 'Profile'),
-              _buildBottomIconButton(
-                  context, Icons.settings, '/settings', 'Settings'),
+              _buildBottomIconButton(context, Icons.search, '/search', 'Search'),
+              _buildBottomIconButton(context, Icons.notifications, '/notifications', 'Notifications'),
             ],
           ),
         ),
       ),
+
     );
   }
 

@@ -24,7 +24,7 @@ public class MoneyReceipt {
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date date = new Date();
+    private Date date = new Date(); 
 
     private String modeOfPayment;
   

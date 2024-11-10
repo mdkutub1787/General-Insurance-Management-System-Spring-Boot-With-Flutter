@@ -43,7 +43,9 @@ public class MarineInsuranceBill {
     private MarineInsuranceDetails marineDetails;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "marinebill",  cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "marinebill",  fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<MarineBillMoneyReceipt> marinebillreceipts;
+
+
 
 }

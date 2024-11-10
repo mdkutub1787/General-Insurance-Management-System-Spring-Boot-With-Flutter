@@ -114,7 +114,7 @@ class _CreateFireMoneyReceiptState extends State<CreateFireMoneyReceipt> {
             issuingOffice: issuingOfficeController.text,
             classOfInsurance: selectedClassOfInsurance!,
             modeOfPayment: selectedModeOfPayment!,
-            date: dateController.text,
+            date: DateTime.parse(dateController.text),
             issuedAgainst: issuedAgainstController.text,
             bill: selectedPolicy,
           ),

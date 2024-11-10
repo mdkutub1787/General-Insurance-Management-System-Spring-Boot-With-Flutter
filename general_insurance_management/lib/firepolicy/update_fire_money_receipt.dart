@@ -31,7 +31,8 @@ class _UpdateFireMoneyReceiptState extends State<UpdateFireMoneyReceipt> {
   String? selectedPolicyholder;
   String? selectedBankName;
   double? selectedSumInsured;
-
+  String? selectedClassOfInsurance;
+  String? selectedModeOfPayment;
   bool isLoading = false;
 
 
@@ -49,8 +50,7 @@ class _UpdateFireMoneyReceiptState extends State<UpdateFireMoneyReceipt> {
     'Cheque'
   ];
 
-  String? selectedClassOfInsurance;
-  String? selectedModeOfPayment;
+
 
   @override
   void initState() {
@@ -119,7 +119,7 @@ class _UpdateFireMoneyReceiptState extends State<UpdateFireMoneyReceipt> {
             issuingOffice: issuingOfficeController.text,
             classOfInsurance: selectedClassOfInsurance?? '',
             modeOfPayment: selectedModeOfPayment?? '',
-            date: dateController.text,
+            date: DateTime.parse(dateController.text),
             issuedAgainst: issuedAgainstController.text,
             bill: selectedPolicy,
           ),
@@ -334,7 +334,7 @@ class _UpdateFireMoneyReceiptState extends State<UpdateFireMoneyReceipt> {
         FocusScope.of(context).requestFocus(FocusNode()); // Unfocus the field
         DateTime? pickedDate = await showDatePicker(
           context: context,
-          initialDate: DateTime.now(),
+          // initialDate: DateTime.now(),
           firstDate: DateTime(2000),
           lastDate: DateTime(2101),
         );

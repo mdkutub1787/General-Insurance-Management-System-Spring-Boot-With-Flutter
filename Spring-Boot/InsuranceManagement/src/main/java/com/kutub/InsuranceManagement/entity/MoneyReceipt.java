@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -20,7 +22,9 @@ public class MoneyReceipt {
 
     private String classOfInsurance;
 
-    private String date;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date date = new Date();
 
     private String modeOfPayment;
   

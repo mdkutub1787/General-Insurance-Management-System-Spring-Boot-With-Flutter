@@ -63,7 +63,7 @@ class PrintMarineMoneyReceipt extends StatelessWidget {
       data: [
         [
           'Fire Bill No', moneyreceipt.marinebill?.marineDetails.id ?? "N/A",
-          'Issue Date', formatDate(moneyreceipt.marinebill?.marineDetails.date as DateTime?) ?? "N/A"
+          ' Date', formatDate(moneyreceipt.date as DateTime?) ?? "N/A"
         ],
       ],
 
@@ -180,7 +180,7 @@ class PrintMarineMoneyReceipt extends StatelessWidget {
   List<Widget> _buildInfoRows() {
     return [
       _buildRow('Fire Bill No:', '${moneyreceipt.marinebill?.marineDetails.id ?? "N/A"}'),
-      _buildRow('Issue Date:', formatDate(moneyreceipt.marinebill?.marineDetails.date as DateTime?) ?? "N/A"),
+      _buildRow('Date:', formatDate(moneyreceipt.date as DateTime?) ?? "N/A"),
       _buildRow('Issuing Office:', '${moneyreceipt.issuingOffice ?? "N/A"}'),
       _buildRow('Money Receipt No:', '${moneyreceipt.id ?? "N/A"}'),
       _buildRow('Class of Insurance:', '${moneyreceipt.classOfInsurance ?? "N/A"}'),

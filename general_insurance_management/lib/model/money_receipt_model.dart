@@ -5,7 +5,7 @@ class MoneyReceiptModel {
   int? id;
   String? issuingOffice;
   String? classOfInsurance;
-  String? date;
+  DateTime? date;
   String? modeOfPayment;
   String? issuedAgainst;
   BillModel? bill;
@@ -26,7 +26,7 @@ class MoneyReceiptModel {
     id = json['id'];
     issuingOffice = json['issuingOffice'];
     classOfInsurance = json['classOfInsurance'];
-    date = json['date'];
+    date = json['date'] != null ? DateTime.parse(json['date']) : null; // Parse date
     modeOfPayment = json['modeOfPayment'];
     issuedAgainst = json['issuedAgainst'];
     bill = json['bill'] != null ? BillModel.fromJson(json['bill']) : null;
@@ -38,7 +38,7 @@ class MoneyReceiptModel {
     data['id'] = id;
     data['issuingOffice'] = issuingOffice;
     data['classOfInsurance'] = classOfInsurance;
-    data['date'] = date;
+    data['date'] = date?.toIso8601String(); // Convert DateTime to ISO 8601 string
     data['modeOfPayment'] = modeOfPayment;
     data['issuedAgainst'] = issuedAgainst;
     if (bill != null) {

@@ -62,8 +62,8 @@ class _UpdateMarineMoneyReceiptState extends State<UpdateMarineMoneyReceipt> {
 
 
   void _populateInitialData() {
-    // selectedClassOfInsurance = widget.moneyreceipt.classOfInsurance ?? '';
-    // selectedModeOfPayment = widget.moneyreceipt.modeOfPayment ?? '';
+    selectedClassOfInsurance = widget.moneyreceipt.classOfInsurance ?? '';
+    selectedModeOfPayment = widget.moneyreceipt.modeOfPayment ?? '';
     issuingOfficeController.text = widget.moneyreceipt.issuingOffice ?? '';
     dateController.text = widget.moneyreceipt.date?.toString() ?? '';
     issuedAgainstController.text = widget.moneyreceipt.issuedAgainst ?? '';
@@ -116,6 +116,7 @@ class _UpdateMarineMoneyReceiptState extends State<UpdateMarineMoneyReceipt> {
             issuingOffice: issuingOfficeController.text,
             classOfInsurance: selectedClassOfInsurance!,
             modeOfPayment: selectedModeOfPayment!,
+            date: DateTime.parse(dateController.text),
             issuedAgainst: issuedAgainstController.text,
             marinebill: selectedPolicy,
           ),

@@ -41,7 +41,7 @@ public class MarineBillMoneyReceiptController {
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateMarineBillMoneyReceipt(@PathVariable long id, @RequestBody MarineBillMoneyReceipt mr) {
         try {
-            marineBillMoneyReceiptService.updateMarineBillMoneyReceipt(mr, id);
+            marineBillMoneyReceiptService.updateMarineMoneyReceipt(mr, id);
             return ResponseEntity.ok("Marine Money  Receipt updated successfully.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

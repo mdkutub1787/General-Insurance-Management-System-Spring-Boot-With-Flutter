@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:general_insurance_management/firepolicy/create_fire_money_receipt.dart';
 import 'package:general_insurance_management/firepolicy/print_fire_cover_note.dart';
 import 'package:general_insurance_management/firepolicy/print_fire_money_receipt.dart';
+import 'package:general_insurance_management/firepolicy/update_fire_money_receipt.dart';
 import 'package:general_insurance_management/model/money_receipt_model.dart';
 import 'package:general_insurance_management/service/money_receipt_service.dart';
 
@@ -313,6 +314,19 @@ class _AllFireMoneyReceiptViewState extends State<AllFireMoneyReceiptView> {
                                           );
                                         }
                                       },
+                                    ),
+
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.cyan),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => UpdateFireMoneyReceipt(moneyreceipt: moneyreceipt),
+                                          ),
+                                        );
+                                      },
+                                      tooltip: 'Edit ',
                                     ),
                                   ],
                                 ),

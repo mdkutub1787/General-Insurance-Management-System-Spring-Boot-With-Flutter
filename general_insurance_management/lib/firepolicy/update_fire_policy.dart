@@ -20,8 +20,7 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController stockInsuredController = TextEditingController();
   final TextEditingController sumInsuredController = TextEditingController();
-  final TextEditingController interestInsuredController =
-      TextEditingController();
+  final TextEditingController interestInsuredController = TextEditingController();
   final TextEditingController coverageController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController ownerController = TextEditingController();
@@ -43,7 +42,7 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
   ];
 
   String? selectedConstruction;
-  String? selectedUsage;
+  String? selectedusedAs;
 
   @override
   void initState() {
@@ -53,7 +52,7 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
 
   void _initializeForm() {
     selectedConstruction = widget.policy.construction;
-    selectedUsage = widget.policy.usedAs;
+    selectedusedAs = widget.policy.usedAs;
     dateController.text = widget.policy.date != null
         ? DateFormat('yyyy-MM-dd').format(widget.policy.date!)
         : '';
@@ -107,7 +106,7 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
         location: locationController.text,
         construction: selectedConstruction ?? '',
         owner: ownerController.text,
-        usedAs: selectedUsage ?? '',
+        usedAs: selectedusedAs ?? '',
         periodFrom: DateTime.parse(periodFromController.text),
         periodTo: DateTime.parse(periodToController.text),
       );
@@ -205,7 +204,7 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
                 ),
                 SizedBox(height: 20),
                 DropdownButtonFormField<String>(
-                  value: selectedUsage,
+                  value: selectedusedAs,
                   decoration: _buildInputDecoration('Used As', Icons.business),
                   items: usageTypes.map((type) {
                     return DropdownMenuItem<String>(
@@ -213,7 +212,7 @@ class _UpdateFirePolicyState extends State<UpdateFirePolicy> {
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedUsage = value;
+                      selectedusedAs = value;
                     });
                   },
                   validator: (value) =>

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:general_insurance_management/marinepolicy/create_marine_money_receipt.dart';
 import 'package:general_insurance_management/marinepolicy/print_marine_cover_note.dart';
 import 'package:general_insurance_management/marinepolicy/print_marine_money_receipt.dart';
+import 'package:general_insurance_management/marinepolicy/update_marine_money_receipt.dart';
 import 'package:general_insurance_management/model/marine_money_receipt_model.dart';
 import 'package:general_insurance_management/service/marine_money_receipt_service.dart';
 
@@ -313,6 +314,19 @@ class _AllMarineMoneyReceiptViewState extends State<AllMarineMoneyReceiptView> {
                                           );
                                         }
                                       },
+                                    ),
+
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.cyan),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => UpdateMarineMoneyReceipt(moneyreceipt: moneyreceipt),
+                                          ),
+                                        );
+                                      },
+                                      tooltip: 'Edit ',
                                     ),
                                   ],
                                 ),

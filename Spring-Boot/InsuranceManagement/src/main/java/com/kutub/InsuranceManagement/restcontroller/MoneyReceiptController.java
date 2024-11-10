@@ -44,6 +44,8 @@ public class MoneyReceiptController {
         }
     }
 
+
+
     // Delete a Receipt by ID
     @DeleteMapping("/delete/{id}")
     public void deleteMoneyReceiptById(@PathVariable int id) {

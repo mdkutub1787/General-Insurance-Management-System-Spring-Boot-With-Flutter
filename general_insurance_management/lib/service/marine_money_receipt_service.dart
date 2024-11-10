@@ -58,4 +58,24 @@ class MarineMoneyReceiptService {
     }
   }
 
+  Future<void> updateMarineMoneyReceipt(int id, MarineMoneyReceiptModel moneyreceipt) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${baseUrl}update/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(moneyreceipt.toJson()),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('Money receipt updated successfully.');
+      } else {
+        final errorMessage = jsonDecode(response.body)['message'] ?? 'Unknown error';
+        throw Exception('Failed to update fire money receipt: $errorMessage (Status: ${response.statusCode})');
+      }
+    } catch (e) {
+      print('Error updating money receipt: $e');
+      throw Exception('Could not update money receipt. Please check your network connection and try again.');
+    }
+  }
+
 }

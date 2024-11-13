@@ -165,15 +165,20 @@ class _CreateMarineBillState extends State<CreateMarineBill> {
     // Calculate netPremium, tax, and grossPremium
     double netPremium = (sumInsured * (marineRate + warSrccRate)) / 100;
     double tax = taxRate;
-    double grossPremium = netPremium+(netPremium * tax )/ 100+ stampDuty ;
+    double grossPremium = netPremium + (netPremium * tax) / 100 + stampDuty;
 
-    // Update form controllers with calculated values
+    // Round netPremium and grossPremium according to the .50+ rule
+    netPremium = (netPremium + 0.5).toInt().toDouble(); // Round up if >= 0.50
+    grossPremium = (grossPremium + 0.5).toInt().toDouble(); // Round up if >= 0.50
+
+    // Update form controllers with rounded values
     setState(() {
-      netPremiumController.text = netPremium.toStringAsFixed(2);
-      taxController.text = tax.toStringAsFixed(2);
-      grossPremiumController.text = grossPremium.toStringAsFixed(2);
+      netPremiumController.text = netPremium.toStringAsFixed(0); // No decimals after rounding
+      taxController.text = tax.toStringAsFixed(2);  // Tax remains with 2 decimal places
+      grossPremiumController.text = grossPremium.toStringAsFixed(0); // No decimals after rounding
     });
   }
+
 
   double _parseControllerValue(String value) {
     return double.tryParse(value) ?? 0.0;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/marinepolicy/Total_Marine_Bill_Report.dart';
 import 'package:general_insurance_management/marinepolicy/create_marine_bill.dart';
 import 'package:general_insurance_management/marinepolicy/marine_bill_details.dart';
 import 'package:general_insurance_management/marinepolicy/update_marine_bill.dart';
@@ -295,6 +296,24 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                                         );
                                       },
                                     ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.report, color: Colors.teal),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MarineBillReportPage(
+                                              billCount: calculateBillCount(),
+                                              totalNetPremium: calculateTotalNetPremium(),
+                                              totalTax: calculateTotalTax(),
+                                              totalGrossPremium: calculateTotalGrossPremium(),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      tooltip: 'View Report',
+                                    ),
                                   ],
                                 ),
 
@@ -312,6 +331,8 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
         ],
       ),
 
+
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -324,4 +345,25 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
       ),
     );
   }
+
+  // Method to calculate the total number of bills
+  int calculateBillCount() {
+    return filteredBills.length; // Simply count the number of filtered bills
+  }
+
+  double calculateTotalNetPremium() {
+    // Calculate the total net premium by summing up the `netPremium` of all filtered bills
+    return filteredBills.fold(0.0, (total, bill) => total + (bill.netPremium ?? 0));
+  }
+
+  double calculateTotalTax() {
+    // Assuming a fixed tax rate of 15%
+    return calculateTotalNetPremium() * 0.15;
+  }
+
+  double calculateTotalGrossPremium() {
+    // Calculate the total gross premium by summing up the `grossPremium` of all filtered bills
+    return filteredBills.fold(0.0, (total, bill) => total + (bill.grossPremium ?? 0));
+  }
+
 }

@@ -55,17 +55,15 @@ class _UpdateMarineMoneyReceiptState extends State<UpdateMarineMoneyReceipt> {
     super.initState();
     _fetchData();
     _populateInitialData();
-
-    // Set the current date to the dateController
-    dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
   }
-
 
   void _populateInitialData() {
     selectedClassOfInsurance = widget.moneyreceipt.classOfInsurance ?? '';
     selectedModeOfPayment = widget.moneyreceipt.modeOfPayment ?? '';
     issuingOfficeController.text = widget.moneyreceipt.issuingOffice ?? '';
-    dateController.text = widget.moneyreceipt.date?.toString() ?? '';
+    dateController.text = widget.moneyreceipt.date != null
+        ? DateFormat('yyyy-MM-dd').format(widget.moneyreceipt.date!)
+        : '';
     issuedAgainstController.text = widget.moneyreceipt.issuedAgainst ?? '';
 
     // Check if bill and policy are not null before accessing their fields
@@ -73,6 +71,8 @@ class _UpdateMarineMoneyReceiptState extends State<UpdateMarineMoneyReceipt> {
     selectedBankName = widget.moneyreceipt.marinebill?.marineDetails.bankName ?? '';
     selectedSumInsured = widget.moneyreceipt.marinebill?.marineDetails.sumInsured ?? 0.0;
   }
+
+
   Future<void> _fetchData() async {
     setState(() => isLoading = true);
     try {
@@ -332,7 +332,7 @@ class _UpdateMarineMoneyReceiptState extends State<UpdateMarineMoneyReceipt> {
         FocusScope.of(context).requestFocus(FocusNode()); // Unfocus the field
         DateTime? pickedDate = await showDatePicker(
           context: context,
-          initialDate: DateTime.now(),
+          initialDate: widget.moneyreceipt.date ?? DateTime.now(),
           firstDate: DateTime(2000),
           lastDate: DateTime(2101),
         );

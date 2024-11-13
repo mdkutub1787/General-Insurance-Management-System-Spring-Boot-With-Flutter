@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/firepolicy/Total_Fire_Bill_Report_Page.dart';
 import 'package:general_insurance_management/firepolicy/create_fire_bill.dart';
 import 'package:general_insurance_management/firepolicy/fire_bill_details.dart';
 import 'package:general_insurance_management/firepolicy/update_fire_bill.dart';
 import 'package:general_insurance_management/model/bill_model.dart';
 import '../service/bill_service.dart';
+
 
 class AllFireBillView extends StatefulWidget {
   const AllFireBillView({Key? key}) : super(key: key);
@@ -250,9 +252,51 @@ class _AllFireBillViewState extends State<AllFireBillView> {
           },
           tooltip: 'Edit Bill',
         ),
+
+        const SizedBox(width: 8),
+        IconButton(
+          icon: const Icon(Icons.report, color: Colors.teal),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FireBillReportPage(
+                  billCount: calculateBillCount(),
+                  totalNetPremium: calculateTotalNetPremium(),
+                  totalTax: calculateTotalTax(),
+                  totalGrossPremium: calculateTotalGrossPremium(),
+                ),
+              ),
+            );
+          },
+          tooltip: 'View Report',
+        ),
       ],
     );
   }
+
+
+  // Method to calculate the total number of bills
+  int calculateBillCount() {
+    return filteredBills.length; // Simply count the number of filtered bills
+  }
+
+  double calculateTotalNetPremium() {
+    // Assuming filteredBills contains the bills you want to sum up
+    return filteredBills.fold(0.0, (total, bill) => total + (bill.netPremium ?? 0));
+  }
+
+  double calculateTotalTax() {
+    double totalNetPremium = calculateTotalNetPremium();
+    return totalNetPremium * 0.15; // 15% tax of the total net premium
+  }
+
+  double calculateTotalGrossPremium() {
+    // Sum up the gross premium of all filtered bills
+    return filteredBills.fold(0.0, (total, bill) => total + (bill.grossPremium ?? 0));
+  }
+
+
 
   void _confirmDeleteBill(int billId) {
     showDialog(
@@ -286,16 +330,12 @@ class _AllFireBillViewState extends State<AllFireBillView> {
     try {
       await service.deleteBill(billId); // Delete the bill
       setState(() {
-        filteredBills.removeWhere((bill) => bill.id == billId); // Update the list
+        futureBills = service.fetchFireBill(); // Reload the bills
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fire  Bill Delete Successfully!')),
-      );
     } catch (e) {
-      // Handle errors if necessary
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error deleting bill: $e'),
-      ));
+      print('Error deleting bill: $e');
     }
   }
+
+
 }

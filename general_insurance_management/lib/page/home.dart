@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/page/Head_Office.dart';
-import 'package:general_insurance_management/page/Local_Office.dart';
 import 'package:general_insurance_management/page/User.dart';
+import 'package:general_insurance_management/page/home_extra.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,8 +11,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   int _carouselIndex = 0;
   late PageController _pageController;
   Timer? _timer;
@@ -38,30 +37,15 @@ class _HomePageState extends State<HomePage>
   ];
 
   final List<Map<String, String>> myItems = [
-    {
-      "img": "https://cdn-icons-png.flaticon.com/128/1973/1973100.png",
-      "title": "Fire Policy"
-    },
-    {
-      "img": "https://cdn-icons-png.flaticon.com/128/1861/1861925.png",
-      "title": "Fire Bill"
-    },
-    {
-      "img": "https://cdn-icons-png.flaticon.com/128/3705/3705833.png",
-      "title": "Fire Money Receipt"
-    },
-    {
-      "img": "https://cdn-icons-png.flaticon.com/128/2485/2485104.png",
-      "title": "Marine Policy"
-    },
-    {
-      "img": "https://cdn-icons-png.flaticon.com/128/14173/14173808.png",
-      "title": "Marine Bill"
-    },
-    {
-      "img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png",
-      "title": "Marine Money Receipt"
-    },
+    {"img": "https://cdn-icons-png.flaticon.com/128/1973/1973100.png", "title": "Fire Policy"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/1861/1861925.png", "title": "Fire Bill"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/3705/3705833.png", "title": "Fire Money Receipt"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/2485/2485104.png", "title": "Marine Policy"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/14173/14173808.png", "title": "Marine Bill"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png", "title": "Marine Money Receipt"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/4961/4961759.png", "title": "Support"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/1055/1055644.png", "title": "Fire Bill Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/3534/3534063.png", "title": "Marine Bill Reports"},
   ];
 
   final List<String> cardRoutes = [
@@ -71,6 +55,9 @@ class _HomePageState extends State<HomePage>
     '/viewmarinepolicy',
     '/viewmarinebill',
     '/viewmarinemoneyreceipt',
+    '/viewsupport',
+    '/viewfirereports',
+    '/viewmarinereports',
   ];
 
   @override
@@ -110,292 +97,285 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              'mdkutub150@gmail.com, +8801763001787',
-              style: TextStyle(fontSize: 12),
-            ),
-          ],
-        ),
-        centerTitle: true,
-        foregroundColor: Colors.white,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.green,
-                Colors.blue,
-                Colors.lightGreen,
-                Colors.teal
-              ],
-            ),
-          ),
-        ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: CircleAvatar(
-              backgroundImage: NetworkImage(
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQntUidjT9ib73xOZ_LYOvhZg9bSvlU9hOGjaWbTALttUeqeEjJUWKJHbT4r1UqjFM3caQ&usqp=CAU',
-              ),
-            ),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ),
-        ),
-      ),
-
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blueAccent, Colors.greenAccent, Colors.orangeAccent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundImage: NetworkImage(
-                        'https://avatars.githubusercontent.com/u/158472932?v=4&size=64'),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Welcome, User!',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    'mdkutub150@example.com',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-            _buildDrawerItem(context, Icons.person, 'Profile', '/profile'),
-            _buildDrawerItem(context, Icons.contact_mail, 'Contact Us', '/contact'),
-            _buildDrawerItem(context, Icons.business, 'Head Office', '/headOffice'),
-            _buildDrawerItem(context, Icons.location_city, 'Local Office', '/localOffice'),
-            _buildDrawerItem(context, Icons.settings, 'Settings', '/settings'),
-            Divider(),  // Add a divider to separate login/logout from other items
-            _buildDrawerItem(context, Icons.login, 'Login', '/login'),
-            _buildDrawerItem(context, Icons.logout, 'Logout', '/login'),
-          ],
-        ),
-      ),
-
-
-
-    body: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child: Container(
-                height: 160,
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _images.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _carouselIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    return Container(
-                      color: _colors[index],
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.network(
-                            _images[index],
-                            fit: BoxFit.cover,
-                          ),
-                          Positioned(
-                            bottom: 10,
-                            left: 10,
-                            right: 10,
-                            child: Text(
-                              _texts[index],
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
-                                backgroundColor: Colors.white70,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 15,
-                  mainAxisSpacing: 15,
-                  childAspectRatio: 1.2,
-                ),
-                itemCount: myItems.length,
-                itemBuilder: (context, index) {
-                  return MouseRegion(
-                    onEnter: (_) {
-                      setState(() {
-                        _hoverIndex = index;
-                      });
-                      _animationController.forward();
-                    },
-                    onExit: (_) {
-                      setState(() {
-                        _hoverIndex = -1;
-                      });
-                      _animationController.reverse();
-                    },
-                    child: ScaleTransition(
-                      scale: _hoverIndex == index
-                          ? _animationController
-                          : const AlwaysStoppedAnimation(1),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, cardRoutes[index]);
-                        },
-                        child: Card(
-                          color: Colors.amber[50],
-                          elevation: _hoverIndex == index ? 10 : 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    image: NetworkImage(myItems[index]["img"]!),
-                                    fit: BoxFit.contain,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.green.withOpacity(0.5),
-                                      spreadRadius:
-                                          _hoverIndex == index ? 2 : 0,
-                                      blurRadius: _hoverIndex == index ? 6 : 0,
-                                      offset: Offset(
-                                          0, _hoverIndex == index ? 9 : 0),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                myItems[index]["title"]!,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-
-
-      bottomNavigationBar: BottomAppBar(
-        child: Container(
-          height: kBottomNavigationBarHeight,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              // Use pushReplacement for the Head Office button
-              IconButton(
-                icon: Icon(Icons.business, color: Colors.blue),
-                tooltip: 'Head Office',
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HeadOffice()),
-                  );
-                },
-              ),
-
-              IconButton(
-                icon: Icon(Icons.business, color: Colors.blue),
-                tooltip: 'Local Office',
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => User()),
-                  );
-                },
-              ),
-              _buildBottomIconButton(context, Icons.home, '/home', 'Home'),
-              _buildBottomIconButton(context, Icons.search, '/search', 'Search'),
-              _buildBottomIconButton(context, Icons.notifications, '/notifications', 'Notifications'),
-            ],
-          ),
-        ),
-      ),
-
+      appBar: _buildAppBar(),
+      drawer: _buildDrawer(),
+      body: _buildBody(),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Text(
+            'ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          Text('mdkutub150@gmail.com, +8801763001787',
+              style: TextStyle(fontSize: 12 ,fontWeight: FontWeight.bold)),
+        ],
+      ),
+      centerTitle: true,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.green, Colors.blue, Colors.lightGreen, Colors.teal],
+          ),
+        ),
+      ),
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: CircleAvatar(
+            backgroundImage: NetworkImage(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQntUidjT9ib73xOZ_LYOvhZg9bSvlU9hOGjaWbTALttUeqeEjJUWKJHbT4r1UqjFM3caQ&usqp=CAU',
+            ),
+          ),
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+        ),
+      ),
+    );
+  }
 
+  Drawer _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blueAccent, Colors.greenAccent, Colors.orangeAccent],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage('https://avatars.githubusercontent.com/u/158472932?v=4&size=64'),
+                ),
+                const SizedBox(height: 10),
+                const Text('Welcome, User!', style: TextStyle(color: Colors.white, fontSize: 20)),
+                const Text('mdkutub150@example.com', style: TextStyle(color: Colors.white70)),
+              ],
+            ),
+          ),
+          _buildDrawerItem(context, Icons.person, 'Profile', '/profile'),
+          _buildDrawerItem(context, Icons.contact_mail, 'Contact Us', '/contact'),
+          _buildDrawerItem(context, Icons.business, 'Head Office', '/headOffice'),
+          _buildDrawerItem(context, Icons.location_city, 'Local Office', '/localOffice'),
+          const Divider(),
+          _buildDrawerItem(context, Icons.login, 'Login', '/login'),
+          _buildDrawerItem(context, Icons.logout, 'Logout', '/login'),
+        ],
+      ),
+    );
+  }
 
-  Widget _buildDrawerItem(
-      BuildContext context, IconData icon, String title, String route) {
+  Widget _buildDrawerItem(BuildContext context, IconData icon, String label, String route) {
     return ListTile(
-      leading: Icon(icon, color: Colors.green),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      leading: Icon(icon),
+      title: Text(label),
       onTap: () {
         Navigator.pushNamed(context, route);
       },
     );
   }
 
-  Widget _buildBottomIconButton(
-      BuildContext context, IconData icon, String route, String label) {
-    return IconButton(
-      icon: Icon(icon),
-      color: Colors.blue, // Set the icon color to green
-      onPressed: () {
-        Navigator.pushNamed(context, route);
-      },
-      tooltip: label,
+  Widget _buildBody() {
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: Column(
+        children: [
+          _buildCarousel(),
+          const SizedBox(height: 15),
+          _buildGrid(),
+        ],
+      ),
     );
   }
+
+  Widget _buildCarousel() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10.0),
+      child: SizedBox(
+        height: 160,
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: _images.length,
+          onPageChanged: (index) {
+            setState(() {
+              _carouselIndex = index;
+            });
+          },
+          itemBuilder: (context, index) {
+            return Container(
+              color: _colors[index],
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(_images[index], fit: BoxFit.cover),
+                  Positioned(
+                    bottom: 10,
+                    left: 10,
+                    right: 10,
+                    child: Text(
+                      _texts[index],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                        backgroundColor: Colors.white70,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGrid() {
+    return Expanded(
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 1.2,
+        ),
+        itemCount: myItems.length,
+        itemBuilder: (context, index) {
+          final item = myItems[index];
+          return GestureDetector(
+            onTap: () {
+              if (index < cardRoutes.length) {
+                Navigator.pushNamed(context, cardRoutes[index]);
+              }
+            },
+            child: MouseRegion(
+              onEnter: (_) => setState(() {
+                _hoverIndex = index;
+              }),
+              onExit: (_) => setState(() {
+                _hoverIndex = -1;
+              }),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                transform: Matrix4.identity()
+                  ..scale(_hoverIndex == index ? 1.1 : 1.0),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    if (_hoverIndex == index)
+                      BoxShadow(
+                        color: Colors.cyan.withOpacity(0.2),
+                        spreadRadius: 3,
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                  ],
+                ),
+                child: Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.network(item["img"]!, height: 50),
+                      const SizedBox(height: 10),
+                      Text(
+                        item["title"]!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BottomAppBar(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildBottomNavButton(context, 'Head Office', Icons.location_city_rounded, () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const HeadOffice()));
+          }),
+          _buildBottomNavButton(context, 'Local Office', Icons.location_city, () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const User()));
+          }),
+          _buildBottomNavButton(context, 'Home', Icons.home, () {}),
+          _buildBottomNavButton(context, 'Search', Icons.search, () {}),
+          _buildBottomNavButton(context, 'Notifications', Icons.notifications, () {}),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNavButton(
+      BuildContext context, String label, IconData icon, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: MouseRegion(
+        onEnter: (_) => setState(() {
+          _hoverIndex = label.hashCode;  // Use a unique hash for each label
+        }),
+        onExit: (_) => setState(() {
+          _hoverIndex = -1;
+        }),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          transform: Matrix4.identity()
+            ..scale(_hoverIndex == label.hashCode ? 1.2 : 1.0), // Scale on hover
+          decoration: BoxDecoration(
+            boxShadow: [
+              if (_hoverIndex == label.hashCode)
+                BoxShadow(
+                  color: Colors.cyan.withOpacity(0.2), // Light blue shadow on hover
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: _hoverIndex == label.hashCode ? Colors.green : Colors.blue,
+                size: _hoverIndex == label.hashCode ? 30 : 24, // Increase icon size on hover
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: _hoverIndex == label.hashCode ? Colors.pinkAccent : Colors.blue,
+                  fontStyle: _hoverIndex == label.hashCode ? FontStyle.italic : FontStyle.normal, // Optional italic on hover
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
 }
+

@@ -9,6 +9,7 @@ import 'package:general_insurance_management/page/login.dart';
 import 'package:general_insurance_management/page/registration.dart';
 import 'firepolicy/view_money_receipt.dart';
 
+
 void main() {
   runApp(const MyApp());
 }

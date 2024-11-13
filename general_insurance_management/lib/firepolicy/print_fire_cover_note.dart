@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/model/bill_model.dart';
 import 'package:general_insurance_management/model/money_receipt_model.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
@@ -14,7 +13,7 @@ class PrintFireCoverNote extends StatelessWidget {
   static const double _fontSize = 14;
 
   // Function to create PDF with table format
-  Future<void> _generatePdf(BuildContext context) async {
+  Future<pw.Document> _generatePdf(BuildContext context) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -40,10 +39,7 @@ class PrintFireCoverNote extends StatelessWidget {
       ),
     );
 
-    await Printing.sharePdf(
-      bytes: await pdf.save(),
-      filename: 'fire_cover_note.pdf',
-    );
+    return pdf;
   }
 
   // Helper methods for building PDF sections
@@ -51,11 +47,9 @@ class PrintFireCoverNote extends StatelessWidget {
     return pw.Center(
       child: pw.Column(
         children: [
-          pw.Text("ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড",
-              style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-          pw.Text("Islami Insurance Com. Bangladesh Ltd",
-              style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-          pw.Text("DR Tower (14th floor), 65/2/2, Box Culvert Road, Purana Paltan, Dhaka-1000."),
+          pw.Text("Islami Insurance Company Bangladesh Ltd",
+              style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+          pw.Text("DR Tower (14th floor), 65/2/2, Purana Paltan, Dhaka-1000."),
           pw.Text("Tel: 02478853405, Mob: 01763001787"),
           pw.Text("Fax: +88 02 55112742"),
           pw.Text("Email: infociclbd.com"),
@@ -68,7 +62,7 @@ class PrintFireCoverNote extends StatelessWidget {
   pw.Widget _buildFireBillInfo() {
     return pw.Table.fromTextArray(
       data: [
-        ['Fire Bill No','${moneyreceipt.bill?.policy.id ?? "N/A"}','Issue Date', '${formatDate(moneyreceipt.bill?.policy.date)}'],
+        ['Fire Bill No', '${moneyreceipt.bill?.policy.id ?? "N/A"}', 'Issue Date', '${formatDate(moneyreceipt.bill?.policy.date)}'],
       ],
     );
   }
@@ -95,7 +89,7 @@ class PrintFireCoverNote extends StatelessWidget {
         pw.Table.fromTextArray(
           data: [
             ['Stock Insured', '${moneyreceipt.bill?.policy.stockInsured ?? "N/A"}'],
-            ['Sum Insured', ' TK. ${moneyreceipt.bill?.policy.sumInsured ?? "N/A"} '],
+            ['Sum Insured', 'TK. ${moneyreceipt.bill?.policy.sumInsured ?? "N/A"}'],
           ],
         ),
       ],
@@ -113,7 +107,7 @@ class PrintFireCoverNote extends StatelessWidget {
             ['Location', '${moneyreceipt.bill?.policy.location ?? "N/A"}'],
             ['Construction', '${moneyreceipt.bill?.policy.construction ?? "N/A"}'],
             ['Owner', '${moneyreceipt.bill?.policy.owner ?? "N/A"}'],
-            ['UsedAs', '${moneyreceipt.bill?.policy.usedAs ?? "N/A"}'],
+            ['Used As', '${moneyreceipt.bill?.policy.usedAs ?? "N/A"}'],
             ['Period From', '${formatDate(moneyreceipt.bill?.policy.periodFrom)}'],
             ['Period To', '${formatDate(moneyreceipt.bill?.policy.periodTo)}'],
           ],
@@ -181,8 +175,26 @@ class PrintFireCoverNote extends StatelessWidget {
             _buildRow('Period To:', '${formatDate(moneyreceipt.bill?.policy.periodTo)}'),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => _generatePdf(context),
+              onPressed: () async {
+                final pdf = await _generatePdf(context);  // Generate PDF
+                final pdfBytes = await pdf.save(); // Get the bytes of the generated PDF
+
+                await Printing.sharePdf(
+                  bytes: pdfBytes,
+                  filename: 'fire_bill_information.pdf',
+                );
+              },
               child: const Text('Download PDF'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                await Printing.layoutPdf(onLayout: (PdfPageFormat format) async {
+                  final pdf = await _generatePdf(context);  // Generate PDF
+                  return pdf.save();  // Return the saved bytes for printing
+                });
+              },
+              child: const Text('Print View'),
             ),
           ],
         ),
@@ -200,29 +212,33 @@ class PrintFireCoverNote extends StatelessWidget {
     );
   }
 
-  // Calculation Methods
+  String formatDate(DateTime? date) {
+    return date != null ? DateFormat('dd-MM-yyyy').format(date) : "N/A";
+  }
+
   double getTotalFire() {
-    return double.parse(((moneyreceipt.bill?.policy.sumInsured ?? 0) * (moneyreceipt.bill?.fire ?? 0) / 100).toStringAsFixed(2));
+    if (moneyreceipt.bill?.fire != null && moneyreceipt.bill?.policy.sumInsured != null) {
+      return (moneyreceipt.bill!.fire! / 100) * moneyreceipt.bill!.policy.sumInsured!;
+    }
+    return 0.0;  // Return 0.0 if either is null
   }
 
   double getTotalRsd() {
-    return double.parse(((moneyreceipt.bill?.policy.sumInsured ?? 0) * (moneyreceipt.bill?.rsd ?? 0) / 100).toStringAsFixed(2));
+    if (moneyreceipt.bill?.rsd != null && moneyreceipt.bill?.policy.sumInsured != null) {
+      return (moneyreceipt.bill!.rsd! / 100) * moneyreceipt.bill!.policy.sumInsured!;
+    }
+    return 0.0;  // Return 0.0 if either is null
   }
 
   double getTotalPremium() {
-    return double.parse((getTotalFire() + getTotalRsd()).toStringAsFixed(2));
+    return getTotalFire() + getTotalRsd();
   }
 
   double getTotalTax() {
-    return double.parse((getTotalPremium() * (moneyreceipt.bill?.tax ?? 0) / 100).toStringAsFixed(2));
+    return (getTotalPremium() * (moneyreceipt.bill?.tax ?? 0)) / 100;
   }
 
   double getTotalPremiumWithTax() {
     return getTotalPremium() + getTotalTax();
-  }
-
-  // Date Formatting Method
-  String formatDate(DateTime? date) {
-    return date != null ? DateFormat('dd-MM-yyyy').format(date) : "N/A";
   }
 }

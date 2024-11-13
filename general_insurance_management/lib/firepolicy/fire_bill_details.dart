@@ -5,7 +5,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-
 class AllFireBillDetails extends StatelessWidget {
   final BillModel bill;
 
@@ -14,7 +13,7 @@ class AllFireBillDetails extends StatelessWidget {
   static const double _fontSize = 14;
 
   // Function to create PDF with table format
-  Future<void> _generatePdf(BuildContext context) async {
+  Future<pw.Document> _generatePdf(BuildContext context) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -40,10 +39,7 @@ class AllFireBillDetails extends StatelessWidget {
       ),
     );
 
-    await Printing.sharePdf(
-      bytes: await pdf.save(),
-      filename: 'fire_bill_information.pdf',
-    );
+    return pdf;
   }
 
   // Helper methods for building PDF sections
@@ -51,9 +47,9 @@ class AllFireBillDetails extends StatelessWidget {
     return pw.Center(
       child: pw.Column(
         children: [
-          pw.Text("Islami Insurance Com. Bangladesh Ltd",
+          pw.Text("Islami Insurance Company Bangladesh Ltd",
               style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-          pw.Text("DR Tower (14th floor), 65/2/2,Purana Paltan, Dhaka-1000."),
+          pw.Text("DR Tower (14th floor), 65/2/2, Purana Paltan, Dhaka-1000."),
           pw.Text("Tel: 02478853405, Mob: 01763001787"),
           pw.Text("Fax: +88 02 55112742"),
           pw.Text("Email: infociclbd.com"),
@@ -66,7 +62,7 @@ class AllFireBillDetails extends StatelessWidget {
   pw.Widget _buildFireBillInfo() {
     return pw.Table.fromTextArray(
       data: [
-        ['Fire Bill No','${bill.policy.id ?? "N/A"}','Issue Date', '${formatDate(bill.policy.date)}'],
+        ['Fire Bill No', '${bill.policy.id ?? "N/A"}', 'Issue Date', '${formatDate(bill.policy.date)}'],
       ],
     );
   }
@@ -95,7 +91,7 @@ class AllFireBillDetails extends StatelessWidget {
         pw.Table.fromTextArray(
           data: [
             ['Stock Insured', '${bill.policy.stockInsured ?? "N/A"}'],
-            ['Sum Insured', ' TK. ${bill.policy.sumInsured ?? "N/A"} '],
+            ['Sum Insured', 'TK. ${bill.policy.sumInsured ?? "N/A"}'],
           ],
         ),
       ],
@@ -114,7 +110,7 @@ class AllFireBillDetails extends StatelessWidget {
             ['Location', '${bill.policy.location ?? "N/A"}'],
             ['Construction', '${bill.policy.construction ?? "N/A"}'],
             ['Owner', '${bill.policy.owner ?? "N/A"}'],
-            ['UsedAs', '${bill.policy.usedAs ?? "N/A"}'],
+            ['Used As', '${bill.policy.usedAs ?? "N/A"}'],
             ['Period From', '${formatDate(bill.policy.periodFrom)}'],
             ['Period To', '${formatDate(bill.policy.periodTo)}'],
           ],
@@ -183,8 +179,26 @@ class AllFireBillDetails extends StatelessWidget {
             _buildRow('Period To:', '${formatDate(bill.policy.periodTo)}'),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => _generatePdf(context),
+              onPressed: () async {
+                final pdf = await _generatePdf(context);  // Generate PDF
+                final pdfBytes = await pdf.save(); // Get the bytes of the generated PDF
+
+                await Printing.sharePdf(
+                  bytes: pdfBytes,
+                  filename: 'fire_bill_information.pdf',
+                );
+              },
               child: const Text('Download PDF'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                await Printing.layoutPdf(onLayout: (PdfPageFormat format) async {
+                  final pdf = await _generatePdf(context);  // Generate PDF
+                  return pdf.save();  // Return the saved bytes for printing
+                });
+              },
+              child: const Text('Print View'),
             ),
           ],
         ),
@@ -202,29 +216,31 @@ class AllFireBillDetails extends StatelessWidget {
     );
   }
 
-  // Calculation Methods
+  String formatDate(DateTime? date) {
+    return date != null ? DateFormat('dd-MM-yyyy').format(date) : "N/A";
+  }
+
   double getTotalFire() {
-    return double.parse(((bill.policy.sumInsured ?? 0) * (bill.fire ?? 0) / 100).toStringAsFixed(2));
+    return bill.fire != null && bill.policy.sumInsured != null
+        ? (bill.fire! / 100) * bill.policy.sumInsured!
+        : 0.0;
   }
 
   double getTotalRsd() {
-    return double.parse(((bill.policy.sumInsured ?? 0) * (bill.rsd ?? 0) / 100).toStringAsFixed(2));
+    return bill.rsd != null && bill.policy.sumInsured != null
+        ? (bill.rsd! / 100) * bill.policy.sumInsured!
+        : 0.0;
   }
 
   double getTotalPremium() {
-    return double.parse((getTotalFire() + getTotalRsd()).toStringAsFixed(2));
+    return getTotalFire() + getTotalRsd();
   }
 
   double getTotalTax() {
-    return double.parse((getTotalPremium() * (bill.tax ?? 0) / 100).toStringAsFixed(2));
+    return (bill.tax != null ? bill.tax! / 100 : 0.0) * getTotalPremium();
   }
 
   double getTotalPremiumWithTax() {
     return getTotalPremium() + getTotalTax();
-  }
-
-  // Date Formatting Method
-  String formatDate(DateTime? date) {
-    return date != null ? DateFormat('dd-MM-yyyy').format(date) : "N/A";
   }
 }

@@ -153,7 +153,7 @@ class _CreateFireBillState extends State<CreateFireBill> {
     double sumInsured = selectedSumInsured ?? 0.0;
     double fire = _parseControllerValue(fireController.text);
     double rsd = _parseControllerValue(rsdController.text);
-    const double taxRate = 15; // Fixed tax rate at 15%
+    const double taxRate = 15.0; // Fixed tax rate at 15%
 
     if (fire > 100 || rsd > 100 || taxRate > 100) {
       _showErrorSnackBar('Rates must be less than or equal to 100%.');
@@ -162,16 +162,21 @@ class _CreateFireBillState extends State<CreateFireBill> {
 
     // Calculate netPremium, tax, and grossPremium
     double netPremium = (sumInsured * (fire + rsd)) / 100;
-    double tax = taxRate ;
-    double grossPremium = netPremium+(netPremium * taxRate )/100;
+    double tax = taxRate;
+    double grossPremium = netPremium + (netPremium * taxRate) / 100;
 
-    // Update form controllers with calculated values
+    // Round netPremium and grossPremium according to the .50+ rule
+    netPremium = (netPremium + 0.5).toInt().toDouble(); // Round up if >= 0.50
+    grossPremium = (grossPremium + 0.5).toInt().toDouble(); // Round up if >= 0.50
+
+    // Update form controllers with rounded values
     setState(() {
-      netPremiumController.text = netPremium.toStringAsFixed(2);
-      taxController.text = tax.toStringAsFixed(2);
-      grossPremiumController.text = grossPremium.toStringAsFixed(2);
+      netPremiumController.text = netPremium.toStringAsFixed(0); // No decimals after rounding
+      taxController.text = tax.toStringAsFixed(2);  // Tax remains with 2 decimal places
+      grossPremiumController.text = grossPremium.toStringAsFixed(0); // No decimals after rounding
     });
   }
+
 
   double _parseControllerValue(String value) {
     return double.tryParse(value) ?? 0.0;

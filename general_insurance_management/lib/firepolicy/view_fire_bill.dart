@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/firepolicy/Total_Fire_Bill_Report_Page.dart';
 import 'package:general_insurance_management/firepolicy/create_fire_bill.dart';
 import 'package:general_insurance_management/firepolicy/fire_bill_details.dart';
 import 'package:general_insurance_management/firepolicy/update_fire_bill.dart';
@@ -253,24 +252,6 @@ class _AllFireBillViewState extends State<AllFireBillView> {
           tooltip: 'Edit Bill',
         ),
 
-        const SizedBox(width: 8),
-        IconButton(
-          icon: const Icon(Icons.report, color: Colors.teal),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => FireBillReportPage(
-                  billCount: calculateBillCount(),
-                  totalNetPremium: calculateTotalNetPremium(),
-                  totalTax: calculateTotalTax(),
-                  totalGrossPremium: calculateTotalGrossPremium(),
-                ),
-              ),
-            );
-          },
-          tooltip: 'View Report',
-        ),
       ],
     );
   }

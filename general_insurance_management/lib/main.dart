@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/firepolicy/Total_Fire_Bill_Report_Page.dart';
+import 'package:general_insurance_management/firepolicy/fgghhgh.dart';
 import 'package:general_insurance_management/firepolicy/view_fire_bill.dart';
 import 'package:general_insurance_management/firepolicy/view_fire_policy.dart';
 import 'package:general_insurance_management/marinepolicy/view_maeine_bill.dart';
@@ -31,6 +33,8 @@ class MyApp extends StatelessWidget {
         '/viewmarinepolicy': (context) => AllMarinePolicyView(),
         '/viewmarinebill': (context) => AllMarineBillView(),
         '/viewmarinemoneyreceipt': (context) => AllMarineMoneyReceiptView(),
+        '/viewfirereports': (context) => FireBillReportPage(),
+        '/viewmarinereports': (context) => MarineBillReportPage(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (context) => Scaffold(

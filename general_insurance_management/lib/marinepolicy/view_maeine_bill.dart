@@ -296,24 +296,6 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                                         );
                                       },
                                     ),
-                                    const SizedBox(width: 8),
-                                    IconButton(
-                                      icon: const Icon(Icons.report, color: Colors.teal),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MarineBillReportPage(
-                                              billCount: calculateBillCount(),
-                                              totalNetPremium: calculateTotalNetPremium(),
-                                              totalTax: calculateTotalTax(),
-                                              totalGrossPremium: calculateTotalGrossPremium(),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      tooltip: 'View Report',
-                                    ),
                                   ],
                                 ),
 

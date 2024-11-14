@@ -46,9 +46,8 @@ class PrintMarineMoneyReceipt extends StatelessWidget {
     return pw.Center(
       child: pw.Column(
         children: [
-          pw.Text("ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড", style: _headerTextStyle(fontSize: 18)),
-          pw.Text("Islami Insurance Com. Bangladesh Ltd", style: _headerTextStyle(fontSize: 18)),
-          pw.Text("DR Tower (14th floor), 65/2/2, Box Culvert Road, Purana Paltan, Dhaka-1000.", style: _textStyle()),
+          pw.Text("Islami Insurance Com. Bangladesh Ltd", style: _headerTextStyle(fontSize: 20)),
+          pw.Text("DR Tower (14th floor), 65/2/2,Purana Paltan, Dhaka-1000.", style: _textStyle()),
           pw.Text("Tel: 02478853405, Mob: 01763001787", style: _textStyle()),
           pw.Text("Fax: +88 02 55112742", style: _textStyle()),
           pw.Text("Email: infociclbd.com", style: _textStyle()),

@@ -51,7 +51,6 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       home: Scaffold(
-        appBar: AppBar(title: const Text('General Insurance Management')),
         body: const HeadOffice(),
         bottomNavigationBar: _buildBottomNavigationBar(context),
       ),

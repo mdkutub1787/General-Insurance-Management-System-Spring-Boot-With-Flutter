@@ -62,7 +62,7 @@ class _MarineBillReportPageState extends State<MarineBillReportPage> {
     Map<String, double> dataMap = {
       "Net Premium": totalNetPremium,
       "Tax (15%)": totalTax,
-      "Stamp Duty": totalStampDuty, // Corrected typo
+      "Stamp Duty": totalStampDuty,
       "Gross Premium": totalGrossPremium,
     };
 

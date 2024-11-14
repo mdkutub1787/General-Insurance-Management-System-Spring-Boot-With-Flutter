@@ -255,7 +255,7 @@ class _HeadOfficeState extends State<HeadOffice> {
           if (title == 'Manage Policies') {
             Navigator.of(context).pushNamed('/home');
           } else if (title == 'View Reports') {
-            Navigator.of(context).pushNamed('/viewfirereports');
+            Navigator.of(context).pushNamed('/viewcombindreports');
           }
         },
         child: Container(

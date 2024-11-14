@@ -65,7 +65,7 @@ class _CreateMarineMoneyReceiptState extends State<CreateMarineMoneyReceipt> {
   Future<void> _fetchData() async {
     setState(() => isLoading = true);
     try {
-      marinebills = await MarineBillService().getMarineBills();
+      marinebills = await MarineBillService().fetchMarineBills();
       uniqueBankNames = marinebills
           .map((marinebill) => marinebill.marineDetails.bankName)
           .whereType<String>()

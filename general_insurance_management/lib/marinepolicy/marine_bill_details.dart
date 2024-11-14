@@ -49,11 +49,14 @@ class AllMarineBillDetails extends StatelessWidget {
     return pw.Center(
       child: pw.Column(
         children: [
+          pw.Text("ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড",
+              style:
+                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
           pw.Text("Islami Insurance Com. Bangladesh Ltd",
               style:
-                  pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
           pw.Text(
-              "DR Tower (14th floor), 65/2/2, Purana Paltan, Dhaka-1000."),
+              "DR Tower (14th floor), 65/2/2, Box Culvert Road, Purana Paltan, Dhaka-1000."),
           pw.Text("Tel: 02478853405, Mob: 01763001787"),
           pw.Text("Fax: +88 02 55112742"),
           pw.Text("Email: infociclbd.com"),

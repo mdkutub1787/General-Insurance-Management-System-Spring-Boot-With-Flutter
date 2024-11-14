@@ -17,21 +17,23 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
-  final _formKey = GlobalKey<FormState>(); // Form key for validation
+  final _formKey = GlobalKey<FormState>();
   final storage = FlutterSecureStorage();
   final AuthService authService = AuthService();
-  bool isLoading = false; // Loading state
+  bool isLoading = false;
+
+  // Separate hover states for each button
+  bool _isLoginHovered = false;
+  bool _isRegisterHovered = false;
 
   Future<void> login(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => isLoading = true); // Set loading to true
+    setState(() => isLoading = true);
 
     try {
       final response = await authService.login(email.text, password.text);
-
-      // Successful login, role-based navigation
-      final role = await authService.getUserRole(); // Get role from AuthService
+      final role = await authService.getUserRole();
 
       if (role == 'ADMIN') {
         Navigator.pushReplacement(
@@ -61,7 +63,7 @@ class _LoginState extends State<Login> {
     } catch (error) {
       print('Login failed: $error');
     } finally {
-      setState(() => isLoading = false); // Reset loading
+      setState(() => isLoading = false);
     }
   }
 
@@ -163,21 +165,20 @@ class _LoginState extends State<Login> {
     );
   }
 
-  bool _isHovered = false;
   Widget _buildSubmitButton() {
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+      onEnter: (_) => setState(() => _isLoginHovered = true),
+      onExit: (_) => setState(() => _isLoginHovered = false),
       child: ElevatedButton(
         onPressed: isLoading ? null : () => login(context),
         style: ElevatedButton.styleFrom(
-          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          backgroundColor: _isLoginHovered ? Colors.green : Colors.blueAccent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          shadowColor: Colors.pink, // Shadow color
-          elevation: _isHovered ? 12 : 4, // Higher elevation on hover
+          shadowColor: Colors.pink,
+          elevation: _isLoginHovered ? 12 : 4,
         ),
         child: Text(
           isLoading ? "Loading..." : "Login",
@@ -193,11 +194,10 @@ class _LoginState extends State<Login> {
     );
   }
 
-
   Widget _buildSubmitRegButton() {
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+      onEnter: (_) => setState(() => _isRegisterHovered = true),
+      onExit: (_) => setState(() => _isRegisterHovered = false),
       child: ElevatedButton(
         onPressed: isLoading
             ? null
@@ -206,13 +206,13 @@ class _LoginState extends State<Login> {
           MaterialPageRoute(builder: (context) => Registration()),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: _isHovered ? Colors.green : Colors.blueAccent,
+          backgroundColor: _isRegisterHovered ? Colors.green : Colors.blueAccent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          shadowColor: Colors.pink, // Shadow color
-          elevation: _isHovered ? 12 : 4, // Higher elevation on hover
+          shadowColor: Colors.pink,
+          elevation: _isRegisterHovered ? 12 : 4,
         ),
         child: Text(
           isLoading ? "Loading..." : "Create an Account",
@@ -227,5 +227,5 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-
 }
+

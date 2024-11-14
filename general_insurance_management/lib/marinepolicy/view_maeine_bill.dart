@@ -30,7 +30,7 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
 
   Future<List<MarineBillModel>> _loadMarineBills() async {
     final service = MarineBillService();
-    final bills = await service.getMarineBills();
+    final bills = await service.fetchMarineBills();
     setState(() {
       allBills = bills; // Store all fetched bills
       filteredBills = bills; // Initialize filtered bills with all fetched bills

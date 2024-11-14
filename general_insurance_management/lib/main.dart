@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/firepolicy/Total_Fire_Bill_Report_Page.dart';
+import 'package:general_insurance_management/Reports/Combind_Report.dart';
+import 'package:general_insurance_management/Reports/Total_Fire_Bill_Report_Page.dart';
 import 'package:general_insurance_management/firepolicy/view_fire_bill.dart';
 import 'package:general_insurance_management/firepolicy/view_fire_policy.dart';
-import 'package:general_insurance_management/marinepolicy/Total_Marine_Bill_Report.dart';
+import 'package:general_insurance_management/Reports/Total_Marine_Bill_Report.dart';
 import 'package:general_insurance_management/marinepolicy/view_maeine_bill.dart';
 import 'package:general_insurance_management/marinepolicy/view_marine_money_receipt.dart';
 import 'package:general_insurance_management/marinepolicy/view_marine_policy.dart';
@@ -43,6 +44,7 @@ class _MyAppState extends State<MyApp> {
         '/viewmarinemoneyreceipt': (context) => AllMarineMoneyReceiptView(),
         '/viewfirereports': (context) => FireBillReportPage(),
         '/viewmarinereports': (context) => MarineBillReportPage(),
+        '/viewcombindreports': (context) => CombinedReport(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (context) => Scaffold(
@@ -51,8 +53,8 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       home: Scaffold(
-        body:  Login(),
-        // bottomNavigationBar: _buildBottomNavigationBar(context),
+        body:  HeadOffice(),
+        bottomNavigationBar: _buildBottomNavigationBar(context),
       ),
     );
   }

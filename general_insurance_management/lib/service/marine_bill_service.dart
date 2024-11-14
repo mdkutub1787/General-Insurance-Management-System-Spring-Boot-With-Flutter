@@ -7,7 +7,7 @@ class MarineBillService {
   final String baseUrl = "http://localhost:8080/api/marinebill/";
 
   // Fetch all marine bills
-  Future<List<MarineBillModel>> getMarineBills() async {
+  Future<List<MarineBillModel>> fetchMarineBills() async {
     final response = await http.get(Uri.parse(baseUrl));
 
     if (response.statusCode == 200) {

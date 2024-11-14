@@ -106,7 +106,7 @@ class _MarineBillReportPageState extends State<MarineBillReportPage> {
                 children: [
                   _buildStatCard('Tax (15%)', totalTax, Colors.red),
                   _buildStatCard(
-                      'tamp Duty', totalStampDuty, Colors.green),
+                      'Stamp Duty', totalStampDuty, Colors.green),
                   _buildStatCard(
                       'Gross Premium', totalGrossPremium, Colors.green),
                 ],

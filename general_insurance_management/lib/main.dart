@@ -51,8 +51,8 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       home: Scaffold(
-        body: const HeadOffice(),
-        bottomNavigationBar: _buildBottomNavigationBar(context),
+        body:  Login(),
+        // bottomNavigationBar: _buildBottomNavigationBar(context),
       ),
     );
   }

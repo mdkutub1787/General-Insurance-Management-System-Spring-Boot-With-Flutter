@@ -1,13 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/model/bill_model.dart';
+import 'package:general_insurance_management/service/bill_service.dart';
 
 class HeadOffice extends StatefulWidget {
-  const HeadOffice({super.key});
+  const HeadOffice({Key? key}) : super(key: key);
 
   @override
   State<HeadOffice> createState() => _HeadOfficeState();
 }
 
 class _HeadOfficeState extends State<HeadOffice> {
+  late int billCount = 0;
+  late double totalNetPremium = 0.0;
+  late double totalTax = 0.0;
+  late double totalGrossPremium = 0.0;
+
+  List<BillModel> allBills = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllBills();
+  }
+
+  Future<void> _fetchAllBills() async {
+    try {
+      allBills = await BillService().fetchFireBill();
+      setState(() {
+        billCount = allBills.length;
+        totalNetPremium = calculateTotalNetPremium();
+        totalTax = calculateTotalTax();
+        totalGrossPremium = calculateTotalGrossPremium();
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching bills: $error')),
+      );
+    }
+  }
+
+  double calculateTotalNetPremium() {
+    return allBills.fold(0.0, (total, bill) => total + (bill.netPremium ?? 0.0));
+  }
+
+  double calculateTotalTax() {
+    return totalNetPremium * 0.15; // 15% tax of the total net premium
+  }
+
+  double calculateTotalGrossPremium() {
+    return allBills.fold(0.0, (total, bill) => total + (bill.grossPremium ?? 0.0));
+  }
+
   void _logout() {
     showDialog(
       context: context,
@@ -17,15 +60,13 @@ class _HeadOfficeState extends State<HeadOffice> {
           content: const Text('Are you sure you want to logout?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).pushReplacementNamed('/login'); // Adjust this route as needed
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacementNamed('/login');
               },
               child: const Text('Logout'),
             ),
@@ -68,7 +109,7 @@ class _HeadOfficeState extends State<HeadOffice> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Add your delete functionality here
+                // Add delete functionality here
               },
               child: const Text('Delete'),
             ),
@@ -82,19 +123,44 @@ class _HeadOfficeState extends State<HeadOffice> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Head Office Dashboard'),
-        backgroundColor: Colors.green,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              'ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
+            ),
+            Text('mdkutub150@gmail.com, +8801763001787',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+          ],
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green, Colors.blue, Colors.lightGreen, Colors.teal],
+            ),
           ),
-        ],
+        ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: CircleAvatar(
+              backgroundImage: NetworkImage(
+                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQntUidjT9ib73xOZ_LYOvhZg9bSvlU9hOGjaWbTALttUeqeEjJUWKJHbT4r1UqjFM3caQ&usqp=CAU',
+              ),
+            ),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
       ),
-      body: Padding(
+      body: allBills.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView( // Wrap the content with SingleChildScrollView
         padding: const EdgeInsets.all(12.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               'Welcome to Head Office',
@@ -108,13 +174,24 @@ class _HeadOfficeState extends State<HeadOffice> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Expanded(child: _buildStatCard('Total Policies', '2,500', Colors.blue)),
+                Expanded(
+                  child: _buildStatCard('Bills', billCount.toDouble(), Colors.pink),
+                ),
                 const SizedBox(width: 8),
-                Expanded(child: _buildStatCard('Active Claims', '345', Colors.orange)),
+                Expanded(
+                  child: _buildStatCard('Net Premium', totalNetPremium, Colors.blue),
+                ),
                 const SizedBox(width: 8),
-                Expanded(child: _buildStatCard('Staff', '50', Colors.green)),
+                Expanded(
+                  child: _buildStatCard('Total Tax', totalTax, Colors.orange),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildStatCard('Gross Premium', totalGrossPremium, Colors.green),
+                ),
               ],
             ),
+
             const SizedBox(height: 25),
             Text(
               'Quick Actions',
@@ -137,17 +214,19 @@ class _HeadOfficeState extends State<HeadOffice> {
     );
   }
 
-  Widget _buildStatCard(String title, String count, Color color) {
+  Widget _buildStatCard(String title, dynamic value, Color color) {
     return Container(
+      constraints: const BoxConstraints(minHeight: 120, maxHeight: 120), // Fixed height
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            count,
+            value is int ? value.toString() : value.toStringAsFixed(2),
             style: TextStyle(
               color: color,
               fontSize: 18,
@@ -174,9 +253,9 @@ class _HeadOfficeState extends State<HeadOffice> {
       child: GestureDetector(
         onTap: () {
           if (title == 'Manage Policies') {
-            Navigator.of(context).pushNamed('/home'); // Navigate to Home screen for Manage Policies
-          } else {
-            // Add other navigation or action logic here
+            Navigator.of(context).pushNamed('/home');
+          } else if (title == 'View Reports') {
+            Navigator.of(context).pushNamed('/viewfirereports');
           }
         },
         child: Container(

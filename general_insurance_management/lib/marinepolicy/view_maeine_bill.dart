@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:general_insurance_management/marinepolicy/Total_Marine_Bill_Report.dart';
 import 'package:general_insurance_management/marinepolicy/create_marine_bill.dart';
 import 'package:general_insurance_management/marinepolicy/marine_bill_details.dart';
 import 'package:general_insurance_management/marinepolicy/update_marine_bill.dart';
@@ -343,9 +342,15 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
     return calculateTotalNetPremium() * 0.15;
   }
 
+  double calculateTotalStampDuty() {
+    // Calculate the total stamp duty by summing up the `stampDuty` of all filtered bills
+    return filteredBills.fold(0.0, (total, bill) => total + (bill.stampDuty ?? 0));
+  }
+
   double calculateTotalGrossPremium() {
     // Calculate the total gross premium by summing up the `grossPremium` of all filtered bills
     return filteredBills.fold(0.0, (total, bill) => total + (bill.grossPremium ?? 0));
   }
+
 
 }

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/page/Head_Office.dart';
 import 'package:general_insurance_management/page/User.dart';
-import 'package:general_insurance_management/page/home_extra.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -111,10 +111,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         children: const [
           Text(
             'ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
           ),
           Text('mdkutub150@gmail.com, +8801763001787',
-              style: TextStyle(fontSize: 12 ,fontWeight: FontWeight.bold)),
+              style: TextStyle(fontSize: 12 ,fontWeight: FontWeight.bold,color: Colors.white)),
         ],
       ),
       centerTitle: true,

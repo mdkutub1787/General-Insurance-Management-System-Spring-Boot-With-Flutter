@@ -108,7 +108,7 @@ class _MarineBillReportPageState extends State<MarineBillReportPage> {
                   _buildStatCard(
                       'Stamp Duty', totalStampDuty, Colors.green),
                   _buildStatCard(
-                      'Gross Premium', totalGrossPremium, Colors.green),
+                      'Gross Premium', totalGrossPremium, Colors.pinkAccent),
                 ],
               ),
               const SizedBox(height: 20),
@@ -122,7 +122,7 @@ class _MarineBillReportPageState extends State<MarineBillReportPage> {
                 animationDuration: const Duration(milliseconds: 800),
                 chartType: ChartType.disc,
                 chartRadius: MediaQuery.of(context).size.width / 2.5,
-                colorList: [Colors.orange, Colors.red, Colors.green],
+                colorList: [Colors.orange, Colors.red, Colors.green, Colors.indigo],
                 chartValuesOptions: const ChartValuesOptions(
                   showChartValuesInPercentage: true,
                 ),

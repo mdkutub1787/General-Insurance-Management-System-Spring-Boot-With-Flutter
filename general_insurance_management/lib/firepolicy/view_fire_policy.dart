@@ -18,6 +18,8 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
   final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
   String searchTerm = '';
   List<PolicyModel> allPolicies = [];
+  DateTime? startDate;
+  DateTime? endDate;
 
   @override
   void initState() {
@@ -38,11 +40,13 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
         content: const Text('Are you sure you want to delete this policy?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false), // Cancel deletion
+            onPressed: () => Navigator.of(context).pop(false),
+            // Cancel deletion
             child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true), // Confirm deletion
+            onPressed: () => Navigator.of(context).pop(true),
+            // Confirm deletion
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
@@ -59,11 +63,15 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
       await policyService.deletePolicy(policyId);
       await loadPolicies(); // Refresh the policy list after deletion
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Policy Deleted successfully'), duration: Duration(seconds: 2)),
+        const SnackBar(
+            content: Text('Policy Deleted successfully'),
+            duration: Duration(seconds: 2)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting policy: $e'), duration: Duration(seconds: 2)),
+        SnackBar(
+            content: Text('Error deleting policy: $e'),
+            duration: Duration(seconds: 2)),
       );
     }
   }
@@ -75,17 +83,64 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
   }
 
   List<PolicyModel> _getFilteredPolicies() {
-    if (searchTerm.isEmpty) {
-      return allPolicies; // Return all policies if search is empty
+    List<PolicyModel> filteredPolicies = allPolicies;
+
+    // Filter by date range
+    if (startDate != null && endDate != null) {
+      filteredPolicies = filteredPolicies.where((policy) {
+        // Check if 'policy.date' is already a DateTime object
+        DateTime policyDate = policy.date is DateTime
+            ? policy.date as DateTime
+            : DateTime.parse(policy.date as String);
+
+        return policyDate.isAfter(startDate!) && policyDate.isBefore(endDate!);
+      }).toList();
     }
-    return allPolicies.where((policy) {
-      final policyholder = policy.policyholder?.toLowerCase() ?? '';
-      final bankName = policy.bankName?.toLowerCase() ?? '';
-      final id = policy.id.toString();
-      return policyholder.contains(searchTerm) ||
-          bankName.contains(searchTerm) ||
-          id.contains(searchTerm);
-    }).toList();
+
+    // Filter by search term
+    if (searchTerm.isNotEmpty) {
+      filteredPolicies = filteredPolicies.where((policy) {
+        final policyholder = policy.policyholder?.toLowerCase() ?? '';
+        final bankName = policy.bankName?.toLowerCase() ?? '';
+        final id = policy.id.toString();
+        return policyholder.contains(searchTerm) ||
+            bankName.contains(searchTerm) ||
+            id.contains(searchTerm);
+      }).toList();
+    }
+
+    return filteredPolicies;
+  }
+
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (selectedDate != null && selectedDate != startDate) {
+      setState(() {
+        startDate = selectedDate;
+      });
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (selectedDate != null && selectedDate != endDate) {
+      setState(() {
+        endDate = selectedDate;
+      });
+    }
   }
 
   @override
@@ -114,7 +169,8 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             child: TextField(
-              onChanged: _filterPolicies, // Call the filter function on text change
+              onChanged: _filterPolicies,
+              // Call the filter function on text change
               decoration: InputDecoration(
                 hintText: 'Search ',
                 enabledBorder: OutlineInputBorder(
@@ -130,6 +186,29 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
                 ),
               ),
             ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => _selectStartDate(context),
+                child: Text(
+                  startDate == null
+                      ? 'Select Start Date'
+                      : 'Start Date: ${startDate!.toLocal().toString().split(' ')[0]}', // Format to show only date part
+                ),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () => _selectEndDate(context),
+                child: Text(
+                  endDate == null
+                      ? 'Select End Date'
+                      : 'End Date: ${endDate!.toLocal().toString().split(' ')[0]}', // Format to show only date part
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
           Expanded(
@@ -185,17 +264,17 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
           gradient: LinearGradient(
             colors: policy.isHovered
                 ? [
-              Colors.blue.shade400,
-              Colors.pinkAccent.shade400,
-              Colors.purpleAccent.shade400,
-              Colors.cyanAccent.shade400,
-            ]
+                    Colors.blue.shade400,
+                    Colors.pinkAccent.shade400,
+                    Colors.purpleAccent.shade400,
+                    Colors.cyanAccent.shade400,
+                  ]
                 : [
-              Colors.red.shade400,
-              Colors.orange.shade400,
-              Colors.yellow.shade400,
-              Colors.green.shade400,
-            ],
+                    Colors.red.shade400,
+                    Colors.orange.shade400,
+                    Colors.yellow.shade400,
+                    Colors.green.shade400,
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -203,18 +282,19 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
           borderRadius: BorderRadius.circular(15),
           boxShadow: policy.isHovered
               ? [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ]
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
               : [],
         ),
         margin: const EdgeInsets.all(10),
         child: Card(
           elevation: policy.isHovered ? 8 : 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -222,7 +302,10 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
               children: [
                 Text(
                   'Bill No : ${policy.id ?? 'N/A'}',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -233,14 +316,19 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(policy.policyholder ?? 'No policyholder available', style: commonStyle),
+                Text(policy.policyholder ?? 'No policyholder available',
+                    style: commonStyle),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: Text(policy.address ?? 'No address', style: commonStyle)),
+                    Expanded(
+                        child: Text(policy.address ?? 'No address',
+                            style: commonStyle)),
                     const SizedBox(width: 10),
-                    Text('Tk ${policy.sumInsured ?? 'No sum'}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                    Text('Tk ${policy.sumInsured ?? 'No sum'}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.green)),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -261,7 +349,8 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
           onPressed: () async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AllFirePolicyDetails(policy: policy)),
+              MaterialPageRoute(
+                  builder: (context) => AllFirePolicyDetails(policy: policy)),
             );
             loadPolicies();
           },

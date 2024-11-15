@@ -12,6 +12,7 @@ class MarinePolicyModel {
   double? usdRate;
   double? sumInsured;
   String? coverage;
+  bool isHovered = false;
 
   MarinePolicyModel({
     this.id,

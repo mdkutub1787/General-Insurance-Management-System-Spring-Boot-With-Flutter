@@ -6,104 +6,126 @@ import 'package:general_insurance_management/model/marine_bill_model.dart';
 import 'package:general_insurance_management/service/marine_bill_service.dart';
 
 class AllMarineBillView extends StatefulWidget {
-  const AllMarineBillView({super.key});
+  const AllMarineBillView({Key? key}) : super(key: key);
 
   @override
   State<AllMarineBillView> createState() => _AllMarineBillViewState();
 }
 
 class _AllMarineBillViewState extends State<AllMarineBillView> {
-  late Future<List<MarineBillModel>> fetchMarineBills;
-  List<MarineBillModel> allBills = [];
-  List<MarineBillModel> filteredBills = [];
-  String searchQuery = '';
+  late Future<List<MarineBillModel>> futureBills;
+  List<MarineBillModel> allBills = []; // Store all bills
+  List<MarineBillModel> filteredBills = []; // Store filtered bills
+  String searchQuery = ''; // Store the search query
+  DateTime? startDate;
+  DateTime? endDate;
+  final TextStyle commonStyle = const TextStyle(fontSize: 14, color: Colors.black);
   final TextEditingController searchController = TextEditingController();
 
-  final TextStyle commonStyle = TextStyle(fontSize: 14, color: Colors.black);
-  final TextStyle boldStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
+
 
   @override
   void initState() {
     super.initState();
-    fetchMarineBills = _loadMarineBills();
-  }
-
-  Future<List<MarineBillModel>> _loadMarineBills() async {
     final service = MarineBillService();
-    final bills = await service.fetchMarineBills();
-    setState(() {
-      allBills = bills; // Store all fetched bills
-      filteredBills = bills; // Initialize filtered bills with all fetched bills
+    futureBills = service.fetchMarineBills().then((bills) {
+      allBills = bills; // Initialize allBills with fetched data
+      filteredBills = allBills; // Initially show all bills
+      return bills;
     });
-    return bills;
-  }
 
-  void filterBills(String query) {
-    setState(() {
-      searchQuery = query;
-      if (query.isNotEmpty) {
-        filteredBills = allBills.where((bill) {
-          return bill.marineDetails.policyholder?.toLowerCase().contains(query.toLowerCase()) == true ||
-              bill.marineDetails.bankName?.toLowerCase().contains(query.toLowerCase()) == true ||
-              bill.id.toString().contains(query); // Assuming id is a property of MarineBillModel
-        }).toList();
-      } else {
-        filteredBills = allBills; // Reset to all bills if query is empty
-      }
+    // Optional: Debounce search input to reduce the number of times filtering occurs
+    searchController.addListener(() {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _filterBills(searchController.text);
+      });
     });
   }
 
-  void _deleteMarineBill(int billId) {
-    showDialog(
+  // Function to format DateTime as only date (without time)
+  String formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+  }
+
+// Updated _filterBills function
+  void _filterBills(String query) {
+    setState(() {
+      searchQuery = query.toLowerCase(); // Update the search query
+      // Filter the bills based on ID, policyholder, or bank name
+      filteredBills = allBills.where((bill) {
+        final policyholder = bill.marineDetails.policyholder?.toLowerCase() ?? '';
+        final bankName = bill.marineDetails.bankName?.toLowerCase() ?? '';
+        final id = bill.id.toString();
+
+        // Check if the bill matches the search query
+        bool matchesSearch = policyholder.contains(searchQuery) ||
+            bankName.contains(searchQuery) ||
+            id.contains(searchQuery);
+
+        // Check if the bill matches the date range
+        bool matchesDateRange = true;
+
+        if (startDate != null && endDate != null) {
+          // Normalize the policy date to ignore the time portion
+          DateTime policyDate = bill.marineDetails.date is DateTime
+              ? normalizeDate(bill.marineDetails.date as DateTime)
+              : normalizeDate(DateTime.parse(bill.marineDetails.date as String));
+
+          // Normalize start and end dates
+          DateTime start = normalizeDate(startDate!);
+          DateTime end = normalizeDate(endDate!);
+
+          // Check if the policy date is within the selected range (inclusive)
+          matchesDateRange = (policyDate.isAtSameMomentAs(start) || policyDate.isAfter(start)) &&
+              (policyDate.isAtSameMomentAs(end) || policyDate.isBefore(end));
+        }
+
+        return matchesSearch && matchesDateRange;
+      }).toList();
+    });
+  }
+
+// Function to normalize a DateTime object to only its date
+  DateTime normalizeDate(DateTime date) {
+    return DateTime(date.year, date.month, date.day); // Keeps only the year, month, and day
+  }
+
+// Future for selecting date range
+  Future<void> _selectDateRange(BuildContext context) async {
+    final DateTime? pickedStartDate = await showDatePicker(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Bill'),
-        content: const Text('Are you sure you want to delete this bill?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final service = MarineBillService();
-              try {
-                await service.deleteMarineBill(billId); // Assuming this method exists
-                setState(() {
-                  // Remove the bill from both lists
-                  allBills.removeWhere((bill) => bill.id == billId);
-                  filteredBills.removeWhere((bill) => bill.id == billId);
-                });
-                // Reload bills to ensure the list is updated
-                await _loadMarineBills();
-                Navigator.of(context).pop(); // Close the dialog
-              } catch (e) {
-                Navigator.of(context).pop(); // Close the dialog
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Error'),
-                    content: Text('Failed to delete bill: $e'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
     );
+
+    if (pickedStartDate != null) {
+      final DateTime? pickedEndDate = await showDatePicker(
+        context: context,
+        initialDate: pickedStartDate.add(const Duration(days: 1)),
+        firstDate: pickedStartDate,
+        lastDate: DateTime(2100),
+      );
+
+      if (pickedEndDate != null) {
+        setState(() {
+          startDate = pickedStartDate;
+          endDate = pickedEndDate;
+        });
+        _filterBills(searchQuery); // Re-filter the bills when date range is updated
+      }
+    }
   }
+
+// Example Usage
+// To display formatted date only without time
+  void displayFormattedDate(DateTime date) {
+    print(formatDate(date)); // Example: "15-11-2024"
+  }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +154,6 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             child: TextField(
               controller: searchController,
-              onChanged: filterBills,
               decoration: InputDecoration(
                 hintText: 'Search ',
                 enabledBorder: OutlineInputBorder(
@@ -149,9 +170,41 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
               ),
             ),
           ),
+          const SizedBox(height: 10), // Add some spacing below the search bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => _selectDateRange(context),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10), // Adjust padding as needed
+                ),
+                child: Row(
+                  children: const [
+                    Icon(Icons.calendar_today, color: Colors.green),
+                    SizedBox(width: 5),
+                    Text(
+                      'Select Date Rang',
+                      style: TextStyle(color: Colors.green),
+                    ),
+                  ],
+                ),
+              ),
+              if (startDate != null && endDate != null) ...[
+                const SizedBox(width: 10),
+                Text(
+                  'From: ${startDate != null ? formatDate(startDate!) : ''} To: ${endDate != null ? formatDate(endDate!) : ''}',
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ],
+            ],
+          ),
+
+
+          const SizedBox(height: 10),
           Expanded(
             child: FutureBuilder<List<MarineBillModel>>(
-              future: fetchMarineBills,
+              future: futureBills,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -160,12 +213,10 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No bills available'));
                 } else {
-                  // Use filteredBills for display
-                  final billsToShow = filteredBills.isNotEmpty ? filteredBills : snapshot.data!;
                   return ListView.builder(
-                    itemCount: billsToShow.length,
+                    itemCount: filteredBills.length,
                     itemBuilder: (context, index) {
-                      final marineBill = billsToShow[index];
+                      final bill = filteredBills[index];
                       return Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -192,16 +243,16 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Bill No : ${marineBill.marineDetails.id ?? 'N/A'}',
+                                  'Bill No : ${bill.marineDetails.id ?? 'N/A'}',
                                   style: const TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.blue,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  marineBill.marineDetails.bankName ?? 'Unnamed Policy',
+                                  bill.marineDetails.bankName ?? 'Unnamed Policy',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -209,7 +260,7 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  marineBill.marineDetails.policyholder ?? 'No policyholder available',
+                                  bill.marineDetails.policyholder ?? 'No policyholder available',
                                   style: commonStyle,
                                 ),
                                 const SizedBox(height: 8),
@@ -218,13 +269,13 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        marineBill.marineDetails.address ?? 'No address',
+                                        bill.marineDetails.address ?? 'No address',
                                         style: commonStyle,
                                       ),
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      'Tk ${marineBill.marineDetails.sumInsured?.toString() ?? 'No sum'}',
+                                      'Tk ${bill.marineDetails.sumInsured?.toString() ?? 'No sum'}',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
@@ -236,68 +287,21 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Marine: ${marineBill.marineRate.toString() ?? 'No data'}%', style: commonStyle),
-                                    Text('War SRCC: ${marineBill.warSrccRate.toString() ?? 'No data'}%', style: commonStyle),
-                                    Text('Net: Tk ${marineBill.netPremium.toString() ?? 'No data'}', style: commonStyle),
+                                    Text('Marine: ${bill.marineRate.toString() ?? 'No data'}%', style: commonStyle),
+                                    Text('War SRCC: ${bill.warSrccRate.toString() ?? 'No data'}%', style: commonStyle),
+                                    Text('Net: Tk ${bill.netPremium.toString() ?? 'No data'}', style: commonStyle),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Tax: ${marineBill.tax.toString() ?? 'No data'}%', style: commonStyle),
-                                    Text('Stamp: Tk ${marineBill.stampDuty.toString() ?? 'No data'}', style: commonStyle),
-                                    Text('Gross: Tk ${marineBill.grossPremium.toString() ?? 'No data'}', style: commonStyle),
+                                    Text('Tax: ${bill.tax.toString() ?? 'No data'}%', style: commonStyle),
+                                    Text('Stamp: Tk ${bill.stampDuty.toString() ?? 'No data'}', style: commonStyle),
+                                    Text('Gross: Tk ${bill.grossPremium.toString() ?? 'No data'}', style: commonStyle),
                                   ],
                                 ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min, // Minimize the row's size
-                                  mainAxisAlignment: MainAxisAlignment.start, // Align the icons to the start
-                                  children: [
-                                    // View button with only an icon
-                                    IconButton(
-                                      icon: const Icon(Icons.visibility, color: Colors.blue),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => AllMarineBillDetails(marineBill: marineBill),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    // Add a small space between the icons
-                                    const SizedBox(width: 8), // You can adjust the width as needed
-                                    // Delete button with only an icon
-                                    IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        if (marineBill.id != null) {
-                                          _deleteMarineBill(marineBill.id!); // Use null assertion
-                                        } else {
-                                          // Handle the case when id is null
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Cannot delete bill without ID')),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                    const SizedBox(width: 8),
-                                    IconButton(
-                                      icon: const Icon(Icons.edit, color: Colors.cyan),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => UpdateMarineBill(marinebill: marineBill),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-
+                                _buildActionButtons(bill),
                               ],
                             ),
                           ),
@@ -311,9 +315,6 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
           ),
         ],
       ),
-
-
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -327,11 +328,52 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
     );
   }
 
+  Widget _buildActionButtons(MarineBillModel bill) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.visibility, color: Colors.blue),
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AllMarineBillDetails(marineBill: bill),
+              ),
+            );
+          },
+          tooltip: 'View Details',
+        ),
+        const SizedBox(width: 16),
+        IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: () {
+            _confirmDeleteBill(bill.id!);
+          },
+          tooltip: 'Delete Bill',
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          icon: const Icon(Icons.edit, color: Colors.cyan),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UpdateMarineBill(marinebill: bill),
+              ),
+            );
+          },
+          tooltip: 'Edit Bill',
+        ),
+
+      ],
+
+    );
+  }
+
   // Method to calculate the total number of bills
   int calculateBillCount() {
     return filteredBills.length; // Simply count the number of filtered bills
   }
-
   double calculateTotalNetPremium() {
     // Calculate the total net premium by summing up the `netPremium` of all filtered bills
     return filteredBills.fold(0.0, (total, bill) => total + (bill.netPremium ?? 0));
@@ -353,4 +395,49 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
   }
 
 
+
+  void _confirmDeleteBill(int billId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this bill?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteMarineBill(billId);  // Delete the bill
+                Navigator.pop(context); // Close the dialog
+
+                // Show the Snackbar after deletion
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Marine Bill deleted successfully')),
+                );
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  void _deleteMarineBill(int billId) async {
+    final service = MarineBillService();
+    try {
+      await service.deleteMarineBill(billId); // Delete the bill
+      setState(() {
+        futureBills = service.fetchMarineBills(); // Reload the bills
+      });
+    } catch (e) {
+      print('Error deleting bill: $e');
+    }
+  }
 }

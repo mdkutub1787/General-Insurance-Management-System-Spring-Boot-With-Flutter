@@ -5,7 +5,6 @@ import 'package:general_insurance_management/firepolicy/update_fire_bill.dart';
 import 'package:general_insurance_management/model/bill_model.dart';
 import '../service/bill_service.dart';
 
-
 class AllFireBillView extends StatefulWidget {
   const AllFireBillView({Key? key}) : super(key: key);
 
@@ -18,8 +17,12 @@ class _AllFireBillViewState extends State<AllFireBillView> {
   List<BillModel> allBills = []; // Store all bills
   List<BillModel> filteredBills = []; // Store filtered bills
   String searchQuery = ''; // Store the search query
+  DateTime? startDate;
+  DateTime? endDate;
   final TextStyle commonStyle = const TextStyle(fontSize: 14, color: Colors.black);
   final TextEditingController searchController = TextEditingController();
+
+
 
   @override
   void initState() {
@@ -39,6 +42,12 @@ class _AllFireBillViewState extends State<AllFireBillView> {
     });
   }
 
+  // Function to format DateTime as only date (without time)
+  String formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+  }
+
+// Updated _filterBills function
   void _filterBills(String query) {
     setState(() {
       searchQuery = query.toLowerCase(); // Update the search query
@@ -47,12 +56,76 @@ class _AllFireBillViewState extends State<AllFireBillView> {
         final policyholder = bill.policy.policyholder?.toLowerCase() ?? '';
         final bankName = bill.policy.bankName?.toLowerCase() ?? '';
         final id = bill.id.toString();
-        return policyholder.contains(searchQuery) ||
+
+        // Check if the bill matches the search query
+        bool matchesSearch = policyholder.contains(searchQuery) ||
             bankName.contains(searchQuery) ||
             id.contains(searchQuery);
+
+        // Check if the bill matches the date range
+        bool matchesDateRange = true;
+
+        if (startDate != null && endDate != null) {
+          // Normalize the policy date to ignore the time portion
+          DateTime policyDate = bill.policy.date is DateTime
+              ? normalizeDate(bill.policy.date as DateTime)
+              : normalizeDate(DateTime.parse(bill.policy.date as String));
+
+          // Normalize start and end dates
+          DateTime start = normalizeDate(startDate!);
+          DateTime end = normalizeDate(endDate!);
+
+          // Check if the policy date is within the selected range (inclusive)
+          matchesDateRange = (policyDate.isAtSameMomentAs(start) || policyDate.isAfter(start)) &&
+              (policyDate.isAtSameMomentAs(end) || policyDate.isBefore(end));
+        }
+
+        return matchesSearch && matchesDateRange;
       }).toList();
     });
   }
+
+// Function to normalize a DateTime object to only its date
+  DateTime normalizeDate(DateTime date) {
+    return DateTime(date.year, date.month, date.day); // Keeps only the year, month, and day
+  }
+
+// Future for selecting date range
+  Future<void> _selectDateRange(BuildContext context) async {
+    final DateTime? pickedStartDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedStartDate != null) {
+      final DateTime? pickedEndDate = await showDatePicker(
+        context: context,
+        initialDate: pickedStartDate.add(const Duration(days: 1)),
+        firstDate: pickedStartDate,
+        lastDate: DateTime(2100),
+      );
+
+      if (pickedEndDate != null) {
+        setState(() {
+          startDate = pickedStartDate;
+          endDate = pickedEndDate;
+        });
+        _filterBills(searchQuery); // Re-filter the bills when date range is updated
+      }
+    }
+  }
+
+// Example Usage
+// To display formatted date only without time
+  void displayFormattedDate(DateTime date) {
+    print(formatDate(date)); // Example: "15-11-2024"
+  }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +171,37 @@ class _AllFireBillViewState extends State<AllFireBillView> {
             ),
           ),
           const SizedBox(height: 10), // Add some spacing below the search bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => _selectDateRange(context),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10), // Adjust padding as needed
+                ),
+                child: Row(
+                  children: const [
+                    Icon(Icons.calendar_today, color: Colors.green),
+                    SizedBox(width: 5),
+                    Text(
+                      'Select Date Rang',
+                      style: TextStyle(color: Colors.green),
+                    ),
+                  ],
+                ),
+              ),
+              if (startDate != null && endDate != null) ...[
+                const SizedBox(width: 10),
+                Text(
+                  'From: ${startDate != null ? formatDate(startDate!) : ''} To: ${endDate != null ? formatDate(endDate!) : ''}',
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ],
+            ],
+          ),
+
+
+          const SizedBox(height: 10),
           Expanded(
             child: FutureBuilder<List<BillModel>>(
               future: futureBills,
@@ -295,8 +399,15 @@ class _AllFireBillViewState extends State<AllFireBillView> {
             ),
             TextButton(
               onPressed: () {
-                _deleteBill(billId);
+                _deleteBill(billId); // Call your delete method
                 Navigator.pop(context); // Close the dialog
+                // Show the snackbar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Fire Bill deleted successfully!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
               },
               child: const Text('Delete'),
             ),
@@ -305,6 +416,7 @@ class _AllFireBillViewState extends State<AllFireBillView> {
       },
     );
   }
+
 
   void _deleteBill(int billId) async {
     final service = BillService();
@@ -317,6 +429,4 @@ class _AllFireBillViewState extends State<AllFireBillView> {
       print('Error deleting bill: $e');
     }
   }
-
-
 }

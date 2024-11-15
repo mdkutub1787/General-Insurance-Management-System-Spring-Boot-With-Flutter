@@ -162,6 +162,9 @@ class _CombinedReportState extends State<CombinedReport> {
             ),
 
           // Combined Pie Chart
+
+          _buildCombinedgrosspremium(),
+          const SizedBox(height: 16),
           _buildCombinedPieChart(),
           const SizedBox(height: 16),
           // Fire Bill Report Section
@@ -177,6 +180,47 @@ class _CombinedReportState extends State<CombinedReport> {
               marineTotalStumpDuty,
               marineTotalGrossPremium),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCombinedgrosspremium() {
+    // Updated data to include only Fire and Marine Gross Premium
+    final combinedData = {
+      "Fire Gross Premium": fireTotalGrossPremium,
+      "Marine Gross Premium": marineTotalGrossPremium,
+    };
+
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Combined Gross Premium', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 350, // Set the same height as other pie charts
+              width: double.infinity, // Make the chart expand to full width
+              child: PieChart(
+                dataMap: combinedData,
+                chartType: ChartType.disc,
+                colorList: [
+                  Colors.green, // Fire Gross Premium
+                  Colors.redAccent, // Marine Gross Premium
+                ],
+                legendOptions: const LegendOptions(legendPosition: LegendPosition.bottom),
+                chartValuesOptions: ChartValuesOptions(
+                  showChartValuesInPercentage: true, // Show percentages
+                  showChartValues: true, // Show value numbers
+                  decimalPlaces: 1, // Display one decimal place for percentages
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -214,10 +258,15 @@ class _CombinedReportState extends State<CombinedReport> {
                   Colors.green, // Fire Gross Premium
                   Colors.blue, // Marine Net Premium
                   Colors.purple, // Marine Tax
-                  Colors.brown, // Marine Stump Duty
-                  Colors.cyan, // Marine Gross Premium
+                  Colors.pinkAccent, // Marine Stump Duty
+                  Colors.teal, // Marine Gross Premium
                 ],
                 legendOptions: const LegendOptions(legendPosition: LegendPosition.bottom),
+                chartValuesOptions: ChartValuesOptions(
+                  showChartValuesInPercentage: true, // Show percentages
+                  showChartValues: true, // Show value numbers
+                  decimalPlaces: 1, // Display one decimal place for percentages
+                ),
               ),
             ),
           ],

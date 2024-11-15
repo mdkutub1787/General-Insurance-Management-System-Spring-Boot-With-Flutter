@@ -23,16 +23,15 @@ class PrintFireCoverNote extends StatelessWidget {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              pw.SizedBox(height: 10),
+              pw.SizedBox(height: 5),
               _buildFireBillInfo(),
-              pw.SizedBox(height: 10),
               _buildInsuredDetails(),
-              pw.SizedBox(height: 10),
+              _buildInsuredCondition(),
               _buildSumInsuredDetails(),
-              pw.SizedBox(height: 10),
               _buildSituationDetails(),
-              pw.SizedBox(height: 10),
               _buildPremiumAndTaxDetails(),
+              pw.SizedBox(height: 20),
+              _buildFooterDetails(),
             ],
           );
         },
@@ -60,12 +59,29 @@ class PrintFireCoverNote extends StatelessWidget {
   }
 
   pw.Widget _buildFireBillInfo() {
-    return pw.Table.fromTextArray(
-      data: [
-        ['Fire Bill No', '${moneyreceipt.bill?.policy.id ?? "N/A"}', 'Issue Date', '${formatDate(moneyreceipt.bill?.policy.date)}'],
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        // Header text for "Fire Cover Note"
+        pw.Text("Fire Cover Note", style: _headerTextStyle()),
+
+        // Spacer between header and table
+        pw.SizedBox(height: 10),
+
+        // Table for fire bill information
+        pw.Table.fromTextArray(
+          data: [
+            [
+              'Fire Cover Note No', '${moneyreceipt.issuedAgainst ?? "N/A"}',
+              'Fire Bill No', '${moneyreceipt.bill?.policy.id ?? "N/A"}',
+              'Date', '${formatDate(moneyreceipt.bill?.policy.date)}'
+            ],
+          ],
+        ),
       ],
     );
   }
+
 
   pw.Widget _buildInsuredDetails() {
     return pw.Column(
@@ -73,28 +89,89 @@ class PrintFireCoverNote extends StatelessWidget {
       children: [
         pw.Table.fromTextArray(
           data: [
-            ['Bank Name', '${moneyreceipt.bill?.policy.bankName ?? "N/A"}'],
-            ['Policyholder', '${moneyreceipt.bill?.policy.policyholder ?? "N/A"}'],
-            ['Address', '${moneyreceipt.bill?.policy.address ?? "N/A"}'],
+            ['The Insured Name & Address',
+              '${moneyreceipt.bill?.policy.bankName ?? "N/A"}\n${moneyreceipt.bill?.policy.policyholder ?? "N/A"}\n${moneyreceipt.bill?.policy.address ?? "N/A"}'],
           ],
         ),
       ],
     );
   }
 
+  pw.Widget _buildInsuredCondition() {
+    // Calculate the sum insured in words
+    final sumInsuredInWords = convertToWords(moneyreceipt.bill?.policy.sumInsured ?? 0);
+
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Table.fromTextArray(
+          data: [
+            [
+              'Having this day proposed to effect an insurance against Fire and/or Lightning for a period of 12 (Twelve) months from ${formatDate(moneyreceipt.bill?.policy.periodFrom)}, to ${formatDate(moneyreceipt.bill?.policy.periodTo)} on the usual terms and conditions of the company\'s Fire Policy. Having paid the undernoted premium in cash/cheque/P.O/D.D./C.A, the following Property is hereby insured to the extent of (${sumInsuredInWords}) Only in the manner specified below:'
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+
+
+
   pw.Widget _buildSumInsuredDetails() {
+    // Assuming `sumInsured` is a number, you would use the convertToWords function here.
+    final sumInsuredInWords = convertToWords(moneyreceipt.bill?.policy.sumInsured ?? 0);
+
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Table.fromTextArray(
           data: [
             ['Stock Insured', '${moneyreceipt.bill?.policy.stockInsured ?? "N/A"}'],
-            ['Sum Insured', 'TK. ${moneyreceipt.bill?.policy.sumInsured ?? "N/A"}'],
+            // Display both numeric value and words for sum insured
+            ['Sum Insured', 'TK. ${moneyreceipt.bill?.policy.sumInsured ?? "N/A"} (${sumInsuredInWords})'],
           ],
         ),
       ],
     );
   }
+
+  String convertToWords(double num) {
+    const ones = [
+      "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+      "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen",
+      "Eighteen", "Nineteen"
+    ];
+    const tens = [
+      "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
+    ];
+
+    String numToWords(int n) {
+      if (n == 0) return "";
+      if (n < 20) return ones[n];
+      if (n < 100) return tens[n ~/ 10] + (n % 10 != 0 ? " " + ones[n % 10] : "");
+      if (n < 1000) return ones[n ~/ 100] + " Hundred" + (n % 100 != 0 ? " " + numToWords(n % 100) : "");
+      if (n < 1000000) return numToWords(n ~/ 1000) + " Thousand" + (n % 1000 != 0 ? " " + numToWords(n % 1000) : "");
+      if (n < 1000000000) return numToWords(n ~/ 1000000) + " Million" + (n % 1000000 != 0 ? " " + numToWords(n % 1000000) : "");
+      return "";
+    }
+
+    // Split the number into integer and decimal parts
+    int intPart = num.toInt();
+    int decimalPart = ((num - intPart) * 100).toInt(); // Considering two decimal places
+
+    // Convert the integer part to words
+    String result = numToWords(intPart);
+    if (decimalPart > 0) {
+      result += " Point ";
+      // Convert each digit of the decimal part to words
+      String decimalWords = decimalPart.toString().split('').map((e) => ones[int.parse(e)]).join(" ");
+      result += decimalWords;
+    }
+
+    return result.trim(); // Clean up extra spaces
+  }
+
 
   pw.Widget _buildSituationDetails() {
     return pw.Column(
@@ -108,13 +185,12 @@ class PrintFireCoverNote extends StatelessWidget {
             ['Construction', '${moneyreceipt.bill?.policy.construction ?? "N/A"}'],
             ['Owner', '${moneyreceipt.bill?.policy.owner ?? "N/A"}'],
             ['Used As', '${moneyreceipt.bill?.policy.usedAs ?? "N/A"}'],
-            ['Period From', '${formatDate(moneyreceipt.bill?.policy.periodFrom)}'],
-            ['Period To', '${formatDate(moneyreceipt.bill?.policy.periodTo)}'],
           ],
         ),
       ],
     );
   }
+
 
   pw.Widget _buildPremiumAndTaxDetails() {
     return pw.Column(
@@ -134,6 +210,50 @@ class PrintFireCoverNote extends StatelessWidget {
     );
   }
 
+  pw.Widget _buildFooterDetails() {
+    return pw.Column(
+      children: [
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text('Renewal No:'),
+                  pw.Text('${moneyreceipt.issuedAgainst} / ${moneyreceipt.bill?.policy.id ?? "N/A"} / ${formatDate(moneyreceipt.bill?.policy.date)}'),
+                  pw.Text('Checked by ________________'),
+                ],
+              ),
+            ),
+            pw.Expanded(
+              child: pw.Column(
+                children: [
+                  pw.Text('Fully Re-insured with'),
+                  pw.Text('Sadharan Bima Corporation'),
+                ],
+              ),
+            ),
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text('For & on behalf of'),
+                  pw.Text('Islami Insurance Com. Ltd.'),
+                  pw.Text('     Authorized Officer    ______________________'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+
+
+
+
   pw.TextStyle _headerTextStyle() {
     return pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold);
   }
@@ -142,7 +262,7 @@ class PrintFireCoverNote extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text('Fire Bill Details')),
+        title: const Center(child: Text('Fire Bill Cover Note')),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -156,7 +276,7 @@ class PrintFireCoverNote extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildRow('Fire Bill No:', '${moneyreceipt.bill?.policy.id ?? "N/A"}'),
             _buildRow('Issue Date:', '${formatDate(moneyreceipt.bill?.policy.date)}'),
@@ -181,7 +301,7 @@ class PrintFireCoverNote extends StatelessWidget {
 
                 await Printing.sharePdf(
                   bytes: pdfBytes,
-                  filename: 'fire_bill_information.pdf',
+                  filename: 'fire_bill_covernote.pdf',
                 );
               },
               child: const Text('Download PDF'),
@@ -241,4 +361,7 @@ class PrintFireCoverNote extends StatelessWidget {
   double getTotalPremiumWithTax() {
     return getTotalPremium() + getTotalTax();
   }
+
+
+
 }

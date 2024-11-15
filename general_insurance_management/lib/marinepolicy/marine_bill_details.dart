@@ -12,7 +12,7 @@ class AllMarineBillDetails extends StatelessWidget {
   static const double _fontSize = 14;
 
   // Function to create PDF with table format
-  Future<void> _generatePdf(BuildContext context) async {
+  Future<pw.Document> _generatePdf(BuildContext context) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -38,10 +38,7 @@ class AllMarineBillDetails extends StatelessWidget {
       ),
     );
 
-    await Printing.sharePdf(
-      bytes: await pdf.save(),
-      filename: 'marine_bill_information.pdf',
-    );
+    return pdf;
   }
 
   // Helper methods for building PDF sections
@@ -49,14 +46,12 @@ class AllMarineBillDetails extends StatelessWidget {
     return pw.Center(
       child: pw.Column(
         children: [
-          pw.Text("ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড",
-              style:
-                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+
           pw.Text("Islami Insurance Com. Bangladesh Ltd",
               style:
-                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                  pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
           pw.Text(
-              "DR Tower (14th floor), 65/2/2, Box Culvert Road, Purana Paltan, Dhaka-1000."),
+              "DR Tower (14th floor), 65/2/2,Purana Paltan, Dhaka-1000."),
           pw.Text("Tel: 02478853405, Mob: 01763001787"),
           pw.Text("Fax: +88 02 55112742"),
           pw.Text("Email: infociclbd.com"),
@@ -71,9 +66,9 @@ class AllMarineBillDetails extends StatelessWidget {
       data: [
         [
           'Marine Bill No',
-          '${marineBill.marineDetails?.id ?? "N/A"}',
+          '${marineBill.marineDetails.id ?? "N/A"}',
           'Issue Date',
-          '${marineBill.marineDetails?.date?.toLocal().toString().split(' ')[0] ?? "N/A"}'
+          '${marineBill.marineDetails.date?.toLocal().toString().split(' ')[0] ?? "N/A"}'
           // Format date to show only the date
         ],
       ],
@@ -87,12 +82,12 @@ class AllMarineBillDetails extends StatelessWidget {
         pw.Text("Insured Details", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
-            ['Bank Name', '${marineBill.marineDetails?.bankName ?? "N/A"}'],
+            ['Bank Name', '${marineBill.marineDetails.bankName ?? "N/A"}'],
             [
               'Policyholder',
-              '${marineBill.marineDetails?.policyholder ?? "N/A"}'
+              '${marineBill.marineDetails.policyholder ?? "N/A"}'
             ],
-            ['Address', '${marineBill.marineDetails?.address ?? "N/A"}'],
+            ['Address', '${marineBill.marineDetails.address ?? "N/A"}'],
           ],
         ),
       ],
@@ -108,12 +103,12 @@ class AllMarineBillDetails extends StatelessWidget {
           data: [
             [
               'Sum Insured Usd',
-              '${marineBill.marineDetails?.sumInsuredUsd ?? "N/A"} Usd'
+              '${marineBill.marineDetails.sumInsuredUsd ?? "N/A"} Usd'
             ],
-            ['Usd Rate', '${marineBill.marineDetails?.usdRate ?? "N/A"} '],
+            ['Usd Rate', '${marineBill.marineDetails.usdRate ?? "N/A"} '],
             [
               'Sum Insured',
-              '${marineBill.marineDetails?.sumInsured ?? "N/A"} TK'
+              '${marineBill.marineDetails.sumInsured ?? "N/A"} TK'
             ],
           ],
         ),
@@ -128,10 +123,10 @@ class AllMarineBillDetails extends StatelessWidget {
         pw.Text("Situation", style: _headerTextStyle()),
         pw.Table.fromTextArray(
           data: [
-            ['Voyage From', '${marineBill.marineDetails?.voyageFrom ?? "N/A"}'],
-            ['Voyage To', '${marineBill.marineDetails?.voyageTo ?? "N/A"}'],
-            ['Interest Insured', '${marineBill.marineDetails?.via ?? "N/A"}'],
-            ['Coverage', '${marineBill.marineDetails?.coverage ?? "N/A"}'],
+            ['Voyage From', '${marineBill.marineDetails.voyageFrom ?? "N/A"}'],
+            ['Voyage To', '${marineBill.marineDetails.voyageTo ?? "N/A"}'],
+            ['Interest Insured', '${marineBill.marineDetails.via ?? "N/A"}'],
+            ['Coverage', '${marineBill.marineDetails.coverage ?? "N/A"}'],
           ],
         ),
       ],
@@ -210,32 +205,32 @@ class AllMarineBillDetails extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildRow(
-                'Marine Bill No:', '${marineBill.marineDetails?.id ?? "N/A"}'),
+                'Marine Bill No:', '${marineBill.marineDetails.id ?? "N/A"}'),
             _buildRow('Issue Date:',
-                '${marineBill.marineDetails?.date?.toLocal().toString().split(' ')[0] ?? "N/A"}'), // Format date to show only the date
+                '${marineBill.marineDetails.date?.toLocal().toString().split(' ')[0] ?? "N/A"}'), // Format date to show only the date
             _buildRow(
-                'Bank Name:', '${marineBill.marineDetails?.bankName ?? "N/A"}'),
+                'Bank Name:', '${marineBill.marineDetails.bankName ?? "N/A"}'),
             _buildRow('Policyholder:',
-                '${marineBill.marineDetails?.policyholder ?? "N/A"}'),
+                '${marineBill.marineDetails.policyholder ?? "N/A"}'),
             _buildRow(
-                'Address:', '${marineBill.marineDetails?.address ?? "N/A"}'),
+                'Address:', '${marineBill.marineDetails.address ?? "N/A"}'),
             _buildRow('Sum Insured Usd:',
-                '${marineBill.marineDetails?.sumInsuredUsd ?? "N/A"} Usd'),
+                '${marineBill.marineDetails.sumInsuredUsd ?? "N/A"} Usd'),
             _buildRow(
-                'Usd Rate:', '${marineBill.marineDetails?.usdRate ?? "N/A"}'),
+                'Usd Rate:', '${marineBill.marineDetails.usdRate ?? "N/A"}'),
             _buildRow('Sum Insured:',
-                '${marineBill.marineDetails?.sumInsured ?? "N/A"} TK'),
+                '${marineBill.marineDetails.sumInsured ?? "N/A"} TK'),
             _buildRow('Voyage From:',
-                '${marineBill.marineDetails?.voyageFrom ?? "N/A"}'),
+                '${marineBill.marineDetails.voyageFrom ?? "N/A"}'),
             _buildRow(
-                'Voyage To:', '${marineBill.marineDetails?.voyageTo ?? "N/A"}'),
+                'Voyage To:', '${marineBill.marineDetails.voyageTo ?? "N/A"}'),
             _buildRow('Interest Insured:',
-                '${marineBill.marineDetails?.via ?? "N/A"}'),
+                '${marineBill.marineDetails.via ?? "N/A"}'),
             _buildRow(
-                'Coverage:', '${marineBill.marineDetails?.coverage ?? "N/A"}'),
+                'Coverage:', '${marineBill.marineDetails.coverage ?? "N/A"}'),
             _buildRow(
                 'Marine Rate:', '${marineBill.marineRate ?? "N/A"}'),
             _buildRow(
@@ -250,8 +245,26 @@ class AllMarineBillDetails extends StatelessWidget {
                 'Gross Premiumy:', '${marineBill.grossPremium ?? "N/A"}'),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => _generatePdf(context),
+              onPressed: () async {
+                final pdf = await _generatePdf(context);  // Generate PDF
+                final pdfBytes = await pdf.save(); // Get the bytes of the generated PDF
+
+                await Printing.sharePdf(
+                  bytes: pdfBytes,
+                  filename: 'marine_bill_information.pdf',
+                );
+              },
               child: const Text('Download PDF'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                await Printing.layoutPdf(onLayout: (PdfPageFormat format) async {
+                  final pdf = await _generatePdf(context);  // Generate PDF
+                  return pdf.save();  // Return the saved bytes for printing
+                });
+              },
+              child: const Text('Print View'),
             ),
           ],
         ),
@@ -273,14 +286,14 @@ class AllMarineBillDetails extends StatelessWidget {
   double getTotalMarine() {
     double marineRateValue = (marineBill.marineRate ?? 0).toDouble();
     double sumInsuredValue =
-        (marineBill.marineDetails?.sumInsured ?? 0).toDouble();
+        (marineBill.marineDetails.sumInsured ?? 0).toDouble();
     return (sumInsuredValue * (marineRateValue / 100)).roundToDouble();
   }
 
   double getTotalwarSrcc() {
     double warSrccRateValue = (marineBill.warSrccRate ?? 0).toDouble();
     double sumInsuredValue =
-        (marineBill.marineDetails?.sumInsured ?? 0).toDouble();
+        (marineBill.marineDetails.sumInsured ?? 0).toDouble();
     return (sumInsuredValue * (warSrccRateValue / 100)).roundToDouble();
   }
 

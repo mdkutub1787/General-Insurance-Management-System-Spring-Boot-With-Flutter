@@ -13,7 +13,7 @@ class PrintFireMoneyReceipt extends StatelessWidget {
   static const double _fontSize = 14;
 
   // Function to create PDF with table format
-  Future<void> _generatePdf(BuildContext context) async {
+  Future<pw.Document> _generatePdf(BuildContext context) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -27,18 +27,17 @@ class PrintFireMoneyReceipt extends StatelessWidget {
               _buildFireBillInfo(),
               pw.SizedBox(height: 10),
               _buildInsuredDetails(),
-              pw.SizedBox(height: 10),
+              pw.SizedBox(height: 20),
               _buildPremiumAndTaxDetails(),
+              pw.SizedBox(height: 20),
+              _buildContactInfo(),
             ],
           );
         },
       ),
     );
 
-    await Printing.sharePdf(
-      bytes: await pdf.save(),
-      filename: 'fire_bill_money_receipt.pdf',
-    );
+    return pdf;
   }
 
   // Helper methods for building PDF sections
@@ -46,9 +45,8 @@ class PrintFireMoneyReceipt extends StatelessWidget {
     return pw.Center(
       child: pw.Column(
         children: [
-          pw.Text("ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড", style: _headerTextStyle(fontSize: 18)),
-          pw.Text("Islami Insurance Com. Bangladesh Ltd", style: _headerTextStyle(fontSize: 18)),
-          pw.Text("DR Tower (14th floor), 65/2/2, Box Culvert Road, Purana Paltan, Dhaka-1000.", style: _textStyle()),
+          pw.Text("Islami Insurance Com. Bangladesh Ltd", style: _headerTextStyle(fontSize: 20)),
+          pw.Text("DR Tower (14th floor), 65/2/2,Purana Paltan, Dhaka-1000.", style: _textStyle()),
           pw.Text("Tel: 02478853405, Mob: 01763001787", style: _textStyle()),
           pw.Text("Fax: +88 02 55112742", style: _textStyle()),
           pw.Text("Email: infociclbd.com", style: _textStyle()),
@@ -59,15 +57,23 @@ class PrintFireMoneyReceipt extends StatelessWidget {
   }
 
   pw.Widget _buildFireBillInfo() {
-    return pw.Table.fromTextArray(
-      data: [
-        [
-          'Fire Bill No', moneyreceipt.bill?.policy.id ?? "N/A",
-          ' Date', formatDate(moneyreceipt.date as DateTime?) ?? "N/A"
-        ],
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        pw.Text("Fire Money Receipt", style: _headerTextStyle()),
+        pw.SizedBox(height: 10),
+        pw.Table.fromTextArray(
+          data: [
+            [
+              'Fire Bill No', moneyreceipt.bill?.policy.id ?? "N/A",
+              'Date', formatDate(moneyreceipt.date as DateTime?) ?? "N/A"
+            ],
+          ],
+        ),
       ],
     );
   }
+
 
   pw.Widget _buildInsuredDetails() {
     return pw.Table.fromTextArray(
@@ -127,6 +133,40 @@ class PrintFireMoneyReceipt extends StatelessWidget {
     );
   }
 
+  pw.Widget _buildContactInfo() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        pw.SizedBox(height: 20),  // Spacer for top margin
+        pw.Text(
+          "This receipt is computer-generated; an authorized signature is not required.",
+          style: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+        pw.SizedBox(height: 5),  // Spacer between paragraphs
+        pw.Text(
+          "Receipt is valid subject to the encashment of cheque/P.O./D.D.",
+          style: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+        pw.SizedBox(height: 5),  // Spacer between paragraphs
+        pw.Text(
+          "Note: For any complaints regarding insurance, please call 16130.",
+          style: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+        pw.SizedBox(height: 20),  // Spacer for bottom margin
+      ],
+    );
+  }
+
+
   // Helper method to create a cell with consistent padding
   pw.Widget _buildCell(String text, {pw.TextStyle? style}) {
     return pw.Padding(
@@ -143,11 +183,13 @@ class PrintFireMoneyReceipt extends StatelessWidget {
     return pw.TextStyle(fontSize: _fontSize);
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fire Money Receipt'),
+        title: const Center(child: Text('Fire Money Receipt')),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -161,13 +203,31 @@ class PrintFireMoneyReceipt extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ..._buildInfoRows(),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => _generatePdf(context),
+              onPressed: () async {
+                final pdf = await _generatePdf(context);  // Generate PDF
+                final pdfBytes = await pdf.save(); // Get the bytes of the generated PDF
+
+                await Printing.sharePdf(
+                  bytes: pdfBytes,
+                  filename: 'fire_bill_moneyreceipt.pdf',
+                );
+              },
               child: const Text('Download PDF'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                await Printing.layoutPdf(onLayout: (PdfPageFormat format) async {
+                  final pdf = await _generatePdf(context);  // Generate PDF
+                  return pdf.save();  // Return the saved bytes for printing
+                });
+              },
+              child: const Text('Print View'),
             ),
           ],
         ),

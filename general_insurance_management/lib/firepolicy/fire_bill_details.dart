@@ -160,7 +160,7 @@ class AllFireBillDetails extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildRow('Fire Bill No:', '${bill.policy.id ?? "N/A"}'),
             _buildRow('Issue Date:', '${formatDate(bill.policy.date)}'),

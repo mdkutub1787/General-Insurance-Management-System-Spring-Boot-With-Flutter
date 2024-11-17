@@ -8,45 +8,45 @@ class User extends StatefulWidget {
 }
 
 class _UserState extends State<User> {
-  void _logout() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).pushReplacementNamed('/login'); // Adjust this route as needed
-              },
-              child: const Text('Logout'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Dashboard'),
-        backgroundColor: Colors.green,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout, // Call the logout method
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              'ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            Text(
+              'mdkutub150@gmail.com, +8801763001787',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ],
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green, Colors.blue, Colors.lightGreen, Colors.teal],
+            ),
           ),
-        ],
+        ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: CircleAvatar(
+              backgroundImage: NetworkImage(
+                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQntUidjT9ib73xOZ_LYOvhZg9bSvlU9hOGjaWbTALttUeqeEjJUWKJHbT4r1UqjFM3caQ&usqp=CAU',
+              ),
+            ),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -54,7 +54,7 @@ class _UserState extends State<User> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Hello, User!',
+              'Hello, Local Office!',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

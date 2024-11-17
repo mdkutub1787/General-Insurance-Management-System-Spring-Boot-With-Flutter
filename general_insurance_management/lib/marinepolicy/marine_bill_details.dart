@@ -61,16 +61,25 @@ class AllMarineBillDetails extends StatelessWidget {
     );
   }
 
+
+
   pw.Widget _buildFireBillInfo() {
-    return pw.Table.fromTextArray(
-      data: [
-        [
-          'Marine Bill No',
-          '${marineBill.marineDetails.id ?? "N/A"}',
-          'Issue Date',
-          '${marineBill.marineDetails.date?.toLocal().toString().split(' ')[0] ?? "N/A"}'
-          // Format date to show only the date
-        ],
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        pw.Text("Marine Bill Information", style: _headerTextStyle()),
+        pw.SizedBox(height: 10),
+        pw.Table.fromTextArray(
+          data: [
+            [
+              'Marine Bill No',
+              '${marineBill.marineDetails.id ?? "N/A"}',
+              'Issue Date',
+              '${marineBill.marineDetails.date?.toLocal().toString().split(' ')[0] ?? "N/A"}'
+              // Format date to show only the date
+            ],
+          ],
+        ),
       ],
     );
   }

@@ -59,10 +59,19 @@ class AllFireBillDetails extends StatelessWidget {
     );
   }
 
+
+
   pw.Widget _buildFireBillInfo() {
-    return pw.Table.fromTextArray(
-      data: [
-        ['Fire Bill No', '${bill.policy.id ?? "N/A"}', 'Issue Date', '${formatDate(bill.policy.date)}'],
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        pw.Text("Fire Bill Information", style: _headerTextStyle()),
+        pw.SizedBox(height: 10),
+        pw.Table.fromTextArray(
+          data: [
+          ['Fire Bill No', '${bill.policy.id ?? "N/A"}', 'Issue Date', '${formatDate(bill.policy.date)}'],
+          ],
+        ),
       ],
     );
   }

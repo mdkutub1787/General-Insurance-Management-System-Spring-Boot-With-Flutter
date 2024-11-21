@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/page/Head_Office.dart';
-import 'package:general_insurance_management/page/User.dart';
+import 'package:general_insurance_management/page/Local_Office.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -43,9 +43,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     {"img": "https://cdn-icons-png.flaticon.com/128/2485/2485104.png", "title": "Marine Policy"},
     {"img": "https://cdn-icons-png.flaticon.com/128/14173/14173808.png", "title": "Marine Bill"},
     {"img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png", "title": "Marine Money Receipt"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/4961/4961759.png", "title": "Support"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/1055/1055644.png", "title": "Fire Bill Reports"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/3534/3534063.png", "title": "Marine Bill Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/12245/12245214.png", "title": "Fire Policy Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/9621/9621072.png", "title": "Fire Bill Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/2783/2783924.png", "title": "Marine Bill Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/438/438036.png", "title": "Marine Policy Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/1055/1055644.png", "title": "Fire Money Receipt Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/3270/3270753.png", "title": "Marine Money Receipt Reports"},
+
   ];
 
   final List<String> cardRoutes = [
@@ -55,9 +59,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     '/viewmarinepolicy',
     '/viewmarinebill',
     '/viewmarinemoneyreceipt',
-    '/viewsupport',
+    '/viewpolicyreport',
     '/viewfirereports',
     '/viewmarinereports',
+    '/viewmarinereports',
+    '/viewfiremoneyreceiptreports',
+    '/viewmarinemoneyreceiptreports',
   ];
 
   @override
@@ -316,7 +323,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             Navigator.push(context, MaterialPageRoute(builder: (_) => const HeadOffice()));
           }),
           _buildBottomNavButton(context, 'Local Office', Icons.location_city, () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const User()));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalOffice()));
           }),
           _buildBottomNavButton(context, 'Home', Icons.home, () {}),
           _buildBottomNavButton(context, 'Search', Icons.search, () {}),

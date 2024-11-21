@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/page/Head_Office.dart';
 import 'package:general_insurance_management/page/Local_Office.dart';
-import 'package:general_insurance_management/page/User.dart';
 import 'package:general_insurance_management/page/registration.dart';
 import 'package:general_insurance_management/service/Auth_Service.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,18 +43,13 @@ class _LoginState extends State<Login> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => LocalOffice(
-              officeName: 'Kushtia',
-              address: '123 Main St, Cityville',
-              contactNumber: '01763001787',
-              workingHours: 'Mon-Fri, 9 AM - 5 PM',
-            ),
+            builder: (context) => LocalOffice(),
           ),
         );
       } else if (role == 'USER') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => User()),
+          MaterialPageRoute(builder: (context) => LocalOffice()),
         );
       } else {
         print('Unknown role: $role');
@@ -228,4 +222,19 @@ class _LoginState extends State<Login> {
     );
   }
 }
+
+void main() async {
+  AuthService authService = AuthService();
+
+
+  // Simulating login
+  bool isLoggedIn = await authService.login('test@example.com', 'password123');
+
+  if (isLoggedIn) {
+    print('Login successful.');
+  } else {
+    print('Login failed.');
+  }
+}
+
 

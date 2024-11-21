@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/Reports/Combind_Money_Receipt_Report.dart';
 import 'package:general_insurance_management/Reports/Combind_Report.dart';
+import 'package:general_insurance_management/Reports/Fire_Policy_Report.dart';
+import 'package:general_insurance_management/Reports/Marine_Policy_Report.dart';
 import 'package:general_insurance_management/Reports/Total_Fire_Bill_Report_Page.dart';
+import 'package:general_insurance_management/Reports/Total_Fire_Money_Receipt_Report.dart';
+import 'package:general_insurance_management/Reports/Total_Marine_Money_Receipt_Report.dart';
 import 'package:general_insurance_management/firepolicy/view_fire_bill.dart';
 import 'package:general_insurance_management/firepolicy/view_fire_policy.dart';
 import 'package:general_insurance_management/Reports/Total_Marine_Bill_Report.dart';
@@ -40,9 +45,14 @@ class _MyAppState extends State<MyApp> {
         '/viewmarinepolicy': (context) => AllMarinePolicyView(),
         '/viewmarinebill': (context) => AllMarineBillView(),
         '/viewmarinemoneyreceipt': (context) => AllMarineMoneyReceiptView(),
+        '/viewpolicyreport': (context) => FirePolicyReportPage(),
         '/viewfirereports': (context) => FireBillReportPage(),
         '/viewmarinereports': (context) => MarineBillReportPage(),
         '/viewcombindreports': (context) => CombinedReport(),
+        '/viewmarinereports': (context) => MarinePolicyReportPage(),
+        '/viewfiremoneyreceiptreports': (context) => FireMoneyReceiptReportPage(),
+        '/viewmarinemoneyreceiptreports': (context) => MarineMoneyReceiptReportPage(),
+        '/viewcombindmoneyreports': (context) => CombinedMoneyReceiptReport(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (context) => Scaffold(

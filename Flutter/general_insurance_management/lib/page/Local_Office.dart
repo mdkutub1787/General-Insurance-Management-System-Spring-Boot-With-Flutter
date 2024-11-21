@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class User extends StatefulWidget {
-  const User({super.key});
+class LocalOffice extends StatefulWidget {
+  const LocalOffice({super.key});
 
   @override
-  State<User> createState() => _UserState();
+  State<LocalOffice> createState() => _LocalOfficeState();
 }
 
-class _UserState extends State<User> {
+class _LocalOfficeState extends State<LocalOffice> {
 
 
   @override

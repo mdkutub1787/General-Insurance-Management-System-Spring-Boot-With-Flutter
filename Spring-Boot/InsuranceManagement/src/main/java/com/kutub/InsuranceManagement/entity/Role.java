@@ -5,5 +5,5 @@ public enum Role {
 
     USER,
 
-    PHARMACIST
+
 }

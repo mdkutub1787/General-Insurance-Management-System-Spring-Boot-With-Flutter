@@ -200,7 +200,25 @@ public class AuthService {
         }
     }
 
-
+//    public void logout(String token) {
+//        // Find the token in the token repository
+//        Token storedToken = tokenRepository.findByToken(token)
+//                .orElseThrow(() -> new RuntimeException("Invalid token"));
+//
+//        // Check if the token is already logged out
+//        if (storedToken.isLoggedOut()) {
+//            throw new RuntimeException("User is already logged out");
+//        }
+//
+//        // Mark the token as logged out
+//        storedToken.setLoggedOut(true);
+//
+//        // Save the updated token state to the token repository
+//        tokenRepository.save(storedToken);
+//
+//        // Optionally revoke all active tokens for the user
+//        revokeAllTokenByUser(storedToken.getUser());
+//    }
 
 
 }

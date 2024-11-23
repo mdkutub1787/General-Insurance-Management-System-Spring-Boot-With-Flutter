@@ -1,156 +1,373 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 class LocalOffice extends StatefulWidget {
   const LocalOffice({super.key});
 
   @override
-  State<LocalOffice> createState() => _LocalOfficeState();
+  _LocalOfficeState createState() => _LocalOfficeState();
 }
 
-class _LocalOfficeState extends State<LocalOffice> {
+class _LocalOfficeState extends State<LocalOffice> with SingleTickerProviderStateMixin {
+  int _carouselIndex = 0;
+  late PageController _pageController;
+  Timer? _timer;
+  int _hoverIndex = -1;
+  late AnimationController _animationController;
 
+  static const List<String> _images = [
+    'https://www.shutterstock.com/image-photo/family-house-car-protected-by-260nw-1502368643.jpg',
+    'https://www.shutterstock.com/image-photo/insurer-protecting-family-house-car-260nw-1295560780.jpg',
+    'https://png.pngtree.com/template/20220516/ourmid/pngtree-insurance-policy-banner-template-flat-design-illustration-editable-of-square-background-image_1571396.jpg',
+  ];
+
+  static const List<String> _texts = [
+    'সবার চোখের সামনেই তাদের ভবিষ্যত থাকে',
+    'এটাকে শুধু পরিকল্পনা অনুযায়ী সাজিয়ে নিতে হয়',
+    'জীবনে অনেক কাজে আসতে পারে ',
+  ];
+
+  static const List<Color> _colors = [
+    Colors.purple,
+    Colors.green,
+    Colors.lime,
+  ];
+
+  final List<Map<String, String>> myItems = [
+    {"img": "https://cdn-icons-png.flaticon.com/128/1973/1973100.png", "title": "Fire Policy"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/1861/1861925.png", "title": "Fire Bill"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/3705/3705833.png", "title": "Fire Money Receipt"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/2485/2485104.png", "title": "Marine Policy"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/14173/14173808.png", "title": "Marine Bill"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png", "title": "Marine Money Receipt"},
+
+  ];
+
+  final List<String> cardRoutes = [
+    '/viewfirepolicy',
+    '/viewfirebill',
+    '/viewfiremoneyreceipt',
+    '/viewmarinepolicy',
+    '/viewmarinebill',
+    '/viewmarinemoneyreceipt',
+
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startAutoPageChange();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      lowerBound: 0.95,
+      upperBound: 1.05,
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoPageChange() {
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      setState(() {
+        _carouselIndex = (_carouselIndex + 1) % _images.length;
+      });
+      _pageController.animateToPage(
+        _carouselIndex,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            Text(
-              'mdkutub150@gmail.com, +8801763001787',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          ],
-        ),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.green, Colors.blue, Colors.lightGreen, Colors.teal],
-            ),
+      appBar: _buildAppBar(),
+      drawer: _buildDrawer(),
+      body: _buildBody(),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Text(
+            'ইসলামী ইন্স্যুরেন্স কোম্পানী বাংলাদেশ লিমিটেড',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
           ),
-        ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: CircleAvatar(
-              backgroundImage: NetworkImage(
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQntUidjT9ib73xOZ_LYOvhZg9bSvlU9hOGjaWbTALttUeqeEjJUWKJHbT4r1UqjFM3caQ&usqp=CAU',
-              ),
-            ),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
+          Text('mdkutub150@gmail.com, +8801763001787',
+              style: TextStyle(fontSize: 12 ,fontWeight: FontWeight.bold,color: Colors.white)),
+        ],
+      ),
+      centerTitle: true,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.green, Colors.blue, Colors.lightGreen, Colors.teal],
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Hello, Local Office!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: CircleAvatar(
+            backgroundImage: NetworkImage(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQntUidjT9ib73xOZ_LYOvhZg9bSvlU9hOGjaWbTALttUeqeEjJUWKJHbT4r1UqjFM3caQ&usqp=CAU',
             ),
-            const SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: _buildInfoCard('Policy Status', 'Active', Colors.green)),
-                const SizedBox(width: 8),
-                Expanded(child: _buildInfoCard('Claims Made', '2', Colors.orange)),
-                const SizedBox(width: 8),
-                Expanded(child: _buildInfoCard('Account Balance', '\$5,000', Colors.blue)),
-              ],
-            ),
-            const SizedBox(height: 25),
-            Text(
-              'Quick Actions',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                _buildActionCard('View Policies', Icons.policy, Colors.blueAccent, '/home'),
-                _buildActionCard('File a Claim', Icons.file_upload, Colors.redAccent, '/claim'),
-                _buildActionCard('Payment History', Icons.history, Colors.purple, '/paymentHistory'),
-                _buildActionCard('Settings', Icons.settings, Colors.grey, '/settings'),
-              ],
-            ),
-          ],
+          ),
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
         ),
       ),
     );
   }
 
-  Widget _buildInfoCard(String title, String data, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Text(
-            data,
-            style: TextStyle(
-              color: color,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+  Drawer _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blueAccent, Colors.greenAccent, Colors.orangeAccent],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage('https://avatars.githubusercontent.com/u/158472932?v=4&size=64'),
+                ),
+                const SizedBox(height: 10),
+                const Text('Welcome, User!', style: TextStyle(color: Colors.white, fontSize: 20)),
+                const Text('mdkutub150@example.com', style: TextStyle(color: Colors.white70)),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              color: color,
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
+          _buildDrawerItem(context, Icons.person, 'Profile', '/profile'),
+          _buildDrawerItem(context, Icons.contact_mail, 'Contact Us', '/contact'),
+          _buildDrawerItem(context, Icons.location_city, 'Local Office', '/localOffice'),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () => _logout(context), // Call the logout function
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionCard(String title, IconData icon, Color color, String route) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.4,
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pushNamed(context, route);
+  Future<void> _logout(BuildContext context) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all stored preferences (including token)
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false); // Navigate to login page
+  }
+
+  Widget _buildDrawerItem(BuildContext context, IconData icon, String label, String route) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      onTap: () {
+        Navigator.pushNamed(context, route);
+      },
+    );
+  }
+
+  Widget _buildBody() {
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: Column(
+        children: [
+          _buildCarousel(),
+          const SizedBox(height: 15),
+          _buildGrid(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCarousel() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10.0),
+      child: SizedBox(
+        height: 160,
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: _images.length,
+          onPageChanged: (index) {
+            setState(() {
+              _carouselIndex = index;
+            });
+          },
+          itemBuilder: (context, index) {
+            return Container(
+              color: _colors[index],
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(_images[index], fit: BoxFit.cover),
+                  Positioned(
+                    bottom: 10,
+                    left: 10,
+                    right: 10,
+                    child: Text(
+                      _texts[index],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                        backgroundColor: Colors.white70,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGrid() {
+    return Expanded(
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 1.2,
+        ),
+        itemCount: myItems.length,
+        itemBuilder: (context, index) {
+          final item = myItems[index];
+          return GestureDetector(
+            onTap: () {
+              if (index < cardRoutes.length) {
+                Navigator.pushNamed(context, cardRoutes[index]);
+              }
+            },
+            child: MouseRegion(
+              onEnter: (_) => setState(() {
+                _hoverIndex = index;
+              }),
+              onExit: (_) => setState(() {
+                _hoverIndex = -1;
+              }),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                transform: Matrix4.identity()
+                  ..scale(_hoverIndex == index ? 1.1 : 1.0),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    if (_hoverIndex == index)
+                      BoxShadow(
+                        color: Colors.cyan.withOpacity(0.2),
+                        spreadRadius: 3,
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                  ],
+                ),
+                child: Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.network(item["img"]!, height: 50),
+                      const SizedBox(height: 10),
+                      Text(
+                        item["title"]!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
         },
-        child: Container(
-          padding: const EdgeInsets.all(12),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BottomAppBar(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildBottomNavButton(context, 'Local Office', Icons.location_city, () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalOffice()));
+          }),
+          _buildBottomNavButton(context, 'Home', Icons.home, () {}),
+          _buildBottomNavButton(context, 'Notifications', Icons.notifications, () {}),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNavButton(
+      BuildContext context, String label, IconData icon, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: MouseRegion(
+        onEnter: (_) => setState(() {
+          _hoverIndex = label.hashCode;  // Use a unique hash for each label
+        }),
+        onExit: (_) => setState(() {
+          _hoverIndex = -1;
+        }),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          transform: Matrix4.identity()
+            ..scale(_hoverIndex == label.hashCode ? 1.2 : 1.0), // Scale on hover
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              if (_hoverIndex == label.hashCode)
+                BoxShadow(
+                  color: Colors.cyan.withOpacity(0.2), // Light blue shadow on hover
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 28, color: color),
-              const SizedBox(height: 8),
+              Icon(
+                icon,
+                color: _hoverIndex == label.hashCode ? Colors.green : Colors.blue,
+                size: _hoverIndex == label.hashCode ? 30 : 24, // Increase icon size on hover
+              ),
               Text(
-                title,
+                label,
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: _hoverIndex == label.hashCode ? Colors.pinkAccent : Colors.blue,
+                  fontStyle: _hoverIndex == label.hashCode ? FontStyle.italic : FontStyle.normal, // Optional italic on hover
                 ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -158,4 +375,7 @@ class _LocalOfficeState extends State<LocalOffice> {
       ),
     );
   }
+
+
 }
+

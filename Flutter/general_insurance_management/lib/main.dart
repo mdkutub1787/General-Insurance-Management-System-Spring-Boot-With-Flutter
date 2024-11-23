@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
               child: Text("The page you're looking for doesn't exist.")),
         ),
       ),
-      home: HeadOffice(),
+      home: Login(),
     );
   }
 }

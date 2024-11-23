@@ -12,6 +12,7 @@ import 'package:general_insurance_management/Reports/Total_Marine_Bill_Report.da
 import 'package:general_insurance_management/marinepolicy/view_maeine_bill.dart';
 import 'package:general_insurance_management/marinepolicy/view_marine_money_receipt.dart';
 import 'package:general_insurance_management/marinepolicy/view_marine_policy.dart';
+import 'package:general_insurance_management/page/Head_Office.dart';
 import 'package:general_insurance_management/page/Home.dart';
 import 'package:general_insurance_management/page/login.dart';
 import 'package:general_insurance_management/page/registration.dart';
@@ -61,7 +62,7 @@ class _MyAppState extends State<MyApp> {
               child: Text("The page you're looking for doesn't exist.")),
         ),
       ),
-      home: Login(),
+      home: HeadOffice(),
     );
   }
 }

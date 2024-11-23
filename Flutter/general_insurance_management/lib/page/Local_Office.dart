@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/service/Auth_Service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -177,6 +178,7 @@ class _LocalOfficeState extends State<LocalOffice> with SingleTickerProviderStat
   Future<void> _logout(BuildContext context) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // Clear all stored preferences (including token)
+    await AuthService().logout();
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false); // Navigate to login page
   }
 

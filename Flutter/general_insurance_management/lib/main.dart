@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
         '/viewfirereports': (context) => FireBillReportPage(),
         '/viewmarinereports': (context) => MarineBillReportPage(),
         '/viewcombindreports': (context) => CombinedReport(),
-        '/viewmarinereports': (context) => MarinePolicyReportPage(),
+        '/viewmarinepolicyreports': (context) => MarinePolicyReportPage(),
         '/viewfiremoneyreceiptreports': (context) => FireMoneyReceiptReportPage(),
         '/viewmarinemoneyreceiptreports': (context) => MarineMoneyReceiptReportPage(),
         '/viewcombindmoneyreports': (context) => CombinedMoneyReceiptReport(),

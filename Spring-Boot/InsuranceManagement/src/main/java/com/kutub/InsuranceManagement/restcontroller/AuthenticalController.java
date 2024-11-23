@@ -56,40 +56,6 @@ public class AuthenticalController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authorizationHeader) {
-        // Check if the authorization header is missing or invalid
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or missing token.");
-        }
-
-        // Extract the token from the authorization header
-        String token = authorizationHeader.replace("Bearer ", "").trim();
-
-        // Find the token in the repository
-        Optional<Token> storedTokenOpt = tokenRepository.findByToken(token);
-        if (storedTokenOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token not found or already invalidated.");
-        }
-
-        Token storedToken = storedTokenOpt.get();
-
-        // Check if the token is already logged out
-        if (storedToken.isLoggedOut()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token already logged out.");
-        }
-
-        // Mark the token as logged out
-        storedToken.setLoggedOut(true);
-        tokenRepository.save(storedToken);
-
-        // Revoke all other tokens for the user (if necessary)
-        authService.revokeAllTokenByUser(storedToken.getUser());
-
-        // Return success message
-        return ResponseEntity.ok("Logout successful, token invalidated.");
-    }
-
 
 
 }

@@ -100,12 +100,60 @@ class AuthService {
     }
   }
 
-  /// Log out the user by clearing stored data.
-  Future<void> logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('authToken');
-    await prefs.remove('userRole');
+  /// Notify the backend about logout to invalidate the token.
+  Future<void> notifyServerLogout() async {
+    final url = Uri.parse('$baseUrl/logout');
+    final token = await getToken();
+
+    if (token != null) {
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      try {
+        final response = await http.post(url, headers: headers);
+        if (response.statusCode != 200) {
+          print('Failed to notify server of logout: ${response.body}');
+        }
+      } catch (e) {
+        print('Error notifying server of logout: $e');
+      }
+    }
   }
+
+  /// Log out the user by clearing stored data and notifying the server.
+  /// Log out the user by clearing stored data and notifying the server.
+  Future<void> logout() async {
+    final token = await getToken();
+
+    if (token != null) {
+      final url = Uri.parse('$baseUrl/logout');
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      try {
+        // Notify backend server about logout
+        final response = await http.post(url, headers: headers);
+
+        if (response.statusCode == 200) {
+          print('Successfully notified server about logout.');
+        } else {
+          print('Server logout notification failed: ${response.body}');
+        }
+      } catch (e) {
+        print('Error notifying server of logout: $e');
+      }
+    }
+
+    // Clear all stored user-related data
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all user-related data
+    print('Local user data cleared.');
+  }
+
 
   /// Check if the user has a specific role.
   Future<bool> hasRole(List<String> roles) async {

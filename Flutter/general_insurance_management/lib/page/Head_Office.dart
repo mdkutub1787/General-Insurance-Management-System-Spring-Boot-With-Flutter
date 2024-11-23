@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/page/Logout.dart';
+import 'package:general_insurance_management/service/Auth_Service.dart';
 
 class HeadOffice extends StatefulWidget {
   const HeadOffice({Key? key}) : super(key: key);
@@ -113,7 +114,11 @@ class _HeadOfficeState extends State<HeadOffice> {
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
-              onPressed: () {
+              onPressed: () async {
+                // Perform logout
+                await AuthService().logout();
+
+                // Navigate to the Logout page
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => Logout()),
@@ -122,14 +127,15 @@ class _HeadOfficeState extends State<HeadOffice> {
               icon: const Icon(Icons.logout),
               label: const Text('Logout'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: Colors.red, // Button background color
+                foregroundColor: Colors.white, // Text and icon color
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
                 ),
               ),
             )
+
 
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:general_insurance_management/page/Logout.dart';
 
 class HeadOffice extends StatefulWidget {
   const HeadOffice({Key? key}) : super(key: key);
@@ -13,30 +14,7 @@ class _HeadOfficeState extends State<HeadOffice> {
     super.initState();
   }
 
-  void _logout() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pushReplacementNamed('/login');
-              },
-              child: const Text('Logout'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +113,12 @@ class _HeadOfficeState extends State<HeadOffice> {
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
-              onPressed: _logout,
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Logout()),
+                );
+              },
               icon: const Icon(Icons.logout),
               label: const Text('Logout'),
               style: ElevatedButton.styleFrom(
@@ -146,7 +129,8 @@ class _HeadOfficeState extends State<HeadOffice> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-            ),
+            )
+
           ],
         ),
       ),

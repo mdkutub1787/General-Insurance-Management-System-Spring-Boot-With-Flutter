@@ -14,8 +14,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final TextEditingController email = TextEditingController();
-  final TextEditingController password = TextEditingController();
+final TextEditingController email = TextEditingController()..text = 'mdkutub150@gmail.com';
+final TextEditingController password = TextEditingController()..text = '000000';
   final _formKey = GlobalKey<FormState>();
   final storage = FlutterSecureStorage();
   final AuthService authService = AuthService();
@@ -25,43 +25,56 @@ class _LoginState extends State<Login> {
   bool _isLoginHovered = false;
   bool _isRegisterHovered = false;
 
-  Future<void> login(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) return;
+Future<void> login(BuildContext context) async {
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => isLoading = true);
+  setState(() => isLoading = true);
 
-    try {
-      final response = await authService.login(email.text, password.text);
-      final role = await authService.getUserRole();
+  try {
+    final response = await authService.login(email.text, password.text);
+    final role = await authService.getUserRole();
 
-      if (role == 'ADMIN') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HeadOffice()),
-        );
-      } else if (role == 'LocalOffice') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => LocalOffice(),
-          ),
-        );
-      } else if (role == 'USER') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LocalOffice()),
-        );
-      } else {
-        print('Unknown role: $role');
-      }
-    } catch (error) {
-      print('Login failed: $error');
-    } finally {
-      setState(() => isLoading = false);
+    if (role == 'ADMIN') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HeadOffice()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Welcome to Head Office!')),
+      );
+    } else if (role == 'LocalOffice') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LocalOffice()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Welcome to Local Office!')),
+      );
+    } else if (role == 'USER') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LocalOffice()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Welcome to Local Office!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email or password is incorrect.')),
+      );
     }
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Login failed: $error')),
+    );
+    print('Login failed: $error');
+  } finally {
+    setState(() => isLoading = false);
   }
+}
 
-  @override
+
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(

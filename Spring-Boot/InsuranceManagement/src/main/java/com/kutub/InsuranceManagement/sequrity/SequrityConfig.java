@@ -41,7 +41,7 @@ public class SequrityConfig {
                         .authorizeHttpRequests(
 
                                 req ->
-                                        req.requestMatchers("/login", "/register", "/register/admin", "/activate/**",
+                                        req.requestMatchers("/login","/logout", "/register", "/register/admin", "/activate/**",
                                                         "api/**"
                                                 )
                                                 .permitAll()

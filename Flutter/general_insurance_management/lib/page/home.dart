@@ -61,8 +61,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     '/viewmarinemoneyreceipt',
     '/viewpolicyreport',
     '/viewfirereports',
-    '/viewmarinepolicyreports',
     '/viewmarinereports',
+    '/viewmarinereport',
     '/viewfiremoneyreceiptreports',
     '/viewmarinemoneyreceiptreports',
   ];

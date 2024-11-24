@@ -26,13 +26,8 @@ public class BillController {
 
     // Save a new bill
     @PostMapping("/save")
-    public ResponseEntity<String> saveBill(@RequestBody Bill b) {
-        try {
-            billService.saveBill(b);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Bill saved successfully.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public void saveBill(@RequestBody Bill b) {
+        billService.saveBill(b);
     }
 
     // Update an existing bill

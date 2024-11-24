@@ -25,7 +25,7 @@ public class BillService {
 
     // Save a new Bill with calculations
     public Bill saveBill(Bill bill) {
-        // Fetch the related policy to ensure it's valid
+        // Validate and fetch the related policy
         Policy policy = policyRepository.findById(bill.getPolicy().getId())
                 .orElseThrow(() -> new RuntimeException("Policy not found with ID: " + bill.getPolicy().getId()));
 
@@ -41,16 +41,16 @@ public class BillService {
 
     // Update an existing Bill by ID
     public Bill updateBill(Bill updatedBill, int id) {
+        // Fetch the existing bill
         Bill existingBill = billRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bill not found with ID: " + id));
 
-        // Update the fields
+        // Update fields
         existingBill.setFire(updatedBill.getFire());
         existingBill.setRsd(updatedBill.getRsd());
         existingBill.setTax(updatedBill.getTax());
-        existingBill.setPolicy(updatedBill.getPolicy());
 
-        // Recalculate the premiums
+        // Recalculate premiums
         calculatePremiums(existingBill);
 
         // Save the updated bill
@@ -83,27 +83,41 @@ public class BillService {
 
     // Calculation method for premiums
     private void calculatePremiums(Bill bill) {
-        double fireRate = bill.getFire() / 100; // Fire rate in percentage
-        double rsdRate = bill.getRsd() / 100;   // RSD rate in percentage
-        double taxRate = bill.getTax() / 100;   // Tax rate in percentage
+        double fireRate = bill.getFire() / 100.0; // Fire rate as a fraction
+        double rsdRate = bill.getRsd() / 100.0;   // RSD rate as a fraction
+        double taxRate = bill.getTax() / 100.0;   // Tax rate as a fraction
 
-        // Get the sum insured from the related Policy
+        // Get the sum insured from the related policy
         double sumInsured = bill.getPolicy().getSumInsured();
 
         // Calculate net premium
         double netPremium = (sumInsured * fireRate) + (sumInsured * rsdRate);
         bill.setNetPremium(roundToTwoDecimalPlaces(netPremium));
 
-        // Calculate tax on net premium
+        // Calculate tax
         double tax = netPremium * taxRate;
+        bill.setTax(roundToTwoDecimalPlaces(tax));
 
         // Calculate gross premium
         double grossPremium = netPremium + tax;
         bill.setGrossPremium(roundToTwoDecimalPlaces(grossPremium));
     }
 
-    // Method to round to two decimal places
+    // Round values to two decimal places
     private double roundToTwoDecimalPlaces(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    // Update all bills when policy sumInsured changes
+    public void updateBillsForPolicy(Policy updatedPolicy) {
+        // Fetch bills associated with the policy
+        List<Bill> bills = billRepository.findBillsByPolicyId(updatedPolicy.getId());
+
+        // Update each bill
+        for (Bill bill : bills) {
+            bill.setPolicy(updatedPolicy); // Update policy reference
+            calculatePremiums(bill); // Recalculate premiums
+            billRepository.save(bill); // Save the updated bill
+        }
     }
 }

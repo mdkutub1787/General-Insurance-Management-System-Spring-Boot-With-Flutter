@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("api/bill")
 @CrossOrigin(origins = "http://localhost:4200/")
@@ -18,20 +17,25 @@ public class BillController {
     @Autowired
     private BillService billService;
 
-
+    // Get all bills
     @GetMapping("/")
-    public List<Bill> getAllBills() {
-        return billService.getAllBill();
+    public ResponseEntity<List<Bill>> getAllBills() {
+        List<Bill> bills = billService.getAllBill();
+        return ResponseEntity.ok(bills);
     }
 
-
-
+    // Save a new bill
     @PostMapping("/save")
-    public void saveBill(@RequestBody Bill b) {
-        billService.saveBill(b);
+    public ResponseEntity<String> saveBill(@RequestBody Bill b) {
+        try {
+            billService.saveBill(b);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Bill saved successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
-
+    // Update an existing bill
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateBill(@PathVariable int id, @RequestBody Bill b) {
         try {
@@ -42,33 +46,39 @@ public class BillController {
         }
     }
 
-
+    // Delete a bill by ID
     @DeleteMapping("/delete/{id}")
-    public void deleteBillById(@PathVariable int id) {
-        billService.deleteBill(id);
+    public ResponseEntity<String> deleteBillById(@PathVariable int id) {
+        try {
+            billService.deleteBill(id);
+            return ResponseEntity.ok("Bill deleted successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     // Get bill by ID
     @GetMapping("/{id}")
     public ResponseEntity<Bill> getBillById(@PathVariable int id) {
-        Bill bill = billService.getBillById(id);
-        return ResponseEntity.ok(bill);
+        try {
+            Bill bill = billService.getBillById(id);
+            return ResponseEntity.ok(bill);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
-    // Search bills by policyholder
+    // Search bills by policyholder name
     @GetMapping("/searchpolicyholder")
-    public List<Bill> getBillsByPolicyholder(@RequestParam String policyholder) {
-        return billService.getBillsByPolicyholder(policyholder);
+    public ResponseEntity<List<Bill>> getBillsByPolicyholder(@RequestParam String policyholder) {
+        List<Bill> bills = billService.getBillsByPolicyholder(policyholder);
+        return ResponseEntity.ok(bills);
     }
 
-
-
+    // Search bills by policy ID
     @GetMapping("/searchpolicyid")
     public ResponseEntity<List<Bill>> findBillsByPolicyId(@RequestParam("policyid") int policyid) {
         List<Bill> bills = billService.findBillByPolicyId(policyid);
         return ResponseEntity.ok(bills);
     }
-
-
-
 }

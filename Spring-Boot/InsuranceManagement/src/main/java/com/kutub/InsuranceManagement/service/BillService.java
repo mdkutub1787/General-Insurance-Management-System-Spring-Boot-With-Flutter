@@ -17,6 +17,7 @@ public class BillService {
 
     @Autowired
     private PolicyRepository policyRepository;
+    
 
     // Get all Bills
     public List<Bill> getAllBill() {
@@ -48,7 +49,8 @@ public class BillService {
         // Update fields
         existingBill.setFire(updatedBill.getFire());
         existingBill.setRsd(updatedBill.getRsd());
-        existingBill.setTax(updatedBill.getTax());
+
+        // Tax rate is fixed at 15%, no update needed
 
         // Recalculate premiums
         calculatePremiums(existingBill);
@@ -82,28 +84,28 @@ public class BillService {
     }
 
     // Calculation method for premiums
+    // Calculation method for premiums
     private void calculatePremiums(Bill bill) {
-        double fireRate = bill.getFire() / 100.0; // Fire rate as a fraction
-        double rsdRate = bill.getRsd() / 100.0;   // RSD rate as a fraction
-        double taxRate = bill.getTax() / 100.0;   // Tax rate as a fraction
+        double fireRate = bill.getFire() / 100; // Fire rate in percentage
+        double rsdRate = bill.getRsd() / 100;   // RSD rate in percentage
+        double taxRate = bill.getTax() / 100;   // Tax rate in percentage
 
-        // Get the sum insured from the related policy
+        // Get the sum insured from the related Policy
         double sumInsured = bill.getPolicy().getSumInsured();
 
         // Calculate net premium
         double netPremium = (sumInsured * fireRate) + (sumInsured * rsdRate);
         bill.setNetPremium(roundToTwoDecimalPlaces(netPremium));
 
-        // Calculate tax
+        // Calculate tax on net premium
         double tax = netPremium * taxRate;
-        bill.setTax(roundToTwoDecimalPlaces(tax));
 
         // Calculate gross premium
         double grossPremium = netPremium + tax;
         bill.setGrossPremium(roundToTwoDecimalPlaces(grossPremium));
     }
 
-    // Round values to two decimal places
+    // Method to round to two decimal places
     private double roundToTwoDecimalPlaces(double value) {
         return Math.round(value * 100.0) / 100.0;
     }

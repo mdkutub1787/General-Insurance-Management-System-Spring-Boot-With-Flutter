@@ -220,7 +220,7 @@ class _FireBillReportPageState extends State<FireBillReportPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 100),
               AnimatedScale(
                 duration: const Duration(milliseconds: 300),
                 scale: _buttonScale,

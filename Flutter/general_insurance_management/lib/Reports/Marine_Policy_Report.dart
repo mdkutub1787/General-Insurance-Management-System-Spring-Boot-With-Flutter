@@ -125,7 +125,7 @@ class _MarinePolicyReportPageState extends State<MarinePolicyReportPage> {
                   const SizedBox(height: 20),
                 ],
               ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 200),
               ElevatedButton(
                 onPressed: () => Navigator.pushNamed(context, '/home'),
                 child: const Text('Go to Home', style: TextStyle(fontWeight: FontWeight.bold)),

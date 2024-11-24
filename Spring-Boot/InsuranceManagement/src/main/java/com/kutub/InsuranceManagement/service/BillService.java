@@ -17,7 +17,7 @@ public class BillService {
 
     @Autowired
     private PolicyRepository policyRepository;
-    
+
 
     // Get all Bills
     public List<Bill> getAllBill() {
@@ -26,7 +26,7 @@ public class BillService {
 
     // Save a new Bill with calculations
     public Bill saveBill(Bill bill) {
-        // Validate and fetch the related policy
+        // Fetch the related policy to ensure it's valid
         Policy policy = policyRepository.findById(bill.getPolicy().getId())
                 .orElseThrow(() -> new RuntimeException("Policy not found with ID: " + bill.getPolicy().getId()));
 
@@ -73,17 +73,8 @@ public class BillService {
                 .orElseThrow(() -> new RuntimeException("Bill not found with ID: " + id));
     }
 
-    // Find bills by policyholder name
-    public List<Bill> getBillsByPolicyholder(String policyholder) {
-        return billRepository.findBillsByPolicyholder(policyholder);
-    }
 
-    // Find bills by the associated policy ID
-    public List<Bill> findBillByPolicyId(int policyId) {
-        return billRepository.findBillsByPolicyId(policyId);
-    }
 
-    // Calculation method for premiums
     // Calculation method for premiums
     private void calculatePremiums(Bill bill) {
         double fireRate = bill.getFire() / 100; // Fire rate in percentage
@@ -121,5 +112,18 @@ public class BillService {
             calculatePremiums(bill); // Recalculate premiums
             billRepository.save(bill); // Save the updated bill
         }
+    }
+
+
+
+
+    // Find bills by policyholder name
+    public List<Bill> getBillsByPolicyholder(String policyholder) {
+        return billRepository.findBillsByPolicyholder(policyholder);
+    }
+
+    // Find bills by the associated policy ID
+    public List<Bill> findBillByPolicyId(int policyId) {
+        return billRepository.findBillsByPolicyId(policyId);
     }
 }

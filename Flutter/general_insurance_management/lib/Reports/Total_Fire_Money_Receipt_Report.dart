@@ -222,7 +222,7 @@ class _FireMoneyReceiptReportPageState extends State<FireMoneyReceiptReportPage>
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 100),
               AnimatedScale(
                 duration: const Duration(milliseconds: 300),
                 scale: _buttonScale,

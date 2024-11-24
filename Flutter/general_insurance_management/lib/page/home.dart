@@ -45,9 +45,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     {"img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png", "title": "Marine Money Receipt"},
     {"img": "https://cdn-icons-png.flaticon.com/128/12245/12245214.png", "title": "Fire Policy Reports"},
     {"img": "https://cdn-icons-png.flaticon.com/128/9621/9621072.png", "title": "Fire Bill Reports"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/2783/2783924.png", "title": "Marine Bill Reports"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/438/438036.png", "title": "Marine Policy Reports"},
     {"img": "https://cdn-icons-png.flaticon.com/128/1055/1055644.png", "title": "Fire Money Receipt Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/438/438036.png", "title": "Marine Policy Reports"},
+    {"img": "https://cdn-icons-png.flaticon.com/128/2783/2783924.png", "title": "Marine Bill Reports"},
     {"img": "https://cdn-icons-png.flaticon.com/128/3270/3270753.png", "title": "Marine Money Receipt Reports"},
 
   ];
@@ -61,9 +61,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     '/viewmarinemoneyreceipt',
     '/viewpolicyreport',
     '/viewfirereports',
-    '/viewmarinereports',
-    '/viewmarinereport',
     '/viewfiremoneyreceiptreports',
+    '/viewmarinereport',
+    '/viewmarinereports',
     '/viewmarinemoneyreceiptreports',
   ];
 

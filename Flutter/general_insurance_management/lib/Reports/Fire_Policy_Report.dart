@@ -156,7 +156,7 @@ class _FirePolicyReportPageState extends State<FirePolicyReportPage> {
                   const SizedBox(height: 20),
                 ],
               ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 200),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/home');

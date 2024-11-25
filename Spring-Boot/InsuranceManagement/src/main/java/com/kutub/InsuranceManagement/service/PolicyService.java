@@ -44,7 +44,6 @@ public class PolicyService {
         // Update fields
         existingPolicy.setSumInsured(updatedPolicy.getSumInsured());
         existingPolicy.setPolicyholder(updatedPolicy.getPolicyholder());
-        existingPolicy.setCoverage(updatedPolicy.getCoverage());
 
         // Save the updated policy
         Policy savedPolicy = policyRepository.save(existingPolicy);

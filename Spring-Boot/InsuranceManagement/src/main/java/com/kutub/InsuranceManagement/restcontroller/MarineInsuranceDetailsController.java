@@ -1,6 +1,7 @@
 package com.kutub.InsuranceManagement.restcontroller;
 
 import com.kutub.InsuranceManagement.entity.MarineInsuranceDetails;
+import com.kutub.InsuranceManagement.entity.Policy;
 import com.kutub.InsuranceManagement.service.MarineInsuranceDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,27 +18,36 @@ public class MarineInsuranceDetailsController {
     @Autowired
     private MarineInsuranceDetailsService marineInsuranceDetailsService;
 
-    // Save new Marine Insurance details
-    @PostMapping("/save")
-    public ResponseEntity<MarineInsuranceDetails> createMarineInsurance(@RequestBody MarineInsuranceDetails marineInsuranceDetails) {
-        MarineInsuranceDetails createdMarineInsurance = marineInsuranceDetailsService.createOrUpdateMarineInsurance(marineInsuranceDetails);
-        return new ResponseEntity<>(createdMarineInsurance, HttpStatus.CREATED);
-    }
-
-    // Update existing Marine Insurance details by ID
-    @PutMapping("/update/{id}")
-    public ResponseEntity<MarineInsuranceDetails> updateMarineInsurance(@PathVariable long id, @RequestBody MarineInsuranceDetails marineInsuranceDetails) {
-        marineInsuranceDetails.setId(id);
-        MarineInsuranceDetails updatedMarineInsurance = marineInsuranceDetailsService.createOrUpdateMarineInsurance(marineInsuranceDetails);
-        return new ResponseEntity<>(updatedMarineInsurance, HttpStatus.OK);
-    }
-
     // Get all Marine Insurance details
     @GetMapping("/")
     public ResponseEntity<List<MarineInsuranceDetails>> getAllMarineInsuranceDetails() {
         List<MarineInsuranceDetails> marineInsuranceDetailsList = marineInsuranceDetailsService.findAll();
         return new ResponseEntity<>(marineInsuranceDetailsList, HttpStatus.OK);
     }
+
+    // Save new Marine Insurance details
+    @PostMapping("/save")
+    public ResponseEntity<String> saveMarineInsuranceDetails(@RequestBody MarineInsuranceDetails marineInsuranceDetails) {
+        marineInsuranceDetailsService.saveMarineInsuranceDetails(marineInsuranceDetails);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Marine Policy saved successfully.");
+    }
+
+
+    // Update an existing policy
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updateMarineInsurance(
+            @RequestBody MarineInsuranceDetails policy,
+            @PathVariable long id) {
+        try {
+            MarineInsuranceDetails updatedPolicy = marineInsuranceDetailsService.updateMarineInsuranceDetails(policy, id);
+            return ResponseEntity.ok("Marine Policy with ID " + id + " updated successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        }
+    }
+
+
+
 
     // Get Marine Insurance details by ID
     @GetMapping("/{id}")

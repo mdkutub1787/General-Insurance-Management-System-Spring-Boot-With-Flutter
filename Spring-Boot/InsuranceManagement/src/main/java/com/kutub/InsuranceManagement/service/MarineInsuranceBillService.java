@@ -1,6 +1,7 @@
 package com.kutub.InsuranceManagement.service;
 
 import com.kutub.InsuranceManagement.entity.MarineInsuranceBill;
+import com.kutub.InsuranceManagement.entity.MarineInsuranceDetails;
 import com.kutub.InsuranceManagement.repository.MarineInsuranceBillRepo;
 import com.kutub.InsuranceManagement.repository.MarineInsuranceDetailsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +23,23 @@ public class MarineInsuranceBillService {
         return marineInsuranceBillRepo.findAll();
     }
 
-    // Save a new Marine Insurance Bill with calculations
+
+
     public MarineInsuranceBill saveMarineInsuranceBill(MarineInsuranceBill bill) {
-        // Perform calculations
+        // Fetch the related policy to ensure it's valid
+        MarineInsuranceDetails marinePolicy = marineInsuranceDetailsRepo.findById(bill.getMarineDetails().getId())
+                .orElseThrow(() -> new RuntimeException("Policy not found with ID: " + bill.getMarineDetails().getId()));
+
+        // Associate the policy with the bill
+        bill.setMarineDetails(marinePolicy);
+
+        // Perform premium calculations
         calculatePremiums(bill);
+
+        // Save and return the bill
         return marineInsuranceBillRepo.save(bill);
     }
+
 
     // Update an existing Marine Insurance Bill with calculations
     public MarineInsuranceBill updateMarineInsuranceBill(MarineInsuranceBill updatedBill, long id) {
@@ -80,5 +92,31 @@ public class MarineInsuranceBillService {
     // Method to round to two decimal places
     private double roundToTwoDecimalPlaces(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+
+
+
+
+    // Update all bills when policy sumInsured changes
+    public void updateBillsForMarinePolicy(MarineInsuranceDetails updatedPolicy) {
+        // Fetch all bills linked to the given Marine Policy
+        List<MarineInsuranceBill> bills = marineInsuranceBillRepo.findMarineBillsByMarinePolicyId(updatedPolicy.getId());
+
+        if (bills.isEmpty()) {
+            System.out.println("No bills found for Marine Policy ID: " + updatedPolicy.getId());
+            return;
+        }
+
+        // Update each bill with the new policy details
+        for (MarineInsuranceBill bill : bills) {
+            bill.setMarineDetails(updatedPolicy); // Update reference
+
+            // Recalculate premium and other dependent fields
+            calculatePremiums(bill);
+
+            // Save the updated bill
+            marineInsuranceBillRepo.save(bill);
+        }
     }
 }

@@ -322,11 +322,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           _buildBottomNavButton(context, 'Head Office', Icons.location_city_rounded, () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const HeadOffice()));
           }),
-          _buildBottomNavButton(context, 'Local Office', Icons.location_city, () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalOffice()));
-          }),
+          // _buildBottomNavButton(context, 'Local Office', Icons.location_city, () {
+          //   Navigator.push(context, MaterialPageRoute(builder: (_) => const LocalOffice()));
+          // }),
           _buildBottomNavButton(context, 'Home', Icons.home, () {}),
-          _buildBottomNavButton(context, 'Search', Icons.search, () {}),
+          // _buildBottomNavButton(context, 'Search', Icons.search, () {}),
           _buildBottomNavButton(context, 'Notifications', Icons.notifications, () {}),
         ],
       ),

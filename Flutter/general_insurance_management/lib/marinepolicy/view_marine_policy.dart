@@ -165,6 +165,12 @@ class _AllMarinePolicyViewState extends State<AllMarinePolicyView> {
             ),
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamed(context,'/home');
+          },
+        ),
       ),
       body: Column(
         children: [

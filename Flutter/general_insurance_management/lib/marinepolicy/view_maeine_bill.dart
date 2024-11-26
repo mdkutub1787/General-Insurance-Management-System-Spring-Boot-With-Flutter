@@ -147,6 +147,12 @@ class _AllMarineBillViewState extends State<AllMarineBillView> {
             ),
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamed(context, '/home');
+          },
+        ),
       ),
       body: Column(
         children: [

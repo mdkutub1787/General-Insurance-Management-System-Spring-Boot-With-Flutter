@@ -147,6 +147,12 @@ class _AllFireBillViewState extends State<AllFireBillView> {
             ),
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamed(context, '/home');
+          },
+        ),
       ),
       body: Column(
         children: [

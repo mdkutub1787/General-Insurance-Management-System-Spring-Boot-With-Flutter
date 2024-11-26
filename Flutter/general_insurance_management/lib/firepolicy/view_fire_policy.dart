@@ -163,7 +163,14 @@ class _AllFirePolicyViewState extends State<AllFirePolicyView> {
             ),
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamed(context, '/home');
+          },
+        ),
       ),
+
       body: Column(
         children: [
           Padding(

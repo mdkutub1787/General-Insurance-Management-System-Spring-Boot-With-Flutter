@@ -145,6 +145,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
       ),
     );
+
   }
 
   Drawer _buildDrawer() {
@@ -194,17 +195,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildBody() {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Column(
-        children: [
-          _buildCarousel(),
-          const SizedBox(height: 15),
-          _buildGrid(),
-        ],
+    return Container(
+      color: Colors.green.withOpacity(0.1),
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          children: [
+            _buildCarousel(),
+            const SizedBox(height: 15),
+            _buildGrid(),
+          ],
+        ),
       ),
     );
   }
+
+
 
   Widget _buildCarousel() {
     return ClipRRect(
@@ -258,7 +264,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           crossAxisCount: 3,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 1.2,
+          childAspectRatio: 1.2,  // Adjust as needed for smaller card size
         ),
         itemCount: myItems.length,
         itemBuilder: (context, index) {
@@ -284,26 +290,47 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   boxShadow: [
                     if (_hoverIndex == index)
                       BoxShadow(
-                        color: Colors.cyan.withOpacity(0.2),
+                        color: Colors.amber.withOpacity(0.4),
                         spreadRadius: 3,
-                        blurRadius: 5,
+                        blurRadius: 8,  // A slightly higher blur for softer shadow
                         offset: const Offset(0, 2),
                       ),
+                    // Shadow on all sides when not hovering
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.2),  // Lighter shadow
+                      spreadRadius: 2,  // Slightly spread out
+                      blurRadius: 4,    // Slightly softer shadow
+                      offset: const Offset(0, 2),  // No specific offset to make it uniform
+                    ),
                   ],
                 ),
                 child: Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.network(item["img"]!, height: 50),
-                      const SizedBox(height: 10),
-                      Text(
-                        item["title"]!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),  // Rounded corners
+                  ),
+                  child: SizedBox(
+                    height: 100, // Adjust height for smaller card
+                    width: 100,  // Adjust width for smaller card
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          item["img"]!,
+                          height: 40,  // Smaller image size
+                          width: 40,   // Smaller image width
+                          fit: BoxFit.cover,  // Maintain aspect ratio
+                        ),
+                        const SizedBox(height: 8),  // Reduced space between image and text
+                        Text(
+                          item["title"]!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 10,  // Smaller font size
+                            fontWeight: FontWeight.bold,  // Bold text
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -313,6 +340,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
     );
   }
+
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomAppBar(
@@ -364,7 +392,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             children: [
               Icon(
                 icon,
-                color: _hoverIndex == label.hashCode ? Colors.green : Colors.blue,
+                color: _hoverIndex == label.hashCode ? Colors.blue : Colors.green,
                 size: _hoverIndex == label.hashCode ? 30 : 24, // Increase icon size on hover
               ),
               Text(
@@ -372,7 +400,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: _hoverIndex == label.hashCode ? Colors.pinkAccent : Colors.blue,
+                  color: _hoverIndex == label.hashCode ? Colors.pinkAccent : Colors.green,
                   fontStyle: _hoverIndex == label.hashCode ? FontStyle.italic : FontStyle.normal, // Optional italic on hover
                 ),
               ),

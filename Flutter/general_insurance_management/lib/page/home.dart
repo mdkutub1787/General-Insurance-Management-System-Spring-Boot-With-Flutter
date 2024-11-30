@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   backgroundImage: NetworkImage('https://avatars.githubusercontent.com/u/158472932?v=4&size=64'),
                 ),
                 const SizedBox(height: 10),
-                const Text('Welcome, User!', style: TextStyle(color: Colors.white, fontSize: 20)),
+                const Text('Welcome, Head Office!', style: TextStyle(color: Colors.white, fontSize: 20)),
                 const Text('mdkutub150@example.com', style: TextStyle(color: Colors.white70)),
               ],
             ),

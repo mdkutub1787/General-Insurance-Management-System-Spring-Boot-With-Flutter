@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:general_insurance_management/page/Head_Office.dart';
 import 'package:general_insurance_management/page/Local_Office.dart';
+import 'package:general_insurance_management/page/home.dart';
 import 'package:general_insurance_management/page/registration.dart';
 import 'package:general_insurance_management/service/Auth_Service.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,7 +38,7 @@ Future<void> login(BuildContext context) async {
     if (role == 'ADMIN') {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HeadOffice()),
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Welcome to Head Office!')),
@@ -222,7 +223,7 @@ Future<void> login(BuildContext context) async {
           elevation: _isRegisterHovered ? 12 : 4,
         ),
         child: Text(
-          isLoading ? "Loading..." : "Create an Account",
+          "Create an Account",
           style: GoogleFonts.lato(
             textStyle: TextStyle(
               fontWeight: FontWeight.bold,
@@ -231,6 +232,7 @@ Future<void> login(BuildContext context) async {
             ),
           ),
         ),
+
       ),
     );
   }

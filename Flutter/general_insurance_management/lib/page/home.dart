@@ -37,20 +37,56 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   ];
 
   final List<Map<String, String>> myItems = [
-    {"img": "https://cdn-icons-png.flaticon.com/128/1973/1973100.png", "title": "Fire Policy"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/1861/1861925.png", "title": "Fire Bill"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/3705/3705833.png", "title": "Fire Money Receipt"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/2485/2485104.png", "title": "Marine Policy"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/14173/14173808.png", "title": "Marine Bill"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png", "title": "Marine Money Receipt"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/12245/12245214.png", "title": "Fire Policy Reports"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/9621/9621072.png", "title": "Fire Bill Reports"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/1055/1055644.png", "title": "Fire Money Receipt Reports"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/438/438036.png", "title": "Marine Policy Reports"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/2783/2783924.png", "title": "Marine Bill Reports"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/3270/3270753.png", "title": "Marine Money Receipt Reports"},
-
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/1973/1973100.png",
+      "title": "Fire Policy"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/1861/1861925.png",
+      "title": "Fire Bill"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/3705/3705833.png",
+      "title": "Fire Money\nReceipt"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/2485/2485104.png",
+      "title": "Marine Policy"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/14173/14173808.png",
+      "title": "Marine Bill"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png",
+      "title": "Marine Money\nReceipt"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/12245/12245214.png",
+      "title": "Fire Policy\nReports"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/9621/9621072.png",
+      "title": "Fire Bill\nReports"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/1055/1055644.png",
+      "title": "Fire Money\nReceipt Reports"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/438/438036.png",
+      "title": "Marine Policy\nReports"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/2783/2783924.png",
+      "title": "Marine Bill\nReports"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/3270/3270753.png",
+      "title": "Marine Money\nReceipt Reports"
+    },
   ];
+
 
   final List<String> cardRoutes = [
     '/viewfirepolicy',

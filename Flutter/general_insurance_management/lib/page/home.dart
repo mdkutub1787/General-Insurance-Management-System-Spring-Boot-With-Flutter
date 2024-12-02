@@ -362,7 +362,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         item["title"]!,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

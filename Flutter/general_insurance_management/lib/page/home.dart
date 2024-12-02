@@ -196,21 +196,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildBody() {
     return Container(
-      color: Colors.green.withOpacity(0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            _buildCarousel(),
-            const SizedBox(height: 15),
-            _buildGrid(),
-          ],
+      color: Colors.green.withOpacity(0.1), // Background color
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // Align items to the start
+            children: [
+              _buildCarousel(),
+              const SizedBox(height: 15),
+              _buildGrid(),
+            ],
+          ),
         ),
       ),
     );
   }
-
-
 
   Widget _buildCarousel() {
     return ClipRRect(
@@ -258,88 +259,88 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildGrid() {
-    return Expanded(
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 1.2,  // Adjust as needed for smaller card size
-        ),
-        itemCount: myItems.length,
-        itemBuilder: (context, index) {
-          final item = myItems[index];
-          return GestureDetector(
-            onTap: () {
-              if (index < cardRoutes.length) {
-                Navigator.pushNamed(context, cardRoutes[index]);
-              }
-            },
-            child: MouseRegion(
-              onEnter: (_) => setState(() {
-                _hoverIndex = index;
-              }),
-              onExit: (_) => setState(() {
-                _hoverIndex = -1;
-              }),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                transform: Matrix4.identity()
-                  ..scale(_hoverIndex == index ? 1.1 : 1.0),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    if (_hoverIndex == index)
-                      BoxShadow(
-                        color: Colors.amber.withOpacity(0.4),
-                        spreadRadius: 3,
-                        blurRadius: 8,  // A slightly higher blur for softer shadow
-                        offset: const Offset(0, 2),
-                      ),
-                    // Shadow on all sides when not hovering
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(), // Disable scrolling within GridView
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 1.2, // Adjust as needed for card size
+      ),
+      itemCount: myItems.length,
+      itemBuilder: (context, index) {
+        final item = myItems[index];
+        return GestureDetector(
+          onTap: () {
+            if (index < cardRoutes.length) {
+              Navigator.pushNamed(context, cardRoutes[index]);
+            }
+          },
+          child: MouseRegion(
+            onEnter: (_) => setState(() {
+              _hoverIndex = index;
+            }),
+            onExit: (_) => setState(() {
+              _hoverIndex = -1;
+            }),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              transform: Matrix4.identity()
+                ..scale(_hoverIndex == index ? 1.1 : 1.0),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  if (_hoverIndex == index)
                     BoxShadow(
-                      color: Colors.green.withOpacity(0.2),  // Lighter shadow
-                      spreadRadius: 2,  // Slightly spread out
-                      blurRadius: 4,    // Slightly softer shadow
-                      offset: const Offset(0, 2),  // No specific offset to make it uniform
+                      color: Colors.amber.withOpacity(0.4),
+                      spreadRadius: 3,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                  ],
-                ),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),  // Rounded corners
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
                   ),
-                  child: SizedBox(
-                    height: 100, // Adjust height for smaller card
-                    width: 100,  // Adjust width for smaller card
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          item["img"]!,
-                          height: 40,  // Smaller image size
-                          width: 40,   // Smaller image width
-                          fit: BoxFit.cover,  // Maintain aspect ratio
+                ],
+              ),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.network(
+                        item["img"]!,
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        item["title"]!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 8),  // Reduced space between image and text
-                        Text(
-                          item["title"]!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 10,  // Smaller font size
-                            fontWeight: FontWeight.bold,  // Bold text
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
+
 
 
   Widget _buildBottomNavigationBar(BuildContext context) {

@@ -38,12 +38,31 @@ class _LocalOfficeState extends State<LocalOffice> with SingleTickerProviderStat
   ];
 
   final List<Map<String, String>> myItems = [
-    {"img": "https://cdn-icons-png.flaticon.com/128/1973/1973100.png", "title": "Fire Policy"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/1861/1861925.png", "title": "Fire Bill"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/3705/3705833.png", "title": "Fire Money Receipt"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/2485/2485104.png", "title": "Marine Policy"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/14173/14173808.png", "title": "Marine Bill"},
-    {"img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png", "title": "Marine Money Receipt"},
+
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/1973/1973100.png",
+      "title": "Fire Policy"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/1861/1861925.png",
+      "title": "Fire Bill"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/3705/3705833.png",
+      "title": "Fire Money\nReceipt"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/2485/2485104.png",
+      "title": "Marine Policy"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/14173/14173808.png",
+      "title": "Marine Bill"
+    },
+    {
+      "img": "https://cdn-icons-png.flaticon.com/128/9721/9721335.png",
+      "title": "Marine Money\nReceipt"
+    },
 
   ];
 
@@ -324,7 +343,7 @@ class _LocalOfficeState extends State<LocalOffice> with SingleTickerProviderStat
                         item["title"]!,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
